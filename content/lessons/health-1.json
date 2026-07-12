@@ -1,0 +1,44 @@
+{
+  "id": "health-1",
+  "title": "Здоровье",
+  "subtitle": "У врача, симптомы, лекарства",
+  "level": "A2",
+  "category": "phrases",
+  "lvaTheme": "leisure",
+  "duration": 18,
+  "sections": [
+    {
+      "title": "У врача",
+      "content": "Базовые фразы для визита к врачу — важно для жизни в Латвии.",
+      "examples": [
+        { "lv": "Man sāp galva.", "ru": "У меня болит голова." },
+        { "lv": "Man ir augsta temperatūra.", "ru": "У меня высокая температура." },
+        { "lv": "Vai Jūs varat izrakstīt zāles?", "ru": "Вы можете выписать лекарство?" }
+      ]
+    },
+    {
+      "title": "Самочувствие",
+      "content": "Как описать состояние здоровья.",
+      "examples": [
+        { "lv": "Es jūtos labi.", "ru": "Я чувствую себя хорошо." },
+        { "lv": "Es esmu slims.", "ru": "Я болен." },
+        { "lv": "Man vajag atpūtu.", "ru": "Мне нужен отдых." }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "hl1",
+      "type": "translate",
+      "question": "Переведите: врач",
+      "answer": "arsts"
+    },
+    {
+      "id": "hl2",
+      "type": "fill",
+      "question": "Man ___ galva. (болит)",
+      "answer": "sāp",
+      "hint": "Глагол sāpēt"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "grammar-adj-1",
+  "title": "Прилагательные и согласование",
+  "subtitle": "Род, число, степени сравнения",
+  "level": "A2",
+  "category": "grammar",
+  "lvaTheme": "education",
+  "duration": 20,
+  "sections": [
+    {
+      "title": "Согласование",
+      "content": "Прилагательное согласуется с существительным в роде и числе: labs vīrs, laba sieva, labi bērni.",
+      "examples": [
+        { "lv": "labs draugs", "ru": "хороший друг" },
+        { "lv": "laba draudzene", "ru": "хорошая подруга" },
+        { "lv": "labi bērni", "ru": "хорошие дети" }
+      ],
+      "tip": "Муж. -s, жен. -a, мн. -i (часто)"
+    },
+    {
+      "title": "Сравнение",
+      "content": "Сравнительная степень: -āk (labs → labāks). Превосходная: vis- + -ākais.",
+      "examples": [
+        { "lv": "lielāks", "ru": "больше" },
+        { "lv": "vislabākais", "ru": "лучший" },
+        { "lv": "mazāks", "ru": "меньше" }
+      ]
+    }
+  ],
+  "exercises": [
+    { "id": "adj1", "type": "choose", "question": "«Хорошая мать»:", "answer": "laba māte", "options": ["laba māte", "labs māte", "labi māte", "labu māte"] },
+    { "id": "adj2", "type": "translate", "question": "Переведите: лучший", "answer": "vislabākais", "hint": "vis- + labākais" }
+  ]
+}

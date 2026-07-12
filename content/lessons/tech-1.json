@@ -1,0 +1,43 @@
+{
+  "id": "tech-1",
+  "title": "Компьютер и интернет",
+  "subtitle": "Техника, связь, путь к B1",
+  "level": "A2",
+  "category": "phrases",
+  "lvaTheme": "science",
+  "duration": 16,
+  "sections": [
+    {
+      "title": "Технологии",
+      "content": "Словарь для цифровой жизни и подготовки к экзамену B1.",
+      "examples": [
+        { "lv": "Man vajag jaunu paroli.", "ru": "Мне нужен новый пароль." },
+        { "lv": "Internets nestrādā.", "ru": "Интернет не работает." },
+        { "lv": "Es nosūtīju e-pastu.", "ru": "Я отправил e-mail." }
+      ]
+    },
+    {
+      "title": "Связь",
+      "content": "Телефон и сообщения.",
+      "examples": [
+        { "lv": "Zvaniet man vēlāk.", "ru": "Позвоните мне позже." },
+        { "lv": "Es nevaru atbildēt.", "ru": "Я не могу ответить." }
+      ],
+      "tip": "На экзамене B1 часто встречаются темы технологий и общества."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "tc1",
+      "type": "translate",
+      "question": "Переведите: компьютер",
+      "answer": "dators"
+    },
+    {
+      "id": "tc2",
+      "type": "translate",
+      "question": "Переведите: пароль",
+      "answer": "parole"
+    }
+  ]
+}

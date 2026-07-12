@@ -1,0 +1,32 @@
+{
+  "id": "travel-1",
+  "title": "Путешествия",
+  "subtitle": "Отель, билеты, багаж",
+  "level": "A2",
+  "category": "phrases",
+  "lvaTheme": "environment",
+  "duration": 17,
+  "sections": [
+    {
+      "title": "В поездке",
+      "content": "Латвия — удобная база для поездок по Балтии. Полезная лексика для туристов.",
+      "examples": [
+        { "lv": "Es gribu rezervēt numuru.", "ru": "Я хочу забронировать номер." },
+        { "lv": "Kur ir platforma?", "ru": "Где платформа?" },
+        { "lv": "Mans lidojums ir aizkavēts.", "ru": "Мой рейс задержан." }
+      ]
+    },
+    {
+      "title": "На границе",
+      "content": "ES граждане — свободное передвижение. Другим может понадобиться виза.",
+      "examples": [
+        { "lv": "Šeit ir mana pase.", "ru": "Вот мой паспорт." },
+        { "lv": "Es braucu tūrisma nolūkā.", "ru": "Я еду как турист." }
+      ]
+    }
+  ],
+  "exercises": [
+    { "id": "tr1", "type": "translate", "question": "Переведите: билет", "answer": "biļete" },
+    { "id": "tr2", "type": "choose", "question": "«Отель» по-латышски:", "answer": "viesnīca", "options": ["viesnīca", "veikals", "bibliotēka", "slimnīca"] }
+  ]
+}

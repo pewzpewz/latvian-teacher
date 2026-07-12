@@ -1,0 +1,32 @@
+{
+  "id": "culture-2",
+  "title": "Праздники Латвии",
+  "subtitle": "Jāņi, Lieldienas, Ziemassvētki",
+  "level": "A2",
+  "category": "culture",
+  "lvaTheme": "culture",
+  "duration": 18,
+  "sections": [
+    {
+      "title": "Jāņi — главный праздник",
+      "content": "23. jūnijā latvieši svin Jāņus (Līgo). Tradicionāli dedzinā ugunskurus, dzied Līgo dziesmas un ēd sieru ar ķimeņiem.",
+      "examples": [
+        { "lv": "Līgo!", "ru": "Лиго! (приветствие на Jāņi)" },
+        { "lv": "Jāņu siers", "ru": "сыр Jāņi" },
+        { "lv": "līgo dziesma", "ru": "песня Līgo" }
+      ]
+    },
+    {
+      "title": "Другие праздники",
+      "content": "Lieldienas (Пасха), Ziemassvētki (Рождество), Neatkarības diena (18. novembris).",
+      "examples": [
+        { "lv": "Priecīgus Ziemassvētkus!", "ru": "С Рождеством!" },
+        { "lv": "Laimīgu Jauno gadu!", "ru": "С Новым годом!" }
+      ]
+    }
+  ],
+  "exercises": [
+    { "id": "cu1", "type": "choose", "question": "Главный летний праздник латышей:", "answer": "Jāņi", "options": ["Jāņi", "Helovīns", "Pateicības diena", "Valentīndiena"] },
+    { "id": "cu2", "type": "translate", "question": "Переведите: традиция", "answer": "tradīcija" }
+  ]
+}
