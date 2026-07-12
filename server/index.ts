@@ -251,7 +251,8 @@ app.put('/api/sync/:id', syncLimiter, (req, res) => {
 })
 
 if (process.env.NODE_ENV === 'production') {
-  const distPath = join(__dirname, '..', 'dist')
+  // Compiled server lives in server/dist/ — frontend build is at repo root dist/
+  const distPath = join(__dirname, '..', '..', 'dist')
   app.use(express.static(distPath))
   app.get('*', (_req, res) => {
     res.sendFile(join(distPath, 'index.html'))
