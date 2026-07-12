@@ -1,0 +1,712 @@
+/** AUTO-GENERATED — edit content/conjugations.json, then npm run build:content */
+export type ConjugationGroup = 'irregular' | 'conj1' | 'conj2' | 'reflexive'
+export type ConjugationPerson = '1sg' | '2sg' | '3sg' | '1pl' | '2pl' | '3pl'
+
+export type ConjugationDrill = {
+  id: string
+  lemma: string
+  lemmaRu: string
+  group: ConjugationGroup
+  tense: 'present'
+  person: ConjugationPerson
+  pronoun: string
+  form: string
+  promptRu: string
+  hint?: string
+  sentence?: { lv: string; ru: string }
+}
+
+export const CONJUGATION_PERSONS: { id: ConjugationPerson; pronoun: string; ru: string }[] = [
+  { id: '1sg', pronoun: 'es', ru: '1 л. ед.' },
+  { id: '2sg', pronoun: 'tu', ru: '2 л. ед.' },
+  { id: '3sg', pronoun: 'viņš/viņa', ru: '3 л. ед.' },
+  { id: '1pl', pronoun: 'mēs', ru: '1 л. мн.' },
+  { id: '2pl', pronoun: 'jūs', ru: '2 л. мн.' },
+  { id: '3pl', pronoun: 'viņi/viņas', ru: '3 л. мн.' },
+]
+
+export const CONJUGATION_GROUPS: { id: ConjugationGroup; label: string }[] = [
+  { id: 'irregular', label: 'Неправильные' },
+  { id: 'conj1', label: 'I (-āt)' },
+  { id: 'conj2', label: 'II (-īt/-ēt)' },
+  { id: 'reflexive', label: 'Возвратные (-ties)' },
+]
+
+export const conjugationDrills: ConjugationDrill[] = [
+  {
+    "id": "but-1sg",
+    "lemma": "būt",
+    "lemmaRu": "быть",
+    "group": "irregular",
+    "tense": "present",
+    "person": "1sg",
+    "pronoun": "es",
+    "form": "esmu",
+    "promptRu": "Настоящее время, 1 л. ед. (es): быть",
+    "hint": "Неправильный глагол — выучите наизусть",
+    "sentence": {
+      "lv": "Es esmu students.",
+      "ru": "Я студент."
+    }
+  },
+  {
+    "id": "but-2sg",
+    "lemma": "būt",
+    "lemmaRu": "быть",
+    "group": "irregular",
+    "tense": "present",
+    "person": "2sg",
+    "pronoun": "tu",
+    "form": "esi",
+    "promptRu": "Настоящее время, 2 л. ед. (tu): быть",
+    "hint": "Неправильный глагол — выучите наизусть",
+    "sentence": {
+      "lv": "Tu esi laimīgs.",
+      "ru": "Ты счастлив."
+    }
+  },
+  {
+    "id": "but-3sg",
+    "lemma": "būt",
+    "lemmaRu": "быть",
+    "group": "irregular",
+    "tense": "present",
+    "person": "3sg",
+    "pronoun": "viņš/viņa",
+    "form": "ir",
+    "promptRu": "Настоящее время, 3 л. ед. (viņš/viņa): быть",
+    "hint": "Неправильный глагол — выучите наизусть",
+    "sentence": {
+      "lv": "Viņa ir skolotāja.",
+      "ru": "Она учительница."
+    }
+  },
+  {
+    "id": "but-1pl",
+    "lemma": "būt",
+    "lemmaRu": "быть",
+    "group": "irregular",
+    "tense": "present",
+    "person": "1pl",
+    "pronoun": "mēs",
+    "form": "esam",
+    "promptRu": "Настоящее время, 1 л. мн. (mēs): быть",
+    "hint": "Неправильный глагол — выучите наизусть",
+    "sentence": {
+      "lv": "Mēs esam no Rīgas.",
+      "ru": "Мы из Риги."
+    }
+  },
+  {
+    "id": "but-2pl",
+    "lemma": "būt",
+    "lemmaRu": "быть",
+    "group": "irregular",
+    "tense": "present",
+    "person": "2pl",
+    "pronoun": "jūs",
+    "form": "esat",
+    "promptRu": "Настоящее время, 2 л. мн. (jūs): быть",
+    "hint": "Неправильный глагол — выучите наизусть",
+    "sentence": {
+      "lv": "Jūs esat viesi.",
+      "ru": "Вы гости."
+    }
+  },
+  {
+    "id": "but-3pl",
+    "lemma": "būt",
+    "lemmaRu": "быть",
+    "group": "irregular",
+    "tense": "present",
+    "person": "3pl",
+    "pronoun": "viņi/viņas",
+    "form": "ir",
+    "promptRu": "Настоящее время, 3 л. мн. (viņi/viņas): быть",
+    "hint": "Неправильный глагол — выучите наизусть",
+    "sentence": {
+      "lv": "Viņi ir draugi.",
+      "ru": "Они друзья."
+    }
+  },
+  {
+    "id": "iet-1sg",
+    "lemma": "iet",
+    "lemmaRu": "идти",
+    "group": "irregular",
+    "tense": "present",
+    "person": "1sg",
+    "pronoun": "es",
+    "form": "eju",
+    "promptRu": "Настоящее время, 1 л. ед. (es): идти",
+    "hint": "Корень меняется: eju, ej…",
+    "sentence": {
+      "lv": "Es eju uz skolu.",
+      "ru": "Я иду в школу."
+    }
+  },
+  {
+    "id": "iet-2sg",
+    "lemma": "iet",
+    "lemmaRu": "идти",
+    "group": "irregular",
+    "tense": "present",
+    "person": "2sg",
+    "pronoun": "tu",
+    "form": "ej",
+    "promptRu": "Настоящее время, 2 л. ед. (tu): идти",
+    "hint": "Корень меняется: eju, ej…",
+    "sentence": {
+      "lv": "Tu ej mājās.",
+      "ru": "Ты идёшь домой."
+    }
+  },
+  {
+    "id": "iet-3sg",
+    "lemma": "iet",
+    "lemmaRu": "идти",
+    "group": "irregular",
+    "tense": "present",
+    "person": "3sg",
+    "pronoun": "viņš/viņa",
+    "form": "iet",
+    "promptRu": "Настоящее время, 3 л. ед. (viņš/viņa): идти",
+    "hint": "Корень меняется: eju, ej…",
+    "sentence": {
+      "lv": "Viņš iet pa ielu.",
+      "ru": "Он идёт по улице."
+    }
+  },
+  {
+    "id": "iet-1pl",
+    "lemma": "iet",
+    "lemmaRu": "идти",
+    "group": "irregular",
+    "tense": "present",
+    "person": "1pl",
+    "pronoun": "mēs",
+    "form": "ejam",
+    "promptRu": "Настоящее время, 1 л. мн. (mēs): идти",
+    "hint": "Корень меняется: eju, ej…",
+    "sentence": {
+      "lv": "Mēs ejam uz parku.",
+      "ru": "Мы идём в парк."
+    }
+  },
+  {
+    "id": "iet-2pl",
+    "lemma": "iet",
+    "lemmaRu": "идти",
+    "group": "irregular",
+    "tense": "present",
+    "person": "2pl",
+    "pronoun": "jūs",
+    "form": "ejat",
+    "promptRu": "Настоящее время, 2 л. мн. (jūs): идти",
+    "hint": "Корень меняется: eju, ej…",
+    "sentence": {
+      "lv": "Jūs ejat ātri.",
+      "ru": "Вы идёте быстро."
+    }
+  },
+  {
+    "id": "iet-3pl",
+    "lemma": "iet",
+    "lemmaRu": "идти",
+    "group": "irregular",
+    "tense": "present",
+    "person": "3pl",
+    "pronoun": "viņi/viņas",
+    "form": "iet",
+    "promptRu": "Настоящее время, 3 л. мн. (viņi/viņas): идти",
+    "hint": "Корень меняется: eju, ej…",
+    "sentence": {
+      "lv": "Viņi iet uz darbu.",
+      "ru": "Они идут на работу."
+    }
+  },
+  {
+    "id": "runat-1sg",
+    "lemma": "runāt",
+    "lemmaRu": "говорить",
+    "group": "conj1",
+    "tense": "present",
+    "person": "1sg",
+    "pronoun": "es",
+    "form": "runāju",
+    "promptRu": "Настоящее время, 1 л. ед. (es): говорить",
+    "hint": "I спряжение (-āt): -āju, -ā, -ājam…",
+    "sentence": {
+      "lv": "Es runāju latviski.",
+      "ru": "Я говорю по-латышски."
+    }
+  },
+  {
+    "id": "runat-2sg",
+    "lemma": "runāt",
+    "lemmaRu": "говорить",
+    "group": "conj1",
+    "tense": "present",
+    "person": "2sg",
+    "pronoun": "tu",
+    "form": "runā",
+    "promptRu": "Настоящее время, 2 л. ед. (tu): говорить",
+    "hint": "I спряжение (-āt): -āju, -ā, -ājam…",
+    "sentence": {
+      "lv": "Tu runā skaidri.",
+      "ru": "Ты говоришь ясно."
+    }
+  },
+  {
+    "id": "runat-3sg",
+    "lemma": "runāt",
+    "lemmaRu": "говорить",
+    "group": "conj1",
+    "tense": "present",
+    "person": "3sg",
+    "pronoun": "viņš/viņa",
+    "form": "runā",
+    "promptRu": "Настоящее время, 3 л. ед. (viņš/viņa): говорить",
+    "hint": "I спряжение (-āt): -āju, -ā, -ājam…",
+    "sentence": {
+      "lv": "Viņa runā ar mani.",
+      "ru": "Она говорит со мной."
+    }
+  },
+  {
+    "id": "runat-1pl",
+    "lemma": "runāt",
+    "lemmaRu": "говорить",
+    "group": "conj1",
+    "tense": "present",
+    "person": "1pl",
+    "pronoun": "mēs",
+    "form": "runājam",
+    "promptRu": "Настоящее время, 1 л. мн. (mēs): говорить",
+    "hint": "I спряжение (-āt): -āju, -ā, -ājam…",
+    "sentence": {
+      "lv": "Mēs runājam par darbu.",
+      "ru": "Мы говорим о работе."
+    }
+  },
+  {
+    "id": "runat-2pl",
+    "lemma": "runāt",
+    "lemmaRu": "говорить",
+    "group": "conj1",
+    "tense": "present",
+    "person": "2pl",
+    "pronoun": "jūs",
+    "form": "runājat",
+    "promptRu": "Настоящее время, 2 л. мн. (jūs): говорить",
+    "hint": "I спряжение (-āt): -āju, -ā, -ājam…",
+    "sentence": {
+      "lv": "Jūs runājat angliski.",
+      "ru": "Вы говорите по-английски."
+    }
+  },
+  {
+    "id": "runat-3pl",
+    "lemma": "runāt",
+    "lemmaRu": "говорить",
+    "group": "conj1",
+    "tense": "present",
+    "person": "3pl",
+    "pronoun": "viņi/viņas",
+    "form": "runā",
+    "promptRu": "Настоящее время, 3 л. мн. (viņi/viņas): говорить",
+    "hint": "I спряжение (-āt): -āju, -ā, -ājam…",
+    "sentence": {
+      "lv": "Viņi runā klusi.",
+      "ru": "Они говорят тихо."
+    }
+  },
+  {
+    "id": "lasit-1sg",
+    "lemma": "lasīt",
+    "lemmaRu": "читать",
+    "group": "conj2",
+    "tense": "present",
+    "person": "1sg",
+    "pronoun": "es",
+    "form": "lasu",
+    "promptRu": "Настоящее время, 1 л. ед. (es): читать",
+    "hint": "II спряжение (-īt): -u, -i, -a, -ām…",
+    "sentence": {
+      "lv": "Es lasu grāmatu.",
+      "ru": "Я читаю книгу."
+    }
+  },
+  {
+    "id": "lasit-2sg",
+    "lemma": "lasīt",
+    "lemmaRu": "читать",
+    "group": "conj2",
+    "tense": "present",
+    "person": "2sg",
+    "pronoun": "tu",
+    "form": "lasi",
+    "promptRu": "Настоящее время, 2 л. ед. (tu): читать",
+    "hint": "II спряжение (-īt): -u, -i, -a, -ām…",
+    "sentence": {
+      "lv": "Tu lasi avīzi.",
+      "ru": "Ты читаешь газету."
+    }
+  },
+  {
+    "id": "lasit-3sg",
+    "lemma": "lasīt",
+    "lemmaRu": "читать",
+    "group": "conj2",
+    "tense": "present",
+    "person": "3sg",
+    "pronoun": "viņš/viņa",
+    "form": "lasa",
+    "promptRu": "Настоящее время, 3 л. ед. (viņš/viņa): читать",
+    "hint": "II спряжение (-īt): -u, -i, -a, -ām…",
+    "sentence": {
+      "lv": "Viņš lasa ziņas.",
+      "ru": "Он читает новости."
+    }
+  },
+  {
+    "id": "lasit-1pl",
+    "lemma": "lasīt",
+    "lemmaRu": "читать",
+    "group": "conj2",
+    "tense": "present",
+    "person": "1pl",
+    "pronoun": "mēs",
+    "form": "lasām",
+    "promptRu": "Настоящее время, 1 л. мн. (mēs): читать",
+    "hint": "II спряжение (-īt): -u, -i, -a, -ām…",
+    "sentence": {
+      "lv": "Mēs lasām kopā.",
+      "ru": "Мы читаем вместе."
+    }
+  },
+  {
+    "id": "lasit-2pl",
+    "lemma": "lasīt",
+    "lemmaRu": "читать",
+    "group": "conj2",
+    "tense": "present",
+    "person": "2pl",
+    "pronoun": "jūs",
+    "form": "lasāt",
+    "promptRu": "Настоящее время, 2 л. мн. (jūs): читать",
+    "hint": "II спряжение (-īt): -u, -i, -a, -ām…",
+    "sentence": {
+      "lv": "Jūs lasāt daudz.",
+      "ru": "Вы много читаете."
+    }
+  },
+  {
+    "id": "lasit-3pl",
+    "lemma": "lasīt",
+    "lemmaRu": "читать",
+    "group": "conj2",
+    "tense": "present",
+    "person": "3pl",
+    "pronoun": "viņi/viņas",
+    "form": "lasa",
+    "promptRu": "Настоящее время, 3 л. мн. (viņi/viņas): читать",
+    "hint": "II спряжение (-īt): -u, -i, -a, -ām…",
+    "sentence": {
+      "lv": "Viņi lasa pirms miega.",
+      "ru": "Они читают перед сном."
+    }
+  },
+  {
+    "id": "stradat-1sg",
+    "lemma": "strādāt",
+    "lemmaRu": "работать",
+    "group": "conj1",
+    "tense": "present",
+    "person": "1sg",
+    "pronoun": "es",
+    "form": "strādāju",
+    "promptRu": "Настоящее время, 1 л. ед. (es): работать",
+    "hint": "I спряжение (-āt)",
+    "sentence": {
+      "lv": "Es strādāju birojā.",
+      "ru": "Я работаю в офисе."
+    }
+  },
+  {
+    "id": "stradat-2sg",
+    "lemma": "strādāt",
+    "lemmaRu": "работать",
+    "group": "conj1",
+    "tense": "present",
+    "person": "2sg",
+    "pronoun": "tu",
+    "form": "strādā",
+    "promptRu": "Настоящее время, 2 л. ед. (tu): работать",
+    "hint": "I спряжение (-āt)",
+    "sentence": {
+      "lv": "Tu strādā mājās.",
+      "ru": "Ты работаешь дома."
+    }
+  },
+  {
+    "id": "stradat-3sg",
+    "lemma": "strādāt",
+    "lemmaRu": "работать",
+    "group": "conj1",
+    "tense": "present",
+    "person": "3sg",
+    "pronoun": "viņš/viņa",
+    "form": "strādā",
+    "promptRu": "Настоящее время, 3 л. ед. (viņš/viņa): работать",
+    "hint": "I спряжение (-āt)",
+    "sentence": {
+      "lv": "Viņa strādā skolā.",
+      "ru": "Она работает в школе."
+    }
+  },
+  {
+    "id": "stradat-1pl",
+    "lemma": "strādāt",
+    "lemmaRu": "работать",
+    "group": "conj1",
+    "tense": "present",
+    "person": "1pl",
+    "pronoun": "mēs",
+    "form": "strādājam",
+    "promptRu": "Настоящее время, 1 л. мн. (mēs): работать",
+    "hint": "I спряжение (-āt)",
+    "sentence": {
+      "lv": "Mēs strādājam kopā.",
+      "ru": "Мы работаем вместе."
+    }
+  },
+  {
+    "id": "stradat-2pl",
+    "lemma": "strādāt",
+    "lemmaRu": "работать",
+    "group": "conj1",
+    "tense": "present",
+    "person": "2pl",
+    "pronoun": "jūs",
+    "form": "strādājat",
+    "promptRu": "Настоящее время, 2 л. мн. (jūs): работать",
+    "hint": "I спряжение (-āt)",
+    "sentence": {
+      "lv": "Jūs strādājat smagi.",
+      "ru": "Вы тяжело работаете."
+    }
+  },
+  {
+    "id": "stradat-3pl",
+    "lemma": "strādāt",
+    "lemmaRu": "работать",
+    "group": "conj1",
+    "tense": "present",
+    "person": "3pl",
+    "pronoun": "viņi/viņas",
+    "form": "strādā",
+    "promptRu": "Настоящее время, 3 л. мн. (viņi/viņas): работать",
+    "hint": "I спряжение (-āt)",
+    "sentence": {
+      "lv": "Viņi strādā rūpnīcā.",
+      "ru": "Они работают на заводе."
+    }
+  },
+  {
+    "id": "macities-1sg",
+    "lemma": "mācīties",
+    "lemmaRu": "учиться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "1sg",
+    "pronoun": "es",
+    "form": "mācos",
+    "promptRu": "Настоящее время, 1 л. ед. (es): учиться",
+    "hint": "Возвратный: -os, -ies, -ās, -āmies…",
+    "sentence": {
+      "lv": "Es mācos latviešu valodu.",
+      "ru": "Я учу латышский язык."
+    }
+  },
+  {
+    "id": "macities-2sg",
+    "lemma": "mācīties",
+    "lemmaRu": "учиться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "2sg",
+    "pronoun": "tu",
+    "form": "mācies",
+    "promptRu": "Настоящее время, 2 л. ед. (tu): учиться",
+    "hint": "Возвратный: -os, -ies, -ās, -āmies…",
+    "sentence": {
+      "lv": "Tu mācies katru dienu.",
+      "ru": "Ты учишься каждый день."
+    }
+  },
+  {
+    "id": "macities-3sg",
+    "lemma": "mācīties",
+    "lemmaRu": "учиться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "3sg",
+    "pronoun": "viņš/viņa",
+    "form": "mācās",
+    "promptRu": "Настоящее время, 3 л. ед. (viņš/viņa): учиться",
+    "hint": "Возвратный: -os, -ies, -ās, -āmies…",
+    "sentence": {
+      "lv": "Viņš mācās universitātē.",
+      "ru": "Он учится в университете."
+    }
+  },
+  {
+    "id": "macities-1pl",
+    "lemma": "mācīties",
+    "lemmaRu": "учиться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "1pl",
+    "pronoun": "mēs",
+    "form": "mācāmies",
+    "promptRu": "Настоящее время, 1 л. мн. (mēs): учиться",
+    "hint": "Возвратный: -os, -ies, -ās, -āmies…",
+    "sentence": {
+      "lv": "Mēs mācāmies kopā.",
+      "ru": "Мы учимся вместе."
+    }
+  },
+  {
+    "id": "macities-2pl",
+    "lemma": "mācīties",
+    "lemmaRu": "учиться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "2pl",
+    "pronoun": "jūs",
+    "form": "mācaties",
+    "promptRu": "Настоящее время, 2 л. мн. (jūs): учиться",
+    "hint": "Возвратный: -os, -ies, -ās, -āmies…",
+    "sentence": {
+      "lv": "Jūs mācaties ātri.",
+      "ru": "Вы учитесь быстро."
+    }
+  },
+  {
+    "id": "macities-3pl",
+    "lemma": "mācīties",
+    "lemmaRu": "учиться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "3pl",
+    "pronoun": "viņi/viņas",
+    "form": "mācās",
+    "promptRu": "Настоящее время, 3 л. мн. (viņi/viņas): учиться",
+    "hint": "Возвратный: -os, -ies, -ās, -āmies…",
+    "sentence": {
+      "lv": "Viņi mācās skolā.",
+      "ru": "Они учатся в школе."
+    }
+  },
+  {
+    "id": "smieties-1sg",
+    "lemma": "smieties",
+    "lemmaRu": "смеяться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "1sg",
+    "pronoun": "es",
+    "form": "smejos",
+    "promptRu": "Настоящее время, 1 л. ед. (es): смеяться",
+    "hint": "Возвратный глагол на -ties",
+    "sentence": {
+      "lv": "Es smejos.",
+      "ru": "Я смеюсь."
+    }
+  },
+  {
+    "id": "smieties-2sg",
+    "lemma": "smieties",
+    "lemmaRu": "смеяться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "2sg",
+    "pronoun": "tu",
+    "form": "smejies",
+    "promptRu": "Настоящее время, 2 л. ед. (tu): смеяться",
+    "hint": "Возвратный глагол на -ties",
+    "sentence": {
+      "lv": "Tu smejies par joku.",
+      "ru": "Ты смеёшься над шуткой."
+    }
+  },
+  {
+    "id": "smieties-3sg",
+    "lemma": "smieties",
+    "lemmaRu": "смеяться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "3sg",
+    "pronoun": "viņš/viņa",
+    "form": "smejas",
+    "promptRu": "Настоящее время, 3 л. ед. (viņš/viņa): смеяться",
+    "hint": "Возвратный глагол на -ties",
+    "sentence": {
+      "lv": "Viņa smejas skaļi.",
+      "ru": "Она громко смеётся."
+    }
+  },
+  {
+    "id": "smieties-1pl",
+    "lemma": "smieties",
+    "lemmaRu": "смеяться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "1pl",
+    "pronoun": "mēs",
+    "form": "smejamies",
+    "promptRu": "Настоящее время, 1 л. мн. (mēs): смеяться",
+    "hint": "Возвратный глагол на -ties",
+    "sentence": {
+      "lv": "Mēs smejamies kopā.",
+      "ru": "Мы смеёмся вместе."
+    }
+  },
+  {
+    "id": "smieties-2pl",
+    "lemma": "smieties",
+    "lemmaRu": "смеяться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "2pl",
+    "pronoun": "jūs",
+    "form": "smejaties",
+    "promptRu": "Настоящее время, 2 л. мн. (jūs): смеяться",
+    "hint": "Возвратный глагол на -ties",
+    "sentence": {
+      "lv": "Jūs smejaties laimīgi.",
+      "ru": "Вы счастливо смеётесь."
+    }
+  },
+  {
+    "id": "smieties-3pl",
+    "lemma": "smieties",
+    "lemmaRu": "смеяться",
+    "group": "reflexive",
+    "tense": "present",
+    "person": "3pl",
+    "pronoun": "viņi/viņas",
+    "form": "smejas",
+    "promptRu": "Настоящее время, 3 л. мн. (viņi/viņas): смеяться",
+    "hint": "Возвратный глагол на -ties",
+    "sentence": {
+      "lv": "Viņi smejas par filmu.",
+      "ru": "Они смеются над фильмом."
+    }
+  }
+] as ConjugationDrill[]
+
+export function getConjugationDrillById(id: string): ConjugationDrill | undefined {
+  return conjugationDrills.find((d) => d.id === id)
+}

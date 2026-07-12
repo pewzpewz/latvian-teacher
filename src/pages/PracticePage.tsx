@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { Mic, MicOff, Volume2, Check, X, RefreshCw, Zap } from 'lucide-react'
 import { useSpeech } from '../hooks/useSpeech'
-import { matchPronunciation } from '../lib/pronunciationMatch'
+import { analyzePronunciation } from '../lib/phonemeFeedback'
+import { PronunciationFeedback } from '../components/PronunciationFeedback'
 import { useStore } from '../store/useStore'
 import {
   getPhrasePracticeItems,
@@ -9,12 +10,15 @@ import {
   type PracticeItem,
 } from '../data/practiceItems'
 import { getAdaptivePracticeItems, estimateLevel } from '../lib/adaptive'
+import { useTranslation } from '../hooks/useTranslation'
 
 export function PracticePage() {
+  const { t } = useTranslation()
   const { speak, speaking, startListening, stopListening, listening, transcript } = useSpeech()
   const { progress, recordPronunciation } = useStore()
   const [phraseIndex, setPhraseIndex] = useState(0)
   const [result, setResult] = useState<'correct' | 'wrong' | null>(null)
+  const [analysis, setAnalysis] = useState<ReturnType<typeof analyzePronunciation> | null>(null)
   const [mode, setMode] = useState<'adaptive' | 'phrases' | 'words'>('adaptive')
 
   const level = progress.estimatedLevel || estimateLevel(progress)
@@ -41,22 +45,22 @@ export function PracticePage() {
 
   const checkPronunciation = () => {
     stopListening()
-    const correct = matchPronunciation(transcript, current.lv)
-    setResult(correct ? 'correct' : 'wrong')
-    recordPronunciation(correct)
+    const report = analyzePronunciation(transcript, current.lv)
+    setAnalysis(report)
+    setResult(report.accepted ? 'correct' : 'wrong')
+    recordPronunciation(report.accepted)
   }
 
   const next = () => {
     setResult(null)
+    setAnalysis(null)
     setPhraseIndex((i) => (i + 1) % items.length)
   }
 
   return (
     <div>
-      <h1 className="gradient-text mb-2 text-3xl font-bold">Практика произношения</h1>
-      <p className="mb-8 text-muted">
-        Слушайте, повторяйте вслух — система подбирает фразы под ваши слабые места
-      </p>
+      <h1 className="gradient-text mb-2 text-3xl font-bold">{t('practice.title')}</h1>
+      <p className="mb-8 text-muted">{t('practice.subtitle')}</p>
 
       <div className="mb-6 flex gap-2">
         <button
@@ -65,21 +69,21 @@ export function PracticePage() {
           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm ${mode === 'adaptive' ? 'bg-accent text-white' : 'border border-border'}`}
         >
           <Zap size={14} />
-          Под меня
+          {t('practice.modeAdaptive')}
         </button>
         <button
           type="button"
           onClick={() => { setMode('phrases'); setPhraseIndex(0); setResult(null) }}
           className={`rounded-xl px-4 py-2 text-sm ${mode === 'phrases' ? 'bg-accent text-white' : 'border border-border'}`}
         >
-          Фразы
+          {t('practice.modePhrases')}
         </button>
         <button
           type="button"
           onClick={() => { setMode('words'); setPhraseIndex(0); setResult(null) }}
           className={`rounded-xl px-4 py-2 text-sm ${mode === 'words' ? 'bg-accent text-white' : 'border border-border'}`}
         >
-          Слова
+          {t('practice.modeWords')}
         </button>
       </div>
 
@@ -92,8 +96,8 @@ export function PracticePage() {
       {mode !== 'adaptive' && (
         <p className="mb-4 text-center text-sm text-muted">
           {mode === 'words'
-            ? `Отдельные слова из словаря · ${items.length} шт.`
-            : `Фразы и предложения · ${items.length} шт.`}
+            ? t('practice.wordsCount', { count: items.length })
+            : t('practice.phrasesCount', { count: items.length })}
         </p>
       )}
 
@@ -125,23 +129,36 @@ export function PracticePage() {
         </div>
 
         {listening && (
-          <p className="mb-4 text-sm text-muted">Говорите... Нажмите микрофон ещё раз для проверки</p>
+          <p className="mb-4 text-sm text-muted">{t('common.speakPromptShort')}</p>
         )}
 
         {transcript && (
           <p className="mb-4 text-sm">
-            Вы сказали: <span className="latvian-text font-medium">{transcript}</span>
+            {t('common.youSaid')} <span className="latvian-text font-medium">{transcript}</span>
           </p>
         )}
 
         {result && (
           <div
-            className={`mb-4 flex items-center justify-center gap-2 rounded-xl p-3 ${
+            className={`mb-4 rounded-xl p-3 ${
               result === 'correct' ? 'bg-success/10 text-success' : 'bg-red-500/10 text-red-400'
             }`}
           >
-            {result === 'correct' ? <Check size={18} /> : <X size={18} />}
-            {result === 'correct' ? 'Отлично!' : `Попробуйте ещё: ${current.lv}`}
+            <div className="flex items-center justify-center gap-2">
+              {result === 'correct' ? <Check size={18} /> : <X size={18} />}
+              {result === 'correct'
+                ? t('common.excellentWithPercent', {
+                    percent: Math.round((analysis?.similarity ?? 1) * 100),
+                  })
+                : t('practice.discrepancies')}
+            </div>
+            {analysis && (
+              <PronunciationFeedback
+                chars={analysis.chars}
+                tips={analysis.tips}
+                spoken={analysis.spokenDisplay}
+              />
+            )}
           </div>
         )}
 
@@ -152,24 +169,29 @@ export function PracticePage() {
             className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm"
           >
             <RefreshCw size={14} />
-            Следующая
+            {t('practice.next')}
           </button>
         </div>
 
         <p className="mt-6 text-xs text-muted">
-          {phraseIndex + 1} / {items.length}
+          {t('common.sessionOf', { current: phraseIndex + 1, total: items.length })}
           {progress.pronunciationAttempts.total > 0 && (
-            <> · Точность: {Math.round((progress.pronunciationAttempts.correct / progress.pronunciationAttempts.total) * 100)}%</>
+            <>
+              {' '}
+              ·{' '}
+              {t('common.accuracyPercent', {
+                percent: Math.round(
+                  (progress.pronunciationAttempts.correct / progress.pronunciationAttempts.total) * 100,
+                ),
+              })}
+            </>
           )}
         </p>
       </div>
 
       <div className="mx-auto mt-8 max-w-lg rounded-xl border border-gold/20 bg-gold/5 p-4 text-sm">
-        <p className="font-medium text-gold">Совет</p>
-        <p className="mt-1 text-muted">
-          Режим «Под меня» автоматически подбирает слова и фразы из ваших слабых тем.
-          Чем больше практикуетесь — тем точнее подбор.
-        </p>
+        <p className="font-medium text-gold">{t('practice.tipTitle')}</p>
+        <p className="mt-1 text-muted">{t('practice.tipText')}</p>
       </div>
     </div>
   )

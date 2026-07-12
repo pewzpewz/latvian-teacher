@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { estimateLevel } from '../lib/adaptive'
 import type { AdaptiveExercise, AdaptiveWord, Level } from '../lib/adaptive'
 import type { LearningGoal } from '../data/examB1'
+import type { UiLanguage } from '../i18n'
 import { checkNewAchievements, achievements } from '../data/achievements'
 import type { Achievement } from '../data/achievements'
 
@@ -13,6 +14,13 @@ import {
   type StoredFsrsCard,
 } from '../lib/fsrsSrs'
 import { mergeProgress, mergeSettings, type AppBackup } from '../lib/backup'
+import {
+  migrateFromLocalStorage,
+  readProgressRaw,
+  readSettingsRaw,
+  writeProgressRaw,
+  writeSettingsRaw,
+} from '../lib/storage'
 
 export type SrsCard = StoredFsrsCard
 
@@ -44,6 +52,12 @@ export type UserSettings = {
   onboardingCompleted: boolean
   learningGoal: LearningGoal
   selfReportedLevel: Level | null
+  uiLanguage: UiLanguage
+  streakReminderEnabled: boolean
+  streakReminderHour: number
+  /** UUID для E2E sync — пароль не хранится */
+  syncId: string | null
+  lastSyncedAt: string | null
 }
 
 export type UserProgress = {
@@ -95,6 +109,11 @@ const defaultSettings: UserSettings = {
   onboardingCompleted: false,
   learningGoal: 'general',
   selfReportedLevel: null,
+  uiLanguage: 'ru',
+  streakReminderEnabled: false,
+  streakReminderHour: 19,
+  syncId: null,
+  lastSyncedAt: null,
 }
 
 const defaultProgress: UserProgress = {
@@ -200,36 +219,12 @@ function migrateSettings(raw: Partial<UserSettings>): UserSettings {
   return merged
 }
 
-function loadSettings(): UserSettings {
-  try {
-    const raw = localStorage.getItem('lv-settings')
-    if (!raw) return defaultSettings
-    const parsed = JSON.parse(raw) as Partial<UserSettings>
-    const migrated = migrateSettings(parsed)
-    if (parsed.aiProvider !== migrated.aiProvider || parsed.aiModel !== migrated.aiModel) {
-      localStorage.setItem('lv-settings', JSON.stringify(migrated))
-    }
-    return migrated
-  } catch {
-    return defaultSettings
-  }
+function persistSettings(s: UserSettings) {
+  void writeSettingsRaw(s)
 }
 
-function loadProgress(): UserProgress {
-  try {
-    const raw = localStorage.getItem('lv-progress')
-    return raw ? migrateProgress(JSON.parse(raw)) : defaultProgress
-  } catch {
-    return defaultProgress
-  }
-}
-
-function saveSettings(s: UserSettings) {
-  localStorage.setItem('lv-settings', JSON.stringify(s))
-}
-
-function saveProgress(p: UserProgress) {
-  localStorage.setItem('lv-progress', JSON.stringify(p))
+function persistProgress(p: UserProgress) {
+  void writeProgressRaw(p)
 }
 
 function ensureTodayStudy(progress: UserProgress): void {
@@ -271,6 +266,7 @@ function trackCategory(progress: UserProgress, category: string, correct: boolea
 type Store = {
   settings: UserSettings
   progress: UserProgress
+  hydrated: boolean
   achievementQueue: Achievement[]
   updateSettings: (partial: Partial<UserSettings>) => void
   completeLesson: (id: string) => void
@@ -300,8 +296,9 @@ function unlockAchievements(progress: UserProgress, newOnes: Achievement[]) {
 }
 
 export const useStore = create<Store>((set, get) => ({
-  settings: loadSettings(),
-  progress: loadProgress(),
+  settings: defaultSettings,
+  progress: defaultProgress,
+  hydrated: false,
   achievementQueue: [],
 
   checkAchievements: () => {
@@ -311,7 +308,7 @@ export const useStore = create<Store>((set, get) => ({
 
     const updated = { ...progress }
     unlockAchievements(updated, newOnes)
-    saveProgress(updated)
+    persistProgress(updated)
 
     const existingIds = new Set(achievementQueue.map((a) => a.id))
     const toQueue = newOnes.filter((a) => !existingIds.has(a.id))
@@ -328,7 +325,7 @@ export const useStore = create<Store>((set, get) => ({
 
   updateSettings: (partial) => {
     const settings = { ...get().settings, ...partial }
-    saveSettings(settings)
+    persistSettings(settings)
     set({ settings })
   },
 
@@ -338,7 +335,7 @@ export const useStore = create<Store>((set, get) => ({
       progress.completedLessons.push(id)
       progress.estimatedLevel = estimateLevel(progress)
       logStudyDay(progress, 5)
-      saveProgress(progress)
+      persistProgress(progress)
       set({ progress })
       get().checkAchievements()
     }
@@ -364,7 +361,7 @@ export const useStore = create<Store>((set, get) => ({
     }
 
     progress.estimatedLevel = estimateLevel(progress)
-    saveProgress(progress)
+    persistProgress(progress)
     set({ progress })
     get().checkAchievements()
   },
@@ -383,7 +380,7 @@ export const useStore = create<Store>((set, get) => ({
       progress.wordsLearned += 1
     }
     logStudyDay(progress, 1)
-    saveProgress(progress)
+    persistProgress(progress)
     set({ progress })
     get().checkAchievements()
   },
@@ -394,7 +391,7 @@ export const useStore = create<Store>((set, get) => ({
     if (correct) progress.pronunciationAttempts.correct += 1
     trackCategory(progress, 'pronunciation', correct)
     trackStudyMinutes(progress, 1)
-    saveProgress(progress)
+    persistProgress(progress)
     set({ progress })
     get().checkAchievements()
   },
@@ -402,7 +399,7 @@ export const useStore = create<Store>((set, get) => ({
   addStudyTime: (minutes) => {
     const progress = { ...get().progress }
     trackStudyMinutes(progress, minutes)
-    saveProgress(progress)
+    persistProgress(progress)
     set({ progress })
     get().checkAchievements()
   },
@@ -422,7 +419,7 @@ export const useStore = create<Store>((set, get) => ({
       progress.streak = 1
     }
     progress.lastStudyDate = today
-    saveProgress(progress)
+    persistProgress(progress)
     set({ progress })
     get().checkAchievements()
   },
@@ -453,7 +450,7 @@ export const useStore = create<Store>((set, get) => ({
     }
 
     progress.lastAdaptationAt = Date.now()
-    saveProgress(progress)
+    persistProgress(progress)
     set({ progress })
     get().checkAchievements()
   },
@@ -461,7 +458,7 @@ export const useStore = create<Store>((set, get) => ({
   refreshEstimatedLevel: () => {
     const progress = { ...get().progress }
     progress.estimatedLevel = estimateLevel(progress)
-    saveProgress(progress)
+    persistProgress(progress)
     set({ progress })
   },
 
@@ -485,7 +482,7 @@ export const useStore = create<Store>((set, get) => ({
       progress.exerciseAttempts = progress.exerciseAttempts.slice(-200)
     }
     trackStudyMinutes(progress, 2)
-    saveProgress(progress)
+    persistProgress(progress)
     set({ progress })
     get().checkAchievements()
   },
@@ -496,7 +493,7 @@ export const useStore = create<Store>((set, get) => ({
       progress.dialogsCompleted.push(id)
       trackCategory(progress, 'dialogs', true)
       trackStudyMinutes(progress, 3)
-      saveProgress(progress)
+      persistProgress(progress)
       set({ progress })
       get().checkAchievements()
     }
@@ -508,7 +505,7 @@ export const useStore = create<Store>((set, get) => ({
     if (messages.some((m) => m.role === 'user')) {
       logStudyDay(progress, 0)
     }
-    saveProgress(progress)
+    persistProgress(progress)
     set({ progress })
   },
 
@@ -521,8 +518,8 @@ export const useStore = create<Store>((set, get) => ({
       mode === 'replace'
         ? migrateSettings(backup.settings)
         : migrateSettings(mergeSettings(get().settings, backup.settings))
-    saveProgress(progress)
-    saveSettings(settings)
+    persistProgress(progress)
+    persistSettings(settings)
     set({ progress, settings })
     get().checkAchievements()
   },
@@ -533,7 +530,34 @@ export function initNewWord(wordId: string) {
   if (!store.progress.srsCards[wordId]) {
     const progress = { ...store.progress }
     progress.srsCards[wordId] = createNewStoredCard(wordId)
-    localStorage.setItem('lv-progress', JSON.stringify(progress))
+    persistProgress(progress)
     useStore.setState({ progress })
   }
+}
+
+let hydratePromise: Promise<void> | null = null
+
+/** Load progress/settings from IndexedDB (migrates localStorage once). */
+export function hydrateStore(): Promise<void> {
+  if (hydratePromise) return hydratePromise
+
+  hydratePromise = (async () => {
+    await migrateFromLocalStorage()
+
+    const rawSettings = await readSettingsRaw()
+    const rawProgress = await readProgressRaw()
+
+    const settings = migrateSettings((rawSettings as Partial<UserSettings> | null) ?? {})
+    const progress = migrateProgress((rawProgress as Partial<UserProgress> | null) ?? {})
+
+    persistSettings(settings)
+    persistProgress(progress)
+
+    useStore.setState({ settings, progress, hydrated: true })
+  })().catch((e) => {
+    console.error('hydrateStore failed:', e)
+    useStore.setState({ hydrated: true })
+  })
+
+  return hydratePromise
 }

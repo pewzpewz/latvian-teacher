@@ -332,6 +332,73 @@
 | 2026-07-12 | Контент 500+ / 20+ уроков | ✅ | 553 слова, 20 уроков |
 | 2026-07-12 | WebRTC Live AI-диалог | ✅ | WS + WebRTC, вкладка Live |
 | 2026-07-12 | Сравнение с рынком | ✅ | `docs/MARKET_COMPARISON.md` |
+| 2026-07-12 | GitHub publish | ✅ | github.com/pewzpewz/latvian-teacher |
+| 2026-07-12 | **Спринт 1: безопасность** | ✅ | tsc prod, CORS, token, zod, helmet, WS limits, MIT |
+| 2026-07-12 | **Спринт 2: инфраструктура** | ✅ | Docker, Dependabot, coverage, PWA PNG, start.sh |
+| 2026-07-12 | **Спринт 3: устойчивость** | ✅ | IndexedDB, ErrorBoundary, Playwright E2E, CONTRIBUTING |
+| 2026-07-12 | **Тренажёр падежей (4.1)** | ✅ | 42 drill, /declensions, content pipeline |
+| 2026-07-12 | **CEFR + диктанты + validate CI** | ✅ | /cefr, /dictations, validate:content |
+| 2026-07-12 | **E2E sync** | ✅ | AES-GCM + PBKDF2, PUT/GET /api/sync |
+| 2026-07-12 | **Capacitor + TWA** | ✅ | Capacitor 7, apiBase, docs/MOBILE.md |
+| 2026-07-12 | **Полный i18n RU/EN/LV** | ✅ | ~580 ключей, все UI страницы |
+
+---
+
+# Фаза 4+ — Roadmap (после аудита)
+
+## Спринт 1 — «безопасно выпускать наружу» ✅
+- [x] Server build: `tsc` → `node dist/index.js` — 2026-07-12
+- [x] CORS whitelist (`ALLOWED_ORIGINS`) — 2026-07-12
+- [x] API access token (`API_ACCESS_TOKEN` / `VITE_API_ACCESS_TOKEN`) — 2026-07-12
+- [x] WebSocket: max connections, ping/pong, idle timeout, utterance cooldown — 2026-07-12
+- [x] Zod-валидация API + generic errors + helmet — 2026-07-12
+- [x] LICENSE (MIT), README fix — 2026-07-12
+- [x] CI job для server/ — 2026-07-12
+
+## Спринт 2 — «инфраструктура» ✅
+- [x] Dependabot + npm audit в CI — 2026-07-12
+- [x] Coverage-отчёт vitest (`npm run test:coverage`) — 2026-07-12
+- [x] Dockerfile + fly.toml + render.yaml + `docs/DEPLOY.md` — 2026-07-12
+- [x] PNG PWA icons 192/512 + apple-touch-icon — 2026-07-12
+- [x] Lighthouse PWA config (`npm run lighthouse:pwa`) — 2026-07-12
+- [x] start.sh + `npm run dev:all` (concurrently) — 2026-07-12
+
+## Спринт 3 — «устойчивость» ✅
+- [x] IndexedDB для прогресса + миграция из localStorage — 2026-07-12
+- [x] ErrorBoundary + client error log — 2026-07-12
+- [x] E2E Playwright: урок → SRS → прогресс — 2026-07-12
+- [x] PR workflow: CONTRIBUTING + template + CI e2e — 2026-07-12
+
+---
+
+## Фаза 4 — Уникальное для латышского (высокий ROI)
+
+### Грамматика
+- [x] **Тренажёр падежей** — 42 drill, 6 падежей, I/II/IV/VI склонения — 2026-07-12
+- [x] **Спряжение глаголов** — 42 drill, I/II/reflexive + būt/iet — 2026-07-12
+- [x] **CEFR-треки A1→B2**, частотный словарь top-2000 (freqRank, `/cefr`) — 2026-07-12
+
+### Экзамены
+- [x] VISC **A2** mock (3 раздела, 12 вопросов) — 2026-07-12
+- [x] VISC **B1** расширен: письмо, аудирование (TTS), говорение (STT) — 2026-07-12
+- [x] B1 говорение через **Live** WebRTC (4 задания, AI-экзаменатор) — 2026-07-12
+- [x] **Модуль натурализации** — 4 раздела, 30 вопросов, PMLP-ссылки — 2026-07-12
+
+### Обучение
+- [x] **Аудирование: диктанты**, регулируемая скорость TTS (`/dictations`, slowRate) — 2026-07-12
+- [x] **Фонемный фидбек произношения** — пофонемная подсветка в Practice — 2026-07-12
+
+### Продукт
+- [x] **Push PWA для daily streak** — локальные уведомления + настройки — 2026-07-12
+- [x] **E2E-шифрованный sync** между устройствами (AES-GCM, `/api/sync/:id`, настройки) — 2026-07-12
+- [x] **TWA / Capacitor** для Google Play & iOS (Capacitor 7, `docs/MOBILE.md`, TWA guide) — 2026-07-12
+- [x] **Полный i18n** интерфейса (RU/EN/LV, ~580 ключей, все страницы + компоненты) — 2026-07-12
+- [x] **i18n: EN/LV интерфейс** — sidebar + настройки (база) — 2026-07-12
+- [x] **JSON schema validation** `content/*.json` в CI (`validate:content`) — 2026-07-12
+
+### Приоритет (Phase 4.1)
+1. ~~**Тренажёр падежей**~~ ✅
+2. ~~**Модуль натурализации**~~ ✅
 
 ---
 
@@ -341,3 +408,5 @@
 - Cursor rule: `.cursor/rules/roadmap.mdc`
 - Аудит: см. чат 2026-07-11 / agent transcript
 - Рынок: `docs/MARKET_COMPARISON.md`
+- Деплой: `docs/DEPLOY.md`
+- Мобильные сборки: `docs/MOBILE.md`

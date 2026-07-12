@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Latviešu Skolotājs</string>
+    <string name="title_activity_main">Latviešu Skolotājs</string>
+    <string name="package_name">lv.skolo.app</string>
+    <string name="custom_url_scheme">lv.skolo.app</string>
+</resources>

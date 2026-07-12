@@ -1,0 +1,469 @@
+/** AUTO-GENERATED — edit content/naturalization.json, then npm run build:content */
+export type NaturalizationQuestion = {
+  id: string
+  type: 'choose' | 'fill' | 'translate'
+  question: string
+  passage?: string
+  answer: string
+  options?: string[]
+  hint?: string
+  explanation?: string
+}
+
+export type NaturalizationSectionType = 'history' | 'constitution' | 'symbols' | 'society'
+
+export type NaturalizationSection = {
+  id: string
+  title: string
+  type: NaturalizationSectionType
+  description: string
+  timeMinutes: number
+  questions: NaturalizationQuestion[]
+}
+
+export type OfficialLink = {
+  title: string
+  url: string
+  description: string
+}
+
+export const NATURALIZATION_OFFICIAL_LINKS: OfficialLink[] = [
+  {
+    "title": "PMLP — Pilsonība un naturalizācija",
+    "url": "https://www.pmlp.gov.lv/lv/pilsoniba/naturalizacija",
+    "description": "Официальные требования к натурализации и подача заявления"
+  },
+  {
+    "title": "Satversme (Конституция ЛР)",
+    "url": "https://www.saeima.lv/lv/likumdosana/konstitucijas-pants",
+    "description": "Полный текст Конституции на латышском"
+  },
+  {
+    "title": "Valsts valodas prasmes pārbaude",
+    "url": "https://www.valoda.lv/",
+    "description": "Экзамен по государственному языку — обязателен для натурализации"
+  },
+  {
+    "title": "Latvijas vēstures muzejs",
+    "url": "https://www.history-museum.lv/",
+    "description": "Материалы по истории Латвии для самостоятельного изучения"
+  }
+]
+
+export const naturalizationSections: NaturalizationSection[] = [
+  {
+    "id": "history",
+    "title": "История Латвии",
+    "type": "history",
+    "description": "Ключевые даты: независимость, оккупации, восстановление государства.",
+    "timeMinutes": 12,
+    "questions": [
+      {
+        "id": "h1",
+        "type": "choose",
+        "question": "Когда была провозглашена независимость Латвийской Республики?",
+        "answer": "18 ноября 1918 года",
+        "options": [
+          "18 ноября 1918 года",
+          "4 мая 1990 года",
+          "21 августа 1991 года",
+          "1 января 2004 года"
+        ],
+        "explanation": "18 ноября 1918 года Народный совет Латвии провозгласил независимость. Эта дата — День провозглашения Республики (Latvijas Republikas proklamēšanas diena)."
+      },
+      {
+        "id": "h2",
+        "type": "choose",
+        "question": "Что произошло с Латвией в 1940 году?",
+        "answer": "Советская оккупация и аннексия",
+        "options": [
+          "Советская оккупация и аннексия",
+          "Вступление в Европейский союз",
+          "Провозглашение независимости",
+          "Переход на евро"
+        ],
+        "explanation": "В 1940 году Латвия была оккупирована СССР. После этого последовала оккупация нацистской Германией (1941–1945) и повторная советская оккупация до 1991 года."
+      },
+      {
+        "id": "h3",
+        "type": "choose",
+        "question": "Какое событие отмечается 4 мая?",
+        "answer": "Декларация о восстановлении независимости (1990)",
+        "options": [
+          "Декларация о восстановлении независимости (1990)",
+          "Провозглашение первой Республики (1918)",
+          "Полное восстановление de facto (1991)",
+          "Вступление в НАТО (2004)"
+        ],
+        "explanation": "4 мая 1990 года Верховный совет Латвийской ССР принял Декларацию о восстановлении независимости Латвийской Республики."
+      },
+      {
+        "id": "h4",
+        "type": "choose",
+        "question": "21 августа 1991 года в истории Латвии связано с…",
+        "answer": "Подтверждением полного восстановления независимости",
+        "options": [
+          "Подтверждением полного восстановления независимости",
+          "Принятием Конституции (Satversme)",
+          "Вступлением в ЕС",
+          "Первыми свободными выборами в Saeima"
+        ],
+        "explanation": "После провала августовского путча в Москве 21 августа 1991 года Латвия подтвердила de facto восстановление независимости."
+      },
+      {
+        "id": "h5",
+        "type": "choose",
+        "question": "Когда Латвия вступила в Европейский союз и НАТО?",
+        "answer": "2004 год",
+        "options": [
+          "2004 год",
+          "1991 год",
+          "2014 год",
+          "2008 год"
+        ],
+        "explanation": "1 мая 2004 года Латвия стала членом ЕС; 29 марта 2004 года — членом НАТО."
+      },
+      {
+        "id": "h6",
+        "type": "choose",
+        "question": "С какого года официальной валютой Латвии является евро?",
+        "answer": "2014",
+        "options": [
+          "2014",
+          "2004",
+          "1991",
+          "2010"
+        ],
+        "explanation": "С 1 января 2014 года lats (LVL) заменён на евро (EUR)."
+      },
+      {
+        "id": "h7",
+        "type": "fill",
+        "question": "Столица Латвии — ___ (название на латышском).",
+        "answer": "Rīga",
+        "hint": "Пишите с длинной ī",
+        "explanation": "Rīga — столица и крупнейший город Латвии, культурный и экономический центр страны."
+      },
+      {
+        "id": "h8",
+        "type": "choose",
+        "question": "Как называется парламент Латвии?",
+        "answer": "Saeima",
+        "options": [
+          "Saeima",
+          "Seimas",
+          "Riigikogu",
+          "Eduskunta"
+        ],
+        "explanation": "Saeima — однопалатный парламент из 100 депутатов, избираемых на 4 года."
+      }
+    ]
+  },
+  {
+    "id": "constitution",
+    "title": "Конституция (Satversme)",
+    "type": "constitution",
+    "description": "Основной закон, права человека, государственное устройство.",
+    "timeMinutes": 12,
+    "questions": [
+      {
+        "id": "c1",
+        "type": "choose",
+        "question": "Когда была принята Satversme (Конституция Латвии)?",
+        "answer": "1922 год",
+        "options": [
+          "1922 год",
+          "1918 год",
+          "1990 год",
+          "2004 год"
+        ],
+        "explanation": "Satversme была принята Учредительным собранием 15 февраля 1922 года и восстановлена в правовой непрерывности после 1990 года."
+      },
+      {
+        "id": "c2",
+        "type": "choose",
+        "question": "Сколько депутатов в Saeima?",
+        "answer": "100",
+        "options": [
+          "100",
+          "150",
+          "200",
+          "51"
+        ],
+        "explanation": "Saeima состоит из 100 депутатов, избираемых всеобщим, равным, прямым и тайным голосованием."
+      },
+      {
+        "id": "c3",
+        "type": "choose",
+        "question": "Кто является главой государства Латвии?",
+        "answer": "Президент (Valsts prezidents)",
+        "options": [
+          "Президент (Valsts prezidents)",
+          "Премьер-министр",
+          "Председатель Saeima",
+          "Мэр Риги"
+        ],
+        "explanation": "Президент представляет государство в международных отношениях и назначает премьер-министра; исполнительная власть — у Кабинета министров."
+      },
+      {
+        "id": "c4",
+        "type": "choose",
+        "question": "Какой язык является государственным в Латвии?",
+        "answer": "Латышский (latviešu valoda)",
+        "options": [
+          "Латышский (latviešu valoda)",
+          "Русский",
+          "Английский",
+          "Латышский и русский наравне"
+        ],
+        "explanation": "Государственный язык — латышский. Знание латышского обязательно для натурализации (экзамен valoda.lv)."
+      },
+      {
+        "id": "c5",
+        "type": "choose",
+        "question": "Satversme гарантирует права человека. Как называется глава с основными правами?",
+        "answer": "Cilvēka pamattiesības (Основные права человека)",
+        "options": [
+          "Cilvēka pamattiesības (Основные права человека)",
+          "Valsts simboli",
+          "Saeima",
+          "Pilsonība"
+        ],
+        "explanation": "Глава о правах человека закрепляет равенство, свободу слова, право на образование и другие фундаментальные права."
+      },
+      {
+        "id": "c6",
+        "type": "fill",
+        "question": "Официальное название страны на латышском: Latvijas ___.",
+        "answer": "Republika",
+        "hint": "Республика",
+        "explanation": "Полное название — Latvijas Republika (Latvijas Republikas Satversme — Конституция Латвийской Республики)."
+      },
+      {
+        "id": "c7",
+        "type": "choose",
+        "question": "Кто избирает президента Латвии?",
+        "answer": "Saeima",
+        "options": [
+          "Saeima",
+          "Народ на референдуме",
+          "Кабинет министров",
+          "Президент сам себя переизбирает"
+        ],
+        "explanation": "Президент избирается Saeima на 4 года (максимум два срока подряд)."
+      },
+      {
+        "id": "c8",
+        "type": "choose",
+        "question": "Какой орган принимает законы в Латвии?",
+        "answer": "Saeima",
+        "options": [
+          "Saeima",
+          "Президент",
+          "Конституционный суд",
+          "PMLP"
+        ],
+        "explanation": "Законодательная власть принадлежит Saeima; президент имеет право отложенного вето."
+      }
+    ]
+  },
+  {
+    "id": "symbols",
+    "title": "Государственные символы",
+    "type": "symbols",
+    "description": "Флаг, герб, гимн — часто спрашивают на экзамене для гражданства.",
+    "timeMinutes": 10,
+    "questions": [
+      {
+        "id": "s1",
+        "type": "choose",
+        "question": "Из каких цветов состоит флаг Латвии?",
+        "answer": "Тёмно-красный (carmine), белый, тёмно-красный",
+        "options": [
+          "Тёмно-красный (carmine), белый, тёмно-красный",
+          "Синий, белый, синий",
+          "Красный, зелёный, белый",
+          "Жёлтый, зелёный, красный"
+        ],
+        "explanation": "Флаг — carmine red — white — carmine red. Белая полоса символизирует латышские полотенца (sarkanbaltsarkanais karogs)."
+      },
+      {
+        "id": "s2",
+        "type": "choose",
+        "question": "Как называется государственный гимн Латвии?",
+        "answer": "Dievs, svētī Latviju!",
+        "options": [
+          "Dievs, svētī Latviju!",
+          "Mūžam Latvijā",
+          "Gaismas pils",
+          "Rīga dimd"
+        ],
+        "explanation": "Гимн написан Kārlis Baumanis (1825–1905). На экзамене для гражданства часто проверяют знание текста."
+      },
+      {
+        "id": "s3",
+        "type": "choose",
+        "question": "Кто автор текста гимна «Dievs, svētī Latviju»?",
+        "answer": "Kārlis Baumanis",
+        "options": [
+          "Kārlis Baumanis",
+          "Rainis",
+          "Aspazija",
+          "Jānis Rainis"
+        ],
+        "explanation": "Baumanis написал текст в XIX веке; мелодия также приписывается ему."
+      },
+      {
+        "id": "s4",
+        "type": "choose",
+        "question": "Что изображено на гербе Латвии (помимо льва и грифона)?",
+        "answer": "Восходящее солнце и дубовые ветви",
+        "options": [
+          "Восходящее солнце и дубовые ветви",
+          "Только крест",
+          "Волны Балтийского моря",
+          "Силуэт Rīgas doms"
+        ],
+        "explanation": "На щите — восходящее солнце, три звезды, дубовые ветви; по бокам — лев и грифон."
+      },
+      {
+        "id": "s5",
+        "type": "choose",
+        "question": "Когда отмечают День провозглашения Республики?",
+        "answer": "18 ноября",
+        "options": [
+          "18 ноября",
+          "4 мая",
+          "21 августа",
+          "1 мая"
+        ],
+        "explanation": "18 ноября — государственный праздник, связанный с провозглашением независимости в 1918 году."
+      },
+      {
+        "id": "s6",
+        "type": "fill",
+        "question": "Первые слова гимна: Dievs, ___ Latviju!",
+        "answer": "svētī",
+        "hint": "«Благослови»",
+        "explanation": "«Dievs, svētī Latviju!» — «Боже, благослови Латвию!»"
+      },
+      {
+        "id": "s7",
+        "type": "choose",
+        "question": "Какая валюта используется в Латвии с 2014 года?",
+        "answer": "Евро (EUR)",
+        "options": [
+          "Евро (EUR)",
+          "Лats (LVL)",
+          "Доллар США",
+          "Крона (SEK)"
+        ],
+        "explanation": "До 2014 года была лats (LVL); сейчас — евро."
+      }
+    ]
+  },
+  {
+    "id": "society",
+    "title": "Общество и гражданство",
+    "type": "society",
+    "description": "PMLP, требования к натурализации, базовые факты о стране.",
+    "timeMinutes": 10,
+    "questions": [
+      {
+        "id": "o1",
+        "type": "choose",
+        "question": "Какой орган отвечает за вопросы гражданства и миграции?",
+        "answer": "PMLP (Pilsonības un migrācijas lietu pārvalde)",
+        "options": [
+          "PMLP (Pilsonības un migrācijas lietu pārvalde)",
+          "Saeima",
+          "Valsts policija",
+          "Valsts ieņēmumu dienests"
+        ],
+        "explanation": "PMLP — Управление по делам гражданства и миграции; через него подаётся заявление на натурализацию."
+      },
+      {
+        "id": "o2",
+        "type": "choose",
+        "question": "Что обязательно для натурализации (помимо стажа проживания)?",
+        "answer": "Экзамен по латышскому языку и знание основ Satversme, истории, символов",
+        "options": [
+          "Экзамен по латышскому языку и знание основ Satversme, истории, символов",
+          "Только оплата пошлины",
+          "Владение английским языком",
+          "Военная служба"
+        ],
+        "explanation": "Нужны: знание языка (valoda.lv), тест по истории/конституции/символам, знание гимна, постоянное проживание и другие условия PMLP."
+      },
+      {
+        "id": "o3",
+        "type": "choose",
+        "question": "Где сдают экзамен по государственному языку для гражданства?",
+        "answer": "Valsts valodas prasmes pārbaude (valoda.lv / LVA)",
+        "options": [
+          "Valsts valodas prasmes pārbaude (valoda.lv / LVA)",
+          "PMLP без экзамена",
+          "Только в посольстве",
+          "Saeima"
+        ],
+        "explanation": "LVA (Latvijas Valsts arhīvs / valoda.lv) организует проверку знания латышского — отдельно от теста по истории."
+      },
+      {
+        "id": "o4",
+        "type": "choose",
+        "question": "Примерный порядок населения Латвии (2020-е)?",
+        "answer": "Около 1,9 млн человек",
+        "options": [
+          "Около 1,9 млн человек",
+          "Около 5 млн человек",
+          "Около 500 тыс. человек",
+          "Около 10 млн человек"
+        ],
+        "explanation": "Население Латвии — менее 2 миллионов; это одна из самых маленьких стран ЕС."
+      },
+      {
+        "id": "o5",
+        "type": "choose",
+        "question": "К какому морю выходит Латвия?",
+        "answer": "Балтийское море",
+        "options": [
+          "Балтийское море",
+          "Северное море",
+          "Чёрное море",
+          "Средиземное море"
+        ],
+        "explanation": "Латвия — прибалтийская страна с выходом к Балтийскому морю; крупные порты — Rīga, Ventspils, Liepāja."
+      },
+      {
+        "id": "o6",
+        "type": "choose",
+        "question": "С какими странами Латвия граничит по суше?",
+        "answer": "Эстония, Россия, Беларусь, Литва",
+        "options": [
+          "Эстония, Россия, Беларусь, Литва",
+          "Только с Литвой",
+          "Польша, Литва, Эстония",
+          "Финляндия и Швеция"
+        ],
+        "explanation": "Сухопутные границы: Эстония (север), Россия (восток), Беларусь (юго-восток), Литва (юг)."
+      },
+      {
+        "id": "o7",
+        "type": "fill",
+        "question": "Официальный сайт PMLP: www.___ .gov.lv",
+        "answer": "pmlp",
+        "hint": "Аббревиатура управления",
+        "explanation": "pmlp.gov.lv — актуальный портал для заявлений на гражданство, ВНЖ и натурализацию."
+      }
+    ]
+  }
+] as NaturalizationSection[]
+
+export function getNaturalizationSection(id: string): NaturalizationSection | undefined {
+  return naturalizationSections.find((s) => s.id === id)
+}
+
+export const NATURALIZATION_QUESTION_COUNT = naturalizationSections.reduce(
+  (n, s) => n + s.questions.length,
+  0,
+)

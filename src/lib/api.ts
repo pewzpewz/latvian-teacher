@@ -1,3 +1,6 @@
+import { apiHeaders } from './apiHeaders'
+import { apiUrl } from './apiBase'
+
 export type ChatMessage = {
   role: 'user' | 'assistant' | 'system'
   content: string
@@ -22,9 +25,9 @@ export async function sendToAiTutor(
   options?: { apiKey?: string; provider?: string; model?: string; profile?: string },
 ): Promise<string> {
   const hasClientKey = !!options?.apiKey?.trim()
-  const response = await fetch('/api/chat', {
+  const response = await fetch(apiUrl('/api/chat'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: apiHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({
       messages,
       profile: options?.profile,
@@ -49,9 +52,9 @@ export async function streamToAiTutor(
   onChunk: (fullText: string) => void,
 ): Promise<string> {
   const hasClientKey = !!options?.apiKey?.trim()
-  const response = await fetch('/api/chat/stream', {
+  const response = await fetch(apiUrl('/api/chat/stream'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: apiHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({
       messages,
       profile: options?.profile,
@@ -107,9 +110,9 @@ export async function generateAdaptiveContent(
   options?: { apiKey?: string; provider?: string; model?: string },
 ): Promise<AdaptiveContentResponse> {
   const hasClientKey = !!options?.apiKey?.trim()
-  const response = await fetch('/api/adapt', {
+  const response = await fetch(apiUrl('/api/adapt'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: apiHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({
       profile: profileSummary,
       ...(hasClientKey
@@ -128,7 +131,7 @@ export async function generateAdaptiveContent(
 
 export async function checkApiHealth(): Promise<boolean> {
   try {
-    const res = await fetch('/api/health')
+    const res = await fetch(apiUrl('/api/health'))
     return res.ok
   } catch {
     return false
@@ -144,7 +147,7 @@ export type AiStatus = {
 
 export async function getAiStatus(): Promise<AiStatus | null> {
   try {
-    const res = await fetch('/api/ai/status')
+    const res = await fetch(apiUrl('/api/ai/status'))
     if (!res.ok) return null
     return res.json()
   } catch {
@@ -156,9 +159,9 @@ export async function fetchWordGloss(word: string, sentence: string): Promise<st
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 8000)
   try {
-    const response = await fetch('/api/gloss', {
+    const response = await fetch(apiUrl('/api/gloss'), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: apiHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ word, sentence }),
       signal: controller.signal,
     })

@@ -4,6 +4,8 @@ import { RotateCcw, Trophy } from 'lucide-react'
 import { latvianLetters } from '../../data/games'
 import { shuffle } from '../../lib/gameUtils'
 
+import { useTranslation } from '../../hooks/useTranslation'
+
 type Props = {
   onFinish: (score: number, correct: number, total: number) => void
   onRestart?: () => void
@@ -13,6 +15,7 @@ const MAX_MISSES = 5
 const LETTER_TIME = 2.8
 
 export function LigoFireGame({ onFinish, onRestart }: Props) {
+  const { t } = useTranslation()
   const [queue] = useState(() => shuffle([...latvianLetters]))
   const [index, setIndex] = useState(0)
   const [fire, setFire] = useState(50)
@@ -101,20 +104,20 @@ export function LigoFireGame({ onFinish, onRestart }: Props) {
     return (
       <div className="glass rounded-3xl p-8 text-center">
         <Trophy size={48} className="mx-auto mb-4 text-gold" />
-        <h2 className="text-2xl font-bold">Līgo vakars beidzās!</h2>
-        <p className="mt-2 text-muted">Jūsu uguns nodega pēc {correct} burtiem</p>
+        <h2 className="text-2xl font-bold">{t('games.ligoFinished')}</h2>
+        <p className="mt-2 text-muted">{t('games.ligoLetters', { count: correct })}</p>
         <div className="mt-6 grid grid-cols-3 gap-4">
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-2xl font-bold text-gold">{score}</p>
-            <p className="text-xs text-muted">Очки</p>
+            <p className="text-xs text-muted">{t('common.score')}</p>
           </div>
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-2xl font-bold text-success">{correct}</p>
-            <p className="text-xs text-muted">Букв</p>
+            <p className="text-xs text-muted">{t('common.letters')}</p>
           </div>
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-2xl font-bold text-accent">{streak}</p>
-            <p className="text-xs text-muted">Серия</p>
+            <p className="text-xs text-muted">{t('common.streakLabel')}</p>
           </div>
         </div>
         <button
@@ -122,7 +125,7 @@ export function LigoFireGame({ onFinish, onRestart }: Props) {
           onClick={onRestart}
           className="mt-6 flex items-center gap-2 rounded-xl bg-gold px-6 py-3 text-sm font-medium text-bg mx-auto"
         >
-          <RotateCcw size={16} /> Vēlreiz
+          <RotateCcw size={16} /> {t('games.scrambleRetry')}
         </button>
       </div>
     )
@@ -169,13 +172,13 @@ export function LigoFireGame({ onFinish, onRestart }: Props) {
       {/* HUD */}
       <div className="flex justify-between text-sm">
         <span>🔥 {Math.round(fire)}%</span>
-        <span className="text-gold">Sērija: {streak}</span>
+        <span className="text-gold">{t('common.streakLabel')}: {streak}</span>
         <span className="text-muted">❌ {misses}/{MAX_MISSES}</span>
       </div>
 
       {/* Буква */}
       <div className="glass rounded-2xl p-8 text-center">
-        <p className="text-sm text-muted">Nospiediet burtu uz klaviatūras:</p>
+        <p className="text-sm text-muted">{t('games.ligoPressLetter')}</p>
         <motion.p
           key={current}
           initial={{ scale: 0.5, opacity: 0 }}
@@ -194,7 +197,7 @@ export function LigoFireGame({ onFinish, onRestart }: Props) {
           />
         </div>
         <p className="mt-4 text-xs text-muted">
-          {correct}/25 burti · Ātrāk rakstiet — uguns deg spilgtāk!
+          {t('games.ligoProgress', { correct })}
         </p>
       </div>
     </div>

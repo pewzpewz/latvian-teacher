@@ -1,6 +1,5 @@
-/**
- * Live AI tutor session: WebRTC mic capture + WebSocket AI stream + TTS
- */
+import { apiAccessTokenQuery } from './apiHeaders'
+import { wsApiUrl } from './apiBase'
 import { fetchSpeech, playAudioUrl } from './tts'
 import { abortSpeech } from './speechController'
 
@@ -52,9 +51,9 @@ export class LiveTutorSession {
   }
 
   private wsUrl() {
-    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.host
-    return `${proto}//${host}/api/live/ws`
+    const tokenQ = apiAccessTokenQuery()
+    const path = `/api/live/ws${tokenQ ? `?${tokenQ}` : ''}`
+    return wsApiUrl(path)
   }
 
   /** WebRTC: захват микрофона через RTCPeerConnection + DataChannel для сигналов */

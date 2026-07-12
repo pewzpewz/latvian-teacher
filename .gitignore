@@ -1,7 +1,23 @@
 node_modules
 server/cache/
+server/data/
+server/dist/
 server/.env
 dist
 .env
 *.local
 .DS_Store
+coverage
+test-results
+playwright-report
+blob-report
+.gh-auth.log
+
+# Capacitor native build artifacts
+android/.gradle/
+android/app/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/build/
+ios/App/Pods/
+ios/App/build/
+ios/DerivedData/

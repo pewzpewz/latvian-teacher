@@ -13,22 +13,34 @@ import {
   Volume2,
   Gamepad2,
   GraduationCap,
+  Layers,
+  Flag,
+  Zap,
+  Headphones,
+  Map,
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { checkTtsHealth } from '../lib/tts'
+import { useTranslation } from '../hooks/useTranslation'
+import { dayCountLabel } from '../i18n/plural'
 
 const navItems = [
-  { to: '/', icon: Home, label: 'Главная' },
-  { to: '/plan', icon: Target, label: 'Мой план' },
-  { to: '/progress', icon: Trophy, label: 'Прогресс' },
-  { to: '/lessons', icon: BookOpen, label: 'Уроки' },
-  { to: '/vocabulary', icon: Brain, label: 'Словарь' },
-  { to: '/dialogs', icon: MessageCircle, label: 'Диалоги' },
-  { to: '/practice', icon: Mic, label: 'Практика' },
-  { to: '/games', icon: Gamepad2, label: 'Игры' },
-  { to: '/exam', icon: GraduationCap, label: 'Экзамен' },
-  { to: '/tutor', icon: Sparkles, label: 'AI-репетитор' },
-  { to: '/settings', icon: Settings, label: 'Настройки' },
+  { to: '/', icon: Home, labelKey: 'nav.home' },
+  { to: '/plan', icon: Target, labelKey: 'nav.plan' },
+  { to: '/progress', icon: Trophy, labelKey: 'nav.progress' },
+  { to: '/lessons', icon: BookOpen, labelKey: 'nav.lessons' },
+  { to: '/declensions', icon: Layers, labelKey: 'nav.declensions' },
+  { to: '/conjugations', icon: Zap, labelKey: 'nav.conjugations' },
+  { to: '/dictations', icon: Headphones, labelKey: 'nav.dictations' },
+  { to: '/cefr', icon: Map, labelKey: 'nav.cefr' },
+  { to: '/naturalization', icon: Flag, labelKey: 'nav.naturalization' },
+  { to: '/vocabulary', icon: Brain, labelKey: 'nav.vocabulary' },
+  { to: '/dialogs', icon: MessageCircle, labelKey: 'nav.dialogs' },
+  { to: '/practice', icon: Mic, labelKey: 'nav.practice' },
+  { to: '/games', icon: Gamepad2, labelKey: 'nav.games' },
+  { to: '/exam', icon: GraduationCap, labelKey: 'nav.exam' },
+  { to: '/tutor', icon: Sparkles, labelKey: 'nav.tutor' },
+  { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
 ]
 
 type SidebarProps = {
@@ -37,6 +49,7 @@ type SidebarProps = {
 }
 
 export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
+  const { t, lang } = useTranslation()
   const streak = useStore((s) => s.progress.streak)
   const level = useStore((s) => s.progress.estimatedLevel)
   const unlockedCount = useStore((s) => s.progress.unlockedAchievements.length)
@@ -61,14 +74,14 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
             Ā
           </div>
           <div>
-            <h1 className="text-sm font-semibold leading-tight">Latviešu Skolotājs</h1>
-            <p className="text-xs text-muted">Учитель латышского</p>
+            <h1 className="text-sm font-semibold leading-tight">{t('app.title')}</h1>
+            <p className="text-xs text-muted">{t('app.subtitle')}</p>
           </div>
         </div>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {navItems.map(({ to, icon: Icon, label }) => (
+        {navItems.map(({ to, icon: Icon, labelKey }) => (
           <NavLink
             key={to}
             to={to}
@@ -83,22 +96,22 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
             }
           >
             <Icon size={18} />
-            {label}
+            {t(labelKey)}
           </NavLink>
         ))}
       </nav>
 
       <div className="border-t border-border px-6 py-4">
         <div className="mb-2 text-xs text-muted">
-          Уровень: <span className="font-medium text-accent">{level}</span>
+          {t('sidebar.levelValue', { level })}
           {' · '}
-          <span className="text-gold">🏅 {unlockedCount}</span>
+          <span className="text-gold">{t('sidebar.achievementsBadge', { count: unlockedCount })}</span>
         </div>
         {streak > 0 && (
           <div className="mb-3 flex items-center gap-2 text-sm">
             <span className="text-gold">🔥</span>
             <span>
-              Серия: <strong>{streak}</strong> {streak === 1 ? 'день' : 'дней'}
+              {t('sidebar.streakValue', { count: streak, unit: dayCountLabel(lang, streak) })}
             </span>
           </div>
         )}
@@ -107,11 +120,11 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
           <span>
             {ttsEngine === 'neural'
               ? neuralOk
-                ? 'Neural TTS (Everita/Nils)'
+                ? t('sidebar.ttsNeural')
                 : neuralOk === false
-                  ? 'Neural TTS offline'
-                  : 'Neural TTS...'
-              : 'Озвучка через браузер'}
+                  ? t('sidebar.ttsNeuralOffline')
+                  : t('sidebar.ttsNeuralLoading')
+              : t('sidebar.ttsBrowser')}
           </span>
         </div>
       </div>

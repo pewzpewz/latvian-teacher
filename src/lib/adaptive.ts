@@ -1,5 +1,7 @@
 import type { Exercise } from '../data/lessons'
 import type { UserProgress } from '../store/useStore'
+import type { TFunction } from '../i18n'
+import { createT } from '../i18n'
 import { lessons } from '../data/lessons'
 import { vocabulary } from '../data/vocabulary'
 import {
@@ -46,21 +48,26 @@ export type LearningAnalysis = {
 
 const LEVEL_ORDER: Level[] = ['A0', 'A1', 'A2', 'B1']
 
-const CATEGORY_LABELS: Record<string, string> = {
-  alphabet: 'Алфавит',
-  grammar: 'Грамматика',
-  phrases: 'Фразы',
-  culture: 'Культура',
-  writing: 'Письмо',
-  pronunciation: 'Произношение',
-  'Приветствия': 'Приветствия',
-  'Семья': 'Семья',
-  'Еда': 'Еда',
-  'Город': 'Город',
-  'Время': 'Время',
-  'Глаголы': 'Глаголы',
-  'Прилагательные': 'Прилагательные',
-  'Природа': 'Природа',
+const CATEGORY_KEYS: Record<string, string> = {
+  alphabet: 'wordCategories.alphabet',
+  grammar: 'wordCategories.grammar',
+  phrases: 'wordCategories.phrases',
+  culture: 'wordCategories.culture',
+  writing: 'wordCategories.writing',
+  pronunciation: 'wordCategories.pronunciation',
+  'Приветствия': 'wordCategories.greetings',
+  'Семья': 'wordCategories.family',
+  'Еда': 'wordCategories.food',
+  'Город': 'wordCategories.city',
+  'Время': 'wordCategories.time',
+  'Глаголы': 'wordCategories.verbs',
+  'Прилагательные': 'wordCategories.adjectives',
+  'Природа': 'wordCategories.nature',
+}
+
+function categoryLabel(t: TFunction, key: string): string {
+  const mapped = CATEGORY_KEYS[key]
+  return mapped ? t(mapped) : key
 }
 
 function getCategoryScore(progress: UserProgress, category: string) {
@@ -81,13 +88,13 @@ export function estimateLevel(progress: UserProgress): Level {
   return 'A0'
 }
 
-export function analyzeLearning(progress: UserProgress): LearningAnalysis {
+export function analyzeLearning(progress: UserProgress, t: TFunction = createT('ru')): LearningAnalysis {
   const estimatedLevel = progress.estimatedLevel || estimateLevel(progress)
 
   const weakAreas = Object.entries(progress.categoryStats)
     .filter(([, s]) => s.total >= 2)
     .map(([name, s]) => ({
-      name: CATEGORY_LABELS[name] || name,
+      name: categoryLabel(t, name),
       score: Math.round((s.correct / s.total) * 100),
       total: s.total,
     }))
@@ -97,7 +104,7 @@ export function analyzeLearning(progress: UserProgress): LearningAnalysis {
   const strongAreas = Object.entries(progress.categoryStats)
     .filter(([, s]) => s.total >= 3)
     .map(([name, s]) => ({
-      name: CATEGORY_LABELS[name] || name,
+      name: categoryLabel(t, name),
       score: Math.round((s.correct / s.total) * 100),
     }))
     .filter((a) => a.score >= 80)
@@ -123,17 +130,17 @@ export function analyzeLearning(progress: UserProgress): LearningAnalysis {
     actions.push({
       id: 'vocab-review',
       type: 'vocabulary',
-      title: 'Повторить слова',
-      description: `${dueWords.length + failedWords.length} слов ждут повторения`,
+      title: t('adaptive.vocabReview'),
+      description: t('adaptive.vocabReviewDesc', { count: dueWords.length + failedWords.length }),
       link: '/vocabulary?mode=cards',
       priority: 90,
-      reason: 'Интервальное повторение — ключ к запоминанию',
+      reason: t('adaptive.vocabReason'),
     })
   }
 
   // Weak area review
   for (const area of weakAreas.slice(0, 2)) {
-    const rawName = Object.entries(CATEGORY_LABELS).find(([, v]) => v === area.name)?.[0] || area.name
+    const rawName = Object.keys(CATEGORY_KEYS).find((k) => categoryLabel(t, k) === area.name) || area.name
     const relatedLesson = lessons.find(
       (l) => l.category === rawName || l.title.toLowerCase().includes(area.name.toLowerCase()),
     )
@@ -141,11 +148,11 @@ export function analyzeLearning(progress: UserProgress): LearningAnalysis {
       actions.push({
         id: `review-${rawName}`,
         type: 'review',
-        title: `Подтянуть: ${area.name}`,
-        description: `Точность ${area.score}% — стоит повторить`,
+        title: t('adaptive.reviewArea', { name: area.name }),
+        description: t('adaptive.reviewAreaDesc', { score: area.score }),
         link: `/lessons/${relatedLesson.id}`,
         priority: 85 - area.score,
-        reason: `Слабая тема (${area.score}% правильных)`,
+        reason: t('adaptive.reviewReason', { score: area.score }),
       })
     }
   }
@@ -158,11 +165,11 @@ export function analyzeLearning(progress: UserProgress): LearningAnalysis {
     actions.push({
       id: 'adaptive-exercises',
       type: 'adaptive',
-      title: 'Персональные упражнения',
-      description: `${pendingAdaptive.length} заданий создано под ваши ошибки`,
+      title: t('adaptive.adaptiveEx'),
+      description: t('adaptive.adaptiveExDesc', { count: pendingAdaptive.length }),
       link: '/plan',
       priority: 95,
-      reason: 'Сгенерировано на основе вашего прогресса',
+      reason: t('adaptive.adaptiveReason'),
     })
   }
 
@@ -178,7 +185,7 @@ export function analyzeLearning(progress: UserProgress): LearningAnalysis {
       description: nextLesson.subtitle,
       link: `/lessons/${nextLesson.id}`,
       priority: levelIdx <= userIdx + 1 ? 70 : 50,
-      reason: levelIdx > userIdx ? 'Следующий уровень — когда будете готовы' : 'Следующий урок программы',
+      reason: levelIdx > userIdx ? t('adaptive.nextLevelReason') : t('adaptive.nextLessonReason'),
     })
   }
 
@@ -188,21 +195,21 @@ export function analyzeLearning(progress: UserProgress): LearningAnalysis {
     actions.push({
       id: 'practice-pron',
       type: 'practice',
-      title: 'Практика произношения',
-      description: `Точность ${pronScore}% — тренируем речь`,
+      title: t('adaptive.pronTitle'),
+      description: t('adaptive.pronDesc', { score: pronScore }),
       link: '/practice',
       priority: 80,
-      reason: 'Произношение требует внимания',
+      reason: t('adaptive.pronReason'),
     })
   } else if (progress.pronunciationAttempts.total < 5) {
     actions.push({
       id: 'practice-start',
       type: 'practice',
-      title: 'Попробуйте произношение',
-      description: 'Говорите вслух — это ускоряет обучение',
+      title: t('adaptive.pronStartTitle'),
+      description: t('adaptive.pronStartDesc'),
       link: '/practice',
       priority: 40,
-      reason: 'Вы ещё мало практиковали речь',
+      reason: t('adaptive.pronStartReason'),
     })
   }
 
@@ -211,11 +218,11 @@ export function analyzeLearning(progress: UserProgress): LearningAnalysis {
     actions.push({
       id: 'dialog',
       type: 'dialog',
-      title: 'Разговорный диалог',
-      description: 'Примените знания в реальной ситуации',
+      title: t('adaptive.dialogTitle'),
+      description: t('adaptive.dialogDesc'),
       link: estimatedLevel === 'A2' ? '/dialogs/d3' : '/dialogs/d1',
       priority: 35,
-      reason: 'Практика в контексте',
+      reason: t('adaptive.dialogReason'),
     })
   }
 
@@ -240,21 +247,19 @@ export function analyzeLearning(progress: UserProgress): LearningAnalysis {
   }
 }
 
-export function getAdaptivePracticeItems(progress: UserProgress): PracticeItem[] {
-  const analysis = analyzeLearning(progress)
+export function getAdaptivePracticeItems(progress: UserProgress, t: TFunction = createT('ru')): PracticeItem[] {
+  const analysis = analyzeLearning(progress, t)
   const level = progress.estimatedLevel || estimateLevel(progress)
   const items: PracticeItem[] = []
 
-  // Слова из слабых тем
   for (const area of analysis.weakAreas) {
-    const rawName = Object.entries(CATEGORY_LABELS).find(([, v]) => v === area.name)?.[0]
+    const rawName = Object.keys(CATEGORY_KEYS).find((k) => categoryLabel(t, k) === area.name) ?? area.name
     const words = vocabulary.filter((w) => w.category === rawName || w.category === area.name).slice(0, 3)
-    words.forEach((w) => items.push({ lv: w.lv, ru: w.ru, reason: `Слабая тема: ${area.name}` }))
+    words.forEach((w) => items.push({ lv: w.lv, ru: w.ru, reason: t('adaptive.weakArea', { name: area.name }) }))
   }
 
-  // Примеры фраз из уроков по слабым темам
   for (const area of analysis.weakAreas.slice(0, 2)) {
-    const rawName = Object.entries(CATEGORY_LABELS).find(([, v]) => v === area.name)?.[0] || area.name
+    const rawName = Object.keys(CATEGORY_KEYS).find((k) => categoryLabel(t, k) === area.name) ?? area.name
     const relatedLessons = lessons.filter(
       (l) => l.category === rawName || l.title.toLowerCase().includes(area.name.toLowerCase()),
     )
@@ -291,7 +296,7 @@ export function getAdaptivePracticeItems(progress: UserProgress): PracticeItem[]
     vocabulary
       .filter((w) => w.category === cat)
       .slice(0, 2)
-      .forEach((w) => items.push({ lv: w.lv, ru: w.ru, reason: `Ошибки в теме «${CATEGORY_LABELS[cat] || cat}»` }))
+      .forEach((w) => items.push({ lv: w.lv, ru: w.ru, reason: t('adaptive.weakArea', { name: categoryLabel(t, cat) }) }))
   }
 
   const deduped = dedupePracticeItems(items)

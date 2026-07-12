@@ -1,5 +1,6 @@
 import { Volume2, Square, Pause, Play } from 'lucide-react'
 import { useSpeech } from '../hooks/useSpeech'
+import { useTranslation } from '../hooks/useTranslation'
 
 type Props = {
   text: string
@@ -9,6 +10,7 @@ type Props = {
 }
 
 export function SpeakButton({ text, size = 'md', className = '', messageMode = false }: Props) {
+  const { t } = useTranslation()
   const {
     speak,
     speakMessage,
@@ -31,7 +33,7 @@ export function SpeakButton({ text, size = 'md', className = '', messageMode = f
             type="button"
             onClick={resumeSpeaking}
             className={`${btnClass} bg-accent/20 text-accent`}
-            title="Продолжить"
+            title={t('speak.resume')}
           >
             <Play size={iconSize} className="fill-current" />
           </button>
@@ -40,7 +42,7 @@ export function SpeakButton({ text, size = 'md', className = '', messageMode = f
             type="button"
             onClick={pauseSpeaking}
             className={`${btnClass} bg-accent/20 text-accent`}
-            title="Пауза"
+            title={t('speak.pause')}
           >
             <Pause size={iconSize} />
           </button>
@@ -49,7 +51,7 @@ export function SpeakButton({ text, size = 'md', className = '', messageMode = f
           type="button"
           onClick={stopSpeaking}
           className={`${btnClass} bg-accent/20 text-accent`}
-          title="Остановить"
+          title={t('speak.stop')}
         >
           <Square size={iconSize} className="fill-current" />
         </button>
@@ -62,7 +64,7 @@ export function SpeakButton({ text, size = 'md', className = '', messageMode = f
       type="button"
       onClick={() => (messageMode ? speakMessage(text) : speak(text))}
       className={`${btnClass} ${className}`}
-      title={messageMode ? 'Прослушать ответ' : 'Прослушать'}
+      title={messageMode ? t('speak.listenReply') : t('speak.listen')}
     >
       <Volume2 size={iconSize} />
     </button>

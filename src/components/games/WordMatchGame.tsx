@@ -4,6 +4,8 @@ import { RotateCcw, Trophy } from 'lucide-react'
 import { pickRandomWords } from '../../data/games'
 import { formatTime, shuffle } from '../../lib/gameUtils'
 
+import { useTranslation } from '../../hooks/useTranslation'
+
 type Props = {
   onFinish: (score: number, correct: number, total: number) => void
   onRestart?: () => void
@@ -17,6 +19,7 @@ type Card = {
 }
 
 export function WordMatchGame({ onFinish, onRestart }: Props) {
+  const { t } = useTranslation()
   const [cards, setCards] = useState<Card[]>([])
   const [flipped, setFlipped] = useState<string[]>([])
   const [matched, setMatched] = useState<Set<string>>(new Set())
@@ -85,19 +88,19 @@ export function WordMatchGame({ onFinish, onRestart }: Props) {
     return (
       <div className="glass rounded-3xl p-8 text-center">
         <Trophy size={48} className="mx-auto mb-4 text-gold" />
-        <h2 className="text-2xl font-bold">Visas pāris atrasti!</h2>
+        <h2 className="text-2xl font-bold">{t('games.matchFinished')}</h2>
         <div className="mt-6 grid grid-cols-3 gap-4">
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-2xl font-bold text-accent">{score}</p>
-            <p className="text-xs text-muted">Очки</p>
+            <p className="text-xs text-muted">{t('common.score')}</p>
           </div>
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-2xl font-bold text-info">{moves}</p>
-            <p className="text-xs text-muted">Ходов</p>
+            <p className="text-xs text-muted">{t('common.moves')}</p>
           </div>
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-2xl font-bold text-gold">{formatTime(seconds)}</p>
-            <p className="text-xs text-muted">Время</p>
+            <p className="text-xs text-muted">{t('common.time')}</p>
           </div>
         </div>
         <button
@@ -105,7 +108,7 @@ export function WordMatchGame({ onFinish, onRestart }: Props) {
           onClick={onRestart}
           className="mt-6 flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-medium text-white mx-auto"
         >
-          <RotateCcw size={16} /> Jauna spēle
+          <RotateCcw size={16} /> {t('games.matchNewGame')}
         </button>
       </div>
     )
@@ -114,9 +117,9 @@ export function WordMatchGame({ onFinish, onRestart }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between text-sm text-muted">
-        <span>Ходов: {moves}</span>
+        <span>{t('common.movesCount', { count: moves })}</span>
         <span>{formatTime(seconds)}</span>
-        <span>Пар: {matched.size}/6</span>
+        <span>{t('games.matchPairs', { matched: matched.size, total: 6 })}</span>
       </div>
 
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">

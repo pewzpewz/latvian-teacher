@@ -3,6 +3,7 @@ import { RotateCcw, Check, X } from 'lucide-react'
 import { useState } from 'react'
 import type { VocabWord } from '../data/vocabulary'
 import { SpeakButton } from './SpeakButton'
+import { useTranslation } from '../hooks/useTranslation'
 
 type Props = {
   word: VocabWord
@@ -10,6 +11,7 @@ type Props = {
 }
 
 export function FlashCard({ word, onRate }: Props) {
+  const { t } = useTranslation()
   const [flipped, setFlipped] = useState(false)
   const [showRating, setShowRating] = useState(false)
 
@@ -45,7 +47,7 @@ export function FlashCard({ word, onRate }: Props) {
             <div className="mt-4">
               <SpeakButton text={word.lv} />
             </div>
-            <p className="mt-6 text-sm text-muted">Нажмите, чтобы перевернуть</p>
+            <p className="mt-6 text-sm text-muted">{t('flashcard.flipHint')}</p>
           </div>
         </motion.div>
 
@@ -80,7 +82,7 @@ export function FlashCard({ word, onRate }: Props) {
             className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm hover:border-red-500/50 hover:bg-red-500/10"
           >
             <X size={16} className="text-red-400" />
-            Не помню
+            {t('flashcard.forgot')}
           </button>
           <button
             type="button"
@@ -88,7 +90,7 @@ export function FlashCard({ word, onRate }: Props) {
             className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm hover:border-gold/50 hover:bg-gold/10"
           >
             <RotateCcw size={16} className="text-gold" />
-            Сложно
+            {t('flashcard.hard')}
           </button>
           <button
             type="button"
@@ -96,7 +98,7 @@ export function FlashCard({ word, onRate }: Props) {
             className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm hover:border-success/50 hover:bg-success/10"
           >
             <Check size={16} className="text-success" />
-            Знаю!
+            {t('flashcard.know')}
           </button>
         </motion.div>
       )}

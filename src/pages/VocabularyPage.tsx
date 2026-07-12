@@ -6,8 +6,11 @@ import type { VocabWord } from '../data/vocabulary'
 import { FlashCard } from '../components/FlashCard'
 import { SpeakButton } from '../components/SpeakButton'
 import { useStore, initNewWord } from '../store/useStore'
+import { useTranslation } from '../hooks/useTranslation'
+import { cardCountLabel } from '../i18n/plural'
 
 export function VocabularyPage() {
+  const { t, lang } = useTranslation()
   const [searchParams] = useSearchParams()
   const urlMode = searchParams.get('mode')
   const dueOnly = searchParams.get('due') === '1'
@@ -88,25 +91,23 @@ export function VocabularyPage() {
 
   return (
     <div>
-      <h1 className="gradient-text mb-2 text-3xl font-bold">Словарь</h1>
-      <p className="mb-4 text-muted">
-        {vocabulary.length} слов с интервальным повторением (SRS)
-      </p>
+      <h1 className="gradient-text mb-2 text-3xl font-bold">{t('vocabulary.title')}</h1>
+      <p className="mb-4 text-muted">{t('vocabulary.subtitle', { count: vocabulary.length })}</p>
 
       {dueCount > 0 && (
         <div className="mb-6 flex flex-wrap items-center gap-3 rounded-xl border border-gold/20 bg-gold/5 px-4 py-3">
           <Clock size={18} className="text-gold" />
           <div className="flex-1">
             <p className="text-sm font-medium text-gold">
-              На сегодня: {dueCount} {dueCount === 1 ? 'карточка' : dueCount < 5 ? 'карточки' : 'карточек'}
+              {t('vocabulary.dueTodayValue', { count: dueCount, unit: cardCountLabel(lang, dueCount) })}
             </p>
-            <p className="text-xs text-muted">Повторите слова, которые пора вспомнить</p>
+            <p className="text-xs text-muted">{t('vocabulary.dueHint')}</p>
           </div>
           <Link
             to="/vocabulary?mode=cards&due=1"
             className="rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white no-underline hover:opacity-90"
           >
-            Повторить
+            {t('vocabulary.review')}
           </Link>
         </div>
       )}
@@ -118,7 +119,7 @@ export function VocabularyPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Поиск..."
+            placeholder={t('common.search')}
             className="w-full rounded-xl border border-border bg-surface-2 py-2.5 pl-10 pr-4 outline-none focus:border-accent"
           />
         </div>
@@ -128,7 +129,7 @@ export function VocabularyPage() {
             onClick={() => { setMode('list'); setCardIndex(0) }}
             className={`rounded-xl px-4 py-2 text-sm ${mode === 'list' ? 'bg-accent text-white' : 'border border-border'}`}
           >
-            Список
+            {t('common.list')}
           </button>
           <button
             type="button"
@@ -136,7 +137,7 @@ export function VocabularyPage() {
             className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm ${mode === 'cards' ? 'bg-accent text-white' : 'border border-border'}`}
           >
             <Shuffle size={14} />
-            Карточки
+            {t('common.cards')}
           </button>
         </div>
       </div>
@@ -147,7 +148,7 @@ export function VocabularyPage() {
           onClick={() => setCategory('all')}
           className={`rounded-full px-3 py-1 text-xs ${category === 'all' ? 'bg-accent text-white' : 'border border-border'}`}
         >
-          Все
+          {t('common.all')}
         </button>
         {categories.map((cat) => (
           <button
@@ -164,23 +165,23 @@ export function VocabularyPage() {
       {mode === 'cards' ? (
         <div>
           {dueOnly && (
-            <p className="mb-2 text-center text-sm text-gold">Режим: только слова на повторение</p>
+            <p className="mb-2 text-center text-sm text-gold">{t('vocabulary.dueMode')}</p>
           )}
           {cardWords.length === 0 ? (
             <div className="rounded-2xl border border-border bg-surface-2 p-8 text-center">
               <p className="text-muted">
-                {dueOnly ? 'Нет карточек на повторение — отлично!' : 'Нет слов для показа'}
+                {dueOnly ? t('vocabulary.noDueCards') : t('vocabulary.noWords')}
               </p>
               {dueOnly && (
                 <Link to="/vocabulary?mode=cards" className="mt-4 inline-block text-accent">
-                  Все карточки →
+                  {t('vocabulary.allCards')}
                 </Link>
               )}
             </div>
           ) : (
             <>
               <p className="mb-4 text-center text-sm text-muted">
-                Карточка {cardIndex + 1} из {cardWords.length}
+                {t('common.cardOf', { current: cardIndex + 1, total: cardWords.length })}
               </p>
               {cardWords[cardIndex] && (
                 <FlashCard word={cardWords[cardIndex]} onRate={handleRate} />
@@ -205,7 +206,7 @@ export function VocabularyPage() {
                     {word.category}
                   </span>
                   {isDue && (
-                    <span className="text-xs text-gold">⏰ на повторение</span>
+                    <span className="text-xs text-gold">{t('vocabulary.dueBadge')}</span>
                   )}
                   {srs && srs.reps > 0 && !isDue && (
                     <span className="text-xs text-success">✓ {srs.reps}×</span>

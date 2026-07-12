@@ -17,6 +17,7 @@ import { analyzeLearning, buildProfileSummary } from '../lib/adaptive'
 import { generateAdaptiveContent } from '../lib/api'
 import { ExerciseCard } from '../components/ExerciseCard'
 import { vocabulary } from '../data/vocabulary'
+import { useTranslation } from '../hooks/useTranslation'
 
 const actionIcons = {
   lesson: Target,
@@ -28,6 +29,7 @@ const actionIcons = {
 }
 
 export function PlanPage() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const { progress, settings, addAdaptiveContent, recordExercise } = useStore()
   const [generating, setGenerating] = useState(false)
@@ -36,7 +38,7 @@ export function PlanPage() {
   const [exerciseIdx, setExerciseIdx] = useState(0)
   const [canProceed, setCanProceed] = useState(false)
 
-  const analysis = analyzeLearning(progress)
+  const analysis = analyzeLearning(progress, t)
   const pendingExercises = progress.adaptiveExercises.filter((e) => !progress.exerciseScores[e.id])
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export function PlanPage() {
       addAdaptiveContent(words, exercises)
       setGenTip(result.tip)
     } catch (e) {
-      setGenError(e instanceof Error ? e.message : 'Ошибка генерации')
+      setGenError(e instanceof Error ? e.message : t('common.generationError'))
     } finally {
       setGenerating(false)
     }
@@ -79,9 +81,7 @@ export function PlanPage() {
   useEffect(() => {
     if (searchParams.get('adapt') !== '1' || generating) return
     if (!analysis.needsAiRefresh && progress.adaptiveExercises.length > 0) return
-    const ok = window.confirm(
-      'Создать персональные слова и упражнения на основе вашего прогресса? Это использует AI (Gemini).',
-    )
+    const ok = window.confirm(t('plan.adaptConfirm'))
     if (ok) void generateContent()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('adapt')])
@@ -90,11 +90,11 @@ export function PlanPage() {
     <div>
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="gradient-text text-3xl font-bold">Мой план</h1>
-          <p className="mt-2 text-muted">Система подстраивается под ваш прогресс и ошибки</p>
+          <h1 className="gradient-text text-3xl font-bold">{t('plan.title')}</h1>
+          <p className="mt-2 text-muted">{t('plan.subtitle')}</p>
         </div>
         <div className="rounded-full bg-accent/15 px-4 py-2 text-sm font-medium text-accent">
-          Уровень: {analysis.estimatedLevel}
+          {t('common.levelShort', { level: analysis.estimatedLevel })}
         </div>
       </div>
 
@@ -103,23 +103,23 @@ export function PlanPage() {
         <div className="glass rounded-2xl p-5">
           <TrendingUp size={20} className="mb-2 text-success" />
           <p className="text-2xl font-bold">{analysis.masteryPercent}%</p>
-          <p className="text-sm text-muted">Общая точность</p>
+          <p className="text-sm text-muted">{t('plan.mastery')}</p>
         </div>
         <div className="glass rounded-2xl p-5">
           <AlertTriangle size={20} className="mb-2 text-gold" />
           <p className="text-2xl font-bold">{analysis.weakAreas.length}</p>
-          <p className="text-sm text-muted">Слабых тем</p>
+          <p className="text-sm text-muted">{t('plan.weakAreas')}</p>
         </div>
         <div className="glass rounded-2xl p-5">
           <Sparkles size={20} className="mb-2 text-accent" />
           <p className="text-2xl font-bold">{progress.adaptiveExercises.length}</p>
-          <p className="text-sm text-muted">Персональных заданий</p>
+          <p className="text-sm text-muted">{t('plan.adaptiveTasks')}</p>
         </div>
       </div>
 
       {/* Today's plan */}
       <section className="mb-8">
-        <h2 className="mb-4 text-lg font-semibold">Рекомендации на сегодня</h2>
+        <h2 className="mb-4 text-lg font-semibold">{t('plan.recommendationsToday')}</h2>
         <div className="space-y-3">
           {analysis.actions.map((action, i) => {
             const Icon = actionIcons[action.type]
@@ -153,9 +153,9 @@ export function PlanPage() {
       {/* Weak / Strong areas */}
       <div className="mb-8 grid grid-cols-2 gap-6">
         <div className="glass rounded-2xl p-6">
-          <h3 className="mb-4 font-semibold text-gold">Слабые темы</h3>
+          <h3 className="mb-4 font-semibold text-gold">{t('plan.weakTopics')}</h3>
           {analysis.weakAreas.length === 0 ? (
-            <p className="text-sm text-muted">Пока нет данных — пройдите несколько уроков</p>
+            <p className="text-sm text-muted">{t('plan.weakTopicsEmpty')}</p>
           ) : (
             analysis.weakAreas.map((area) => (
               <div key={area.name} className="mb-3">
@@ -175,9 +175,9 @@ export function PlanPage() {
         </div>
 
         <div className="glass rounded-2xl p-6">
-          <h3 className="mb-4 font-semibold text-success">Сильные темы</h3>
+          <h3 className="mb-4 font-semibold text-success">{t('plan.strongTopics')}</h3>
           {analysis.strongAreas.length === 0 ? (
-            <p className="text-sm text-muted">Продолжайте учиться — сильные стороны появятся</p>
+            <p className="text-sm text-muted">{t('plan.strongTopicsEmpty')}</p>
           ) : (
             analysis.strongAreas.map((area) => (
               <div key={area.name} className="mb-3">
@@ -200,7 +200,7 @@ export function PlanPage() {
       {/* AI-generated content */}
       <section className="mb-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Персональный контент</h2>
+          <h2 className="text-lg font-semibold">{t('plan.personalContent')}</h2>
           <button
             type="button"
             onClick={generateContent}
@@ -208,7 +208,7 @@ export function PlanPage() {
             className="flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
             {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-            {generating ? 'Генерирую...' : 'Создать под меня'}
+            {generating ? t('plan.generating') : t('plan.generate')}
           </button>
         </div>
 
@@ -217,20 +217,22 @@ export function PlanPage() {
         )}
         {genTip && (
           <div className="mb-4 rounded-xl border border-gold/20 bg-gold/5 p-4 text-sm">
-            <span className="font-medium text-gold">Совет от AI: </span>{genTip}
+            <span className="font-medium text-gold">{t('plan.aiTip')} </span>{genTip}
           </div>
         )}
 
         {analysis.needsAiRefresh && !generating && (
           <div className="mb-4 rounded-xl border border-accent/20 bg-accent/5 p-4 text-sm text-muted">
-            Система заметила слабые места — нажмите «Создать под меня» для персональных заданий и слов
+            {t('plan.needsRefresh')}
           </div>
         )}
 
         {/* Adaptive words */}
         {progress.adaptiveWords.length > 0 && (
           <div className="mb-6">
-            <h3 className="mb-3 text-sm font-medium text-muted">Добавленные слова ({progress.adaptiveWords.length})</h3>
+            <h3 className="mb-3 text-sm font-medium text-muted">
+              {t('plan.addedWords', { count: progress.adaptiveWords.length })}
+            </h3>
             <div className="grid gap-2">
               {progress.adaptiveWords.slice(-8).map((w) => (
                 <div
@@ -253,7 +255,7 @@ export function PlanPage() {
         {pendingExercises.length > 0 ? (
           <div>
             <p className="mb-4 text-sm text-muted">
-              Задание {exerciseIdx + 1} из {pendingExercises.length}
+              {t('common.taskOf', { current: exerciseIdx + 1, total: pendingExercises.length })}
             </p>
             <ExerciseCard
               key={pendingExercises[exerciseIdx].id}
@@ -266,7 +268,7 @@ export function PlanPage() {
               onChecked={() => setCanProceed(true)}
             />
             {!canProceed && (
-              <p className="mt-3 text-sm text-muted">Сначала проверьте ответ</p>
+              <p className="mt-3 text-sm text-muted">{t('common.checkFirstShort')}</p>
             )}
             {exerciseIdx < pendingExercises.length - 1 && (
               <button
@@ -275,26 +277,24 @@ export function PlanPage() {
                 disabled={!canProceed}
                 className="mt-4 rounded-xl bg-accent px-6 py-2.5 text-sm text-white disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Следующее
+                {t('common.nextAlt')}
               </button>
             )}
             {exerciseIdx === pendingExercises.length - 1 && canProceed && (
-              <p className="mt-4 text-sm text-success">Последнее задание выполнено!</p>
+              <p className="mt-4 text-sm text-success">{t('plan.lastTaskDone')}</p>
             )}
           </div>
         ) : progress.adaptiveExercises.length > 0 ? (
-          <p className="text-sm text-success">Все персональные задания выполнены!</p>
+          <p className="text-sm text-success">{t('plan.allTasksDone')}</p>
         ) : (
-          <p className="text-sm text-muted">
-            Персональные задания появятся после нескольких уроков или по кнопке «Создать под меня»
-          </p>
+          <p className="text-sm text-muted">{t('plan.tasksPending')}</p>
         )}
       </section>
 
       {/* Words to review */}
       {analysis.wordsToReview.length > 0 && (
         <section>
-          <h2 className="mb-4 text-lg font-semibold">Слова для повторения</h2>
+          <h2 className="mb-4 text-lg font-semibold">{t('plan.wordsToReview')}</h2>
           <div className="grid gap-2">
             {analysis.wordsToReview.map((id) => {
               const w = vocabulary.find((v) => v.id === id)

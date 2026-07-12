@@ -2,19 +2,29 @@
 
 Локальный веб-сервис для изучения латышского языка (письменного и разговорного). Интерфейс на русском, контент на латышском.
 
+**Лицензия:** [MIT](LICENSE)
+
 ## Возможности
 
-- **8 структурированных уроков** — алфавит, приветствия, грамматика, числа, падежи, письмо, культура
-- **Словарь (~60 слов)** с интервальным повторением (SRS) и карточками
+- **20+ уроков** — алфавит, грамматика, культура, путешествия, работа
+- **553+ слов** с интервальным повторением (FSRS) и карточками
 - **5 диалогов** — кафе, знакомство, магазин, дорога, погода
-- **Практика произношения** — TTS + распознавание речи через браузер
-- **Neural TTS** — натуральные латышские голоса Microsoft (Everita / Nils)
-- **AI-репетитор** — объясняет грамматику, проверяет фразы, создаёт упражнения
-- **Прогресс и серии** — всё хранится локально в браузере
+- **Neural TTS** — латышские голоса Microsoft (Everita / Nils)
+- **AI-репетитор** — чат + **Live WebRTC**-диалог (STT → Gemini → TTS)
+- **Mock B1/VISC** — подготовка к экзамену
+- **PWA** — офлайн-кеш уроков и словаря, export/import прогресса
+- **Capacitor / TWA** — сборки для Google Play и App Store ([`docs/MOBILE.md`](docs/MOBILE.md))
 
-## Быстрый старт (Windows)
+## Быстрый старт (Windows / Linux / macOS)
 
-Дважды кликните **`START.bat`** — всё установится и запустится автоматически.
+**Windows:** дважды кликните **`START.bat`**
+
+**Linux / macOS:**
+```bash
+chmod +x start.sh && ./start.sh
+# или
+npm run dev:all
+```
 
 Откройте: **http://localhost:5173**
 
@@ -28,7 +38,7 @@ npm run dev
 # API-сервер (в другом терминале)
 cd server
 npm install
-cp .env.example .env   # добавьте OPENAI_API_KEY
+cp .env.example .env   # добавьте GEMINI_API_KEY
 npm run dev
 ```
 
@@ -54,52 +64,62 @@ AI_MODEL=gemini-2.5-flash
 - **Anthropic** — `ANTHROPIC_API_KEY` + `AI_PROVIDER=anthropic`
 - **Ollama** — `AI_PROVIDER=local` (локально, без интернета)
 
+## Production
+
+```bash
+npm run build          # фронтенд → dist/
+cd server && npm run build && npm start
+# API + статика на порту 3001 (NODE_ENV=production)
+```
+
+Сервер компилируется через `tsc` → `node dist/index.js` (без dev-only `tsx`).
+
+## Доступ из интернета (ngrok / Cloudflare Tunnel)
+
+**Обязательно** настройте в `server/.env`:
+
+```env
+ALLOWED_ORIGINS=https://your-tunnel.example.com
+API_ACCESS_TOKEN=случайная-длинная-строка
+```
+
+И во фронтенде (`.env` или `.env.production`):
+
+```env
+VITE_API_ACCESS_TOKEN=та-же-строка
+```
+
+Без этого любой сайт сможет использовать ваш API и расходовать квоту Gemini.
+
+Для production-деплоя см. **`docs/DEPLOY.md`** (Docker, Fly.io, Render).
+
 ## Структура
 
 ```
 latvian-teacher/
-├── ROADMAP.md          # ← План развития (фазы 0–3), выполняем шаг за шагом
-├── src/
-│   ├── data/          # Уроки, словарь, диалоги
-│   ├── pages/         # Страницы приложения
-│   ├── components/    # UI-компоненты
-│   ├── store/         # Прогресс (localStorage)
-│   └── hooks/         # TTS, распознавание речи
-├── server/            # Express API для AI
-└── START.bat          # Запуск одной кнопкой
+├── ROADMAP.md          # План развития (фазы 0–4+)
+├── docs/               # MARKET_COMPARISON.md и др.
+├── content/            # JSON-пайплайн (уроки, словарь)
+├── src/                # React PWA
+├── server/             # Express API + Live WebSocket
+└── START.bat           # Запуск одной кнопкой (Windows)
 ```
 
 ## Технологии
 
-- React 19 + TypeScript + Vite
-- Tailwind CSS 4
-- Zustand (состояние)
-- Framer Motion (анимации)
-- Web Speech API (озвучка)
-- Express (API-прокси для AI)
-
-## Доступ из интернета (опционально)
-
-Для доступа с других устройств:
-
-```bash
-# Сборка
-npm run build
-
-# Запуск production
-cd server && npm start
-# Сервер отдаёт и API, и фронтенд на порту 3001
-```
-
-Можно использовать ngrok, Cloudflare Tunnel или проброс порта на роутере.
+- React 19 + TypeScript + Vite + PWA
+- Zustand + FSRS (ts-fsrs)
+- Express + WebSocket + WebRTC (Live)
+- Google Gemini + Edge TTS
+- Vitest + GitHub Actions CI
 
 ## Добавление контента
 
-Уроки: `src/data/lessons.ts`
-Слова: `src/data/vocabulary.ts`
-Диалоги: `src/data/dialogs.ts`
+```bash
+npm run build:content   # content/*.json → src/data/
+```
 
-Формат простой — добавляйте объекты в массивы.
+Уроки: `content/lessons/*.json` · Словарь: `content/vocabulary.json`
 
 ---
 

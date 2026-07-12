@@ -7,6 +7,7 @@ import { LigoFireGame } from '../components/games/LigoFireGame'
 import { WordMatchGame } from '../components/games/WordMatchGame'
 import { WordScrambleGame } from '../components/games/WordScrambleGame'
 import { useStore } from '../store/useStore'
+import { useTranslation } from '../hooks/useTranslation'
 
 const gameComponents: Record<
   GameId,
@@ -19,6 +20,7 @@ const gameComponents: Record<
 }
 
 export function GamesPage() {
+  const { t } = useTranslation()
   const [active, setActive] = useState<GameId | null>(null)
   const [sessionKey, setSessionKey] = useState(0)
   const { progress, recordGameResult, updateStreak, addStudyTime } = useStore()
@@ -41,14 +43,12 @@ export function GamesPage() {
     <div>
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="gradient-text text-3xl font-bold">Spēles</h1>
-          <p className="mt-2 text-muted">
-            Учите латышский через игры — от реки Daugava до костра Līgo
-          </p>
+          <h1 className="gradient-text text-3xl font-bold">{t('games.title')}</h1>
+          <p className="mt-2 text-muted">{t('games.subtitle')}</p>
         </div>
         {!active && (
           <div className="glass rounded-xl px-4 py-2 text-sm">
-            <span className="text-muted">Игр сыграно: </span>
+            <span className="text-muted">{t('common.gamesPlayed')} </span>
             <strong className="text-gold">{progress.gameStats.totalPlays}</strong>
           </div>
         )}
@@ -67,13 +67,13 @@ export function GamesPage() {
               onClick={() => setActive(null)}
               className="mb-4 flex items-center gap-2 text-sm text-muted hover:text-text"
             >
-              <ArrowLeft size={16} /> Atpakaļ uz spēlēm
+              <ArrowLeft size={16} /> {t('games.back')}
             </button>
             <div className="mb-4 flex items-center gap-3">
               <span className="text-3xl">{activeMeta.icon}</span>
               <div>
-                <h2 className="text-xl font-bold">{activeMeta.title}</h2>
-                <p className="text-sm text-muted">{activeMeta.subtitle}</p>
+                <h2 className="text-xl font-bold">{t(activeMeta.titleKey)}</h2>
+                <p className="text-sm text-muted">{t(activeMeta.subtitleKey)}</p>
               </div>
             </div>
             <ActiveGame
@@ -87,7 +87,7 @@ export function GamesPage() {
               onClick={restart}
               className="mt-4 text-sm text-muted underline hover:text-text"
             >
-              Sākt no jauna
+              {t('games.restart')}
             </button>
           </motion.div>
         ) : (
@@ -118,24 +118,24 @@ export function GamesPage() {
                     <span className="text-4xl">{game.icon}</span>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-bold">{game.title}</h3>
+                        <h3 className="text-lg font-bold">{t(game.titleKey)}</h3>
                         <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] text-muted">
-                          {game.theme}
+                          {t(game.themeKey)}
                         </span>
                       </div>
-                      <p className={`mt-1 text-sm font-medium ${game.color}`}>{game.subtitle}</p>
-                      <p className="mt-2 text-sm text-muted">{game.description}</p>
+                      <p className={`mt-1 text-sm font-medium ${game.color}`}>{t(game.subtitleKey)}</p>
+                      <p className="mt-2 text-sm text-muted">{t(game.descriptionKey)}</p>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        {game.skills.map((s) => (
+                        {game.skillKeys.map((s) => (
                           <span key={s} className="rounded-lg bg-surface-2 px-2 py-0.5 text-xs text-muted">
-                            {s}
+                            {t(s)}
                           </span>
                         ))}
                       </div>
                       {(best > 0 || plays > 0) && (
                         <p className="mt-3 text-xs text-muted">
-                          {plays > 0 && `Сыграно: ${plays}`}
-                          {best > 0 && ` · Рекорд: ${best}`}
+                          {plays > 0 && t('common.plays', { count: plays })}
+                          {best > 0 && ` · ${t('common.record', { score: best })}`}
                         </p>
                       )}
                     </div>

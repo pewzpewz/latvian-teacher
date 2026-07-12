@@ -1,0 +1,15 @@
+node_modules
+server/node_modules
+server/cache
+server/dist
+dist
+.git
+.github
+.cursor
+*.local
+.env
+server/.env
+coverage
+.gh-auth.log
+**/*.test.ts
+vitest.config.ts

@@ -2,6 +2,7 @@ import type { Exercise } from '../data/lessons'
 import { useState } from 'react'
 import { Check, X, HelpCircle } from 'lucide-react'
 import { compareLatvian } from '../hooks/useSpeech'
+import { useTranslation } from '../hooks/useTranslation'
 
 type Props = {
   exercise: Exercise
@@ -10,6 +11,7 @@ type Props = {
 }
 
 export function ExerciseCard({ exercise, onComplete, onChecked }: Props) {
+  const { t } = useTranslation()
   const [answer, setAnswer] = useState('')
   const [selected, setSelected] = useState('')
   const [result, setResult] = useState<'correct' | 'wrong' | null>(null)
@@ -52,7 +54,7 @@ export function ExerciseCard({ exercise, onComplete, onChecked }: Props) {
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !result && check()}
-          placeholder="Ваш ответ на латышском..."
+          placeholder={t('exercise.placeholder')}
           className="mb-4 w-full rounded-xl border border-border bg-bg px-4 py-3 outline-none focus:border-accent"
           disabled={result !== null}
         />
@@ -65,7 +67,7 @@ export function ExerciseCard({ exercise, onComplete, onChecked }: Props) {
           className="mb-4 flex items-center gap-1 text-sm text-muted hover:text-gold"
         >
           <HelpCircle size={14} />
-          Подсказка
+          {t('exercise.hint')}
         </button>
       )}
       {showHint && exercise.hint && (
@@ -79,7 +81,9 @@ export function ExerciseCard({ exercise, onComplete, onChecked }: Props) {
           }`}
         >
           {result === 'correct' ? <Check size={18} /> : <X size={18} />}
-          {result === 'correct' ? 'Верно!' : `Правильный ответ: ${exercise.answer}`}
+          {result === 'correct'
+            ? t('exercise.correct')
+            : t('exercise.correctAnswer', { answer: exercise.answer })}
         </div>
       )}
 
@@ -90,7 +94,7 @@ export function ExerciseCard({ exercise, onComplete, onChecked }: Props) {
           disabled={exercise.type === 'choose' ? !selected : !answer.trim()}
           className="rounded-xl bg-accent px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40"
         >
-          Проверить
+          {t('exercise.check')}
         </button>
       )}
     </div>

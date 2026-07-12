@@ -43,6 +43,11 @@ const baseSettings: UserSettings = {
   onboardingCompleted: true,
   learningGoal: 'exam',
   selfReportedLevel: 'A1',
+  uiLanguage: 'ru',
+  streakReminderEnabled: false,
+  streakReminderHour: 19,
+  syncId: null,
+  lastSyncedAt: null,
 }
 
 describe('backup', () => {

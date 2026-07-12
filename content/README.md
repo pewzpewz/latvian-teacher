@@ -9,6 +9,7 @@
 ```
 content/
   vocabulary.json      # словарь (553 слова)
+  declensions.json     # тренажёр падежей (42 drill)
   lessons/
     family-1.json      # дополнительные уроки (12 шт.)
     work-1.json

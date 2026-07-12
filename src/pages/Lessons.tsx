@@ -3,8 +3,10 @@ import { Clock, CheckCircle } from 'lucide-react'
 import { lessons, levelColors } from '../data/lessons'
 import { LVA_THEMES } from '../data/lvaThemes'
 import { useStore } from '../store/useStore'
+import { useTranslation } from '../hooks/useTranslation'
 
 export function Lessons() {
+  const { t } = useTranslation()
   const completedLessons = useStore((s) => s.progress.completedLessons)
 
   const byTheme = LVA_THEMES.map((theme) => {
@@ -17,10 +19,8 @@ export function Lessons() {
 
   return (
     <div>
-      <h1 className="gradient-text mb-2 text-3xl font-bold">Уроки</h1>
-      <p className="mb-8 text-muted">
-        Программа по 7 темам LVA — от знакомства до подготовки к B1
-      </p>
+      <h1 className="gradient-text mb-2 text-3xl font-bold">{t('lessons.title')}</h1>
+      <p className="mb-8 text-muted">{t('lessons.subtitle')}</p>
 
       <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {byTheme.map(({ theme, done, total }) => (
@@ -34,7 +34,7 @@ export function Lessons() {
               />
             </div>
             <p className="mt-1 text-xs text-muted">
-              {done}/{total} уроков
+              {t('lessons.themeProgress', { done, total })}
             </p>
           </div>
         ))}
@@ -69,7 +69,7 @@ export function Lessons() {
                   </div>
                   <div className="flex items-center gap-1 text-sm text-muted">
                     <Clock size={14} />
-                    {lesson.duration} мин
+                    {t('lessons.duration', { minutes: lesson.duration })}
                   </div>
                 </Link>
               )

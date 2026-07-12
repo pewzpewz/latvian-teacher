@@ -9,6 +9,7 @@ import {
   countLatin,
 } from '../lib/chatText'
 import { getWordGloss, peekCachedGloss } from '../lib/wordGloss'
+import { useTranslation } from '../hooks/useTranslation'
 
 type HoverWordProps = {
   word: string
@@ -16,6 +17,7 @@ type HoverWordProps = {
 }
 
 function HoverWord({ word, sentence }: HoverWordProps) {
+  const { t } = useTranslation()
   const [tip, setTip] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [visible, setVisible] = useState(false)
@@ -40,9 +42,9 @@ function HoverWord({ word, sentence }: HoverWordProps) {
       try {
         const gloss = await getWordGloss(word, sentence)
         if (gen !== genRef.current) return
-        setTip(gloss || 'перевод не найден')
+        setTip(gloss || t('chat.glossNotFound'))
       } catch {
-        if (gen === genRef.current) setTip('перевод не найден')
+        if (gen === genRef.current) setTip(t('chat.glossNotFound'))
       } finally {
         if (gen === genRef.current) setLoading(false)
       }
@@ -107,7 +109,7 @@ function HoverWord({ word, sentence }: HoverWordProps) {
       </span>
       {showTooltip && (
         <span className="absolute bottom-full left-1/2 z-50 mb-1.5 max-w-[240px] -translate-x-1/2 whitespace-normal rounded-lg border border-gold/30 bg-surface px-2.5 py-1 text-center text-xs font-medium text-text shadow-lg">
-          {loading ? <span className="text-muted">перевожу…</span> : tip}
+          {loading ? <span className="text-muted">{t('chat.translating')}</span> : tip}
           <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-border" />
         </span>
       )}

@@ -6,6 +6,7 @@ import { SpeakButton } from '../components/SpeakButton'
 import { useStore } from '../store/useStore'
 import { useSpeech } from '../hooks/useSpeech'
 import { matchPronunciation } from '../lib/pronunciationMatch'
+import { useTranslation } from '../hooks/useTranslation'
 
 const USER_SPEAKERS = new Set(['Jūs', 'Tu'])
 
@@ -14,6 +15,7 @@ function isUserLine(line: DialogLine): boolean {
 }
 
 export function DialogsPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const [searchParams] = useSearchParams()
   const selected = id ? getDialogById(id) : null
@@ -75,7 +77,7 @@ export function DialogsPage() {
       <div>
         <Link to="/dialogs" className="mb-6 inline-flex items-center gap-2 text-sm text-muted hover:text-text">
           <ArrowLeft size={16} />
-          Все диалоги
+          {t('dialogs.allDialogs')}
         </Link>
 
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -84,7 +86,7 @@ export function DialogsPage() {
             <p className="mt-2 text-muted">{selected.scene}</p>
             {isCompleted && (
               <span className="mt-2 inline-block rounded-full bg-success/15 px-3 py-1 text-xs text-success">
-                ✓ Пройден в практике
+                {t('dialogs.passedPractice')}
               </span>
             )}
           </div>
@@ -97,7 +99,7 @@ export function DialogsPage() {
               }`}
             >
               <BookOpen size={14} />
-              Чтение
+              {t('dialogs.reading')}
             </button>
             <button
               type="button"
@@ -107,7 +109,7 @@ export function DialogsPage() {
               }`}
             >
               <Drama size={14} />
-              Практика
+              {t('dialogs.practice')}
             </button>
           </div>
         </div>
@@ -143,7 +145,7 @@ export function DialogsPage() {
                 disabled={activeLine === 0}
                 className="rounded-xl border border-border px-4 py-2 text-sm disabled:opacity-30"
               >
-                ← Назад
+                {t('dialogs.back')}
               </button>
               <button
                 type="button"
@@ -151,27 +153,27 @@ export function DialogsPage() {
                 disabled={activeLine === selected.lines.length - 1}
                 className="rounded-xl bg-accent px-4 py-2 text-sm text-white disabled:opacity-30"
               >
-                Далее →
+                {t('dialogs.next')}
               </button>
             </div>
           </>
         ) : practiceDone ? (
           <div className="rounded-2xl border border-success/30 bg-success/10 p-8 text-center">
             <Check size={40} className="mx-auto mb-4 text-success" />
-            <p className="text-xl font-semibold text-success">Диалог пройден!</p>
-            <p className="mt-2 text-muted">Отличная работа — вы отработали все реплики.</p>
+            <p className="text-xl font-semibold text-success">{t('dialogs.completed')}</p>
+            <p className="mt-2 text-muted">{t('dialogs.completedDesc')}</p>
             <button
               type="button"
               onClick={resetPractice}
               className="mt-6 rounded-xl border border-border px-4 py-2 text-sm"
             >
-              Пройти ещё раз
+              {t('dialogs.retry')}
             </button>
           </div>
         ) : (
           <div className="glass mx-auto max-w-lg rounded-3xl p-8">
             <p className="mb-2 text-center text-sm text-muted">
-              Реплика {practiceIndex + 1} / {selected.lines.length}
+              {t('common.replicaOf', { current: practiceIndex + 1, total: selected.lines.length })}
             </p>
 
             {!isUserLine(currentPracticeLine) ? (
@@ -187,21 +189,23 @@ export function DialogsPage() {
                     onClick={() => speak(currentPracticeLine.lv)}
                     className="rounded-xl bg-accent/15 px-4 py-2 text-sm text-accent"
                   >
-                    🔊 Послушать
+                    {t('dialogs.listen')}
                   </button>
                   <button
                     type="button"
                     onClick={advancePractice}
                     className="rounded-xl bg-accent px-4 py-2 text-sm text-white"
                   >
-                    Далее →
+                    {t('dialogs.next')}
                   </button>
                 </div>
               </>
             ) : (
               <>
                 <div className="mb-4 text-center">
-                  <span className="text-sm font-medium text-gold">Ваша реплика ({currentPracticeLine.speaker})</span>
+                  <span className="text-sm font-medium text-gold">
+                    {t('dialogs.yourLine', { speaker: currentPracticeLine.speaker })}
+                  </span>
                   <p className="mt-3 text-sm text-muted">{currentPracticeLine.ru}</p>
                   <p className="latvian-text mt-4 text-xl font-bold text-accent">{currentPracticeLine.lv}</p>
                 </div>
@@ -219,12 +223,12 @@ export function DialogsPage() {
                 </div>
 
                 {listening && (
-                  <p className="mb-4 text-center text-sm text-muted">Говорите... Нажмите ещё раз для проверки</p>
+                  <p className="mb-4 text-center text-sm text-muted">{t('common.speakPromptShort')}</p>
                 )}
 
                 {transcript && (
                   <p className="mb-4 text-center text-sm">
-                    Вы сказали: <span className="latvian-text font-medium">{transcript}</span>
+                    {t('common.youSaid')} <span className="latvian-text font-medium">{transcript}</span>
                   </p>
                 )}
 
@@ -235,7 +239,7 @@ export function DialogsPage() {
                     }`}
                   >
                     {practiceResult === 'correct' ? <Check size={18} /> : <X size={18} />}
-                    {practiceResult === 'correct' ? 'Отлично!' : 'Попробуйте ещё раз'}
+                    {practiceResult === 'correct' ? t('common.excellent') : t('common.tryAgain')}
                   </div>
                 )}
               </>
@@ -248,8 +252,8 @@ export function DialogsPage() {
 
   return (
     <div>
-      <h1 className="gradient-text mb-2 text-3xl font-bold">Диалоги</h1>
-      <p className="mb-8 text-muted">Разговорные ситуации — читайте или практикуйте вслух</p>
+      <h1 className="gradient-text mb-2 text-3xl font-bold">{t('dialogs.title')}</h1>
+      <p className="mb-8 text-muted">{t('dialogs.subtitle')}</p>
 
       <div className="grid gap-4">
         {dialogs.map((dialog) => {
@@ -260,7 +264,7 @@ export function DialogsPage() {
                 <div>
                   <h3 className="font-medium text-text">{dialog.title}</h3>
                   <p className="mt-1 text-sm text-muted">{dialog.scene}</p>
-                  {done && <span className="mt-2 inline-block text-xs text-success">✓ Пройден</span>}
+                  {done && <span className="mt-2 inline-block text-xs text-success">{t('dialogs.passed')}</span>}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs text-accent">{dialog.level}</span>
@@ -268,13 +272,13 @@ export function DialogsPage() {
                     to={`/dialogs/${dialog.id}`}
                     className="rounded-xl border border-border px-3 py-1.5 text-sm no-underline"
                   >
-                    Читать
+                    {t('common.read')}
                   </Link>
                   <Link
                     to={`/dialogs/${dialog.id}?mode=practice`}
                     className="rounded-xl bg-accent px-3 py-1.5 text-sm text-white no-underline"
                   >
-                    Практика
+                    {t('dialogs.practice')}
                   </Link>
                 </div>
               </div>

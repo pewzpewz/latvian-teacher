@@ -4,6 +4,8 @@ import { RotateCcw, Trophy } from 'lucide-react'
 import { pickRandomWords } from '../../data/games'
 import { formatTime, matchesLatvian } from '../../lib/gameUtils'
 
+import { useTranslation } from '../../hooks/useTranslation'
+
 type Props = {
   onFinish: (score: number, correct: number, total: number) => void
   onRestart?: () => void
@@ -12,6 +14,7 @@ type Props = {
 const GAME_DURATION = 60
 
 export function LaivaRaceGame({ onFinish, onRestart }: Props) {
+  const { t } = useTranslation()
   const [words] = useState(() => pickRandomWords(30, true))
   const [index, setIndex] = useState(0)
   const [input, setInput] = useState('')
@@ -74,20 +77,20 @@ export function LaivaRaceGame({ onFinish, onRestart }: Props) {
     return (
       <div className="glass rounded-3xl p-8 text-center">
         <Trophy size={48} className="mx-auto mb-4 text-gold" />
-        <h2 className="text-2xl font-bold">Brauciens beigts!</h2>
-        <p className="mt-2 text-muted">Вы доплыли до Риги на {distance} m</p>
+        <h2 className="text-2xl font-bold">{t('common.finish')}</h2>
+        <p className="mt-2 text-muted">{t('games.laivaFinished', { distance })}</p>
         <div className="mt-6 grid grid-cols-3 gap-4">
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-2xl font-bold text-info">{distance} m</p>
-            <p className="text-xs text-muted">Дистанция</p>
+            <p className="text-xs text-muted">{t('common.distance')}</p>
           </div>
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-2xl font-bold text-success">{correct}</p>
-            <p className="text-xs text-muted">Верно</p>
+            <p className="text-xs text-muted">{t('exercise.correct')}</p>
           </div>
           <div className="rounded-xl bg-surface-2 p-4">
             <p className="text-2xl font-bold text-gold">{formatTime(GAME_DURATION - timeLeft)}</p>
-            <p className="text-xs text-muted">Время</p>
+            <p className="text-xs text-muted">{t('common.time')}</p>
           </div>
         </div>
         <button
@@ -95,7 +98,7 @@ export function LaivaRaceGame({ onFinish, onRestart }: Props) {
           onClick={onRestart}
           className="mt-6 flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-medium text-white mx-auto"
         >
-          <RotateCcw size={16} /> Ещё раз
+          <RotateCcw size={16} /> {t('common.retry')}
         </button>
       </div>
     )
@@ -150,14 +153,14 @@ export function LaivaRaceGame({ onFinish, onRestart }: Props) {
               transition={{ duration: 0.4 }}
             />
           </div>
-          <p className="mt-1 text-xs text-white/70">{distance} m → Rīga</p>
+          <p className="mt-1 text-xs text-white/70">{t('games.laivaDistance', { distance })}</p>
         </div>
       </div>
 
       {/* HUD */}
       <div className="flex items-center justify-between text-sm">
         <span className="rounded-lg bg-surface-2 px-3 py-1 font-mono text-info">{formatTime(timeLeft)}</span>
-        <span className="text-muted">Слов: {correct}</span>
+        <span className="text-muted">{t('common.wordsCount', { count: correct })}</span>
         <span className="rounded-lg bg-accent/15 px-3 py-1 text-accent">{Math.round(progress)}%</span>
       </div>
 
@@ -167,15 +170,15 @@ export function LaivaRaceGame({ onFinish, onRestart }: Props) {
           flash === 'ok' ? 'border-success/50 bg-success/5' : flash === 'err' ? 'border-red-400/50 bg-red-400/5' : ''
         }`}
       >
-        <p className="text-sm text-muted">Перевод: <strong className="text-text">{current.ru}</strong></p>
+        <p className="text-sm text-muted">{t('games.laivaTranslation')} <strong className="text-text">{current.ru}</strong></p>
         {current.hint && <p className="mt-1 text-xs text-muted/70">{current.hint}</p>}
-        <p className="latvian-text mt-4 text-center text-3xl font-bold tracking-wide">{current.lv.length} burti</p>
+        <p className="latvian-text mt-4 text-center text-3xl font-bold tracking-wide">{t('games.laivaLettersCount', { count: current.lv.length })}</p>
         <input
           ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
-          placeholder="Ierakstiet latviski..."
+          placeholder={t('common.formPlaceholderLv')}
           className="mt-4 w-full rounded-xl border border-border bg-surface-2 px-4 py-3 text-lg outline-none focus:border-info"
           autoComplete="off"
           autoCorrect="off"
@@ -186,7 +189,7 @@ export function LaivaRaceGame({ onFinish, onRestart }: Props) {
           onClick={submit}
           className="mt-3 w-full rounded-xl bg-info py-2.5 text-sm font-medium text-white hover:bg-info/90"
         >
-          Turpināt →
+          {t('common.next')}
         </button>
       </div>
     </div>

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { WifiOff } from 'lucide-react'
+import { useTranslation } from '../hooks/useTranslation'
 
 export function OfflineIndicator() {
+  const { t } = useTranslation()
   const [online, setOnline] = useState(
     typeof navigator !== 'undefined' ? navigator.onLine : true,
   )
@@ -25,7 +27,7 @@ export function OfflineIndicator() {
       className="fixed bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border border-gold/40 bg-surface px-4 py-2 text-sm text-gold shadow-lg"
     >
       <WifiOff size={16} />
-      Офлайн — уроки и словарь доступны
+      {t('offline.message')}
     </div>
   )
 }

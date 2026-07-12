@@ -1,3 +1,6 @@
+import { apiHeaders } from './apiHeaders'
+import { apiUrl } from './apiBase'
+
 export type TtsVoice = {
   id: string
   name: string
@@ -26,7 +29,7 @@ export async function fetchSpeech(
     rate: rate.toString(),
   })
 
-  const response = await fetch(`/api/tts?${params}`)
+  const response = await fetch(`${apiUrl('/api/tts')}?${params}`, { headers: apiHeaders() })
   if (!response.ok) {
     throw new Error(`TTS failed: ${response.status}`)
   }
@@ -39,7 +42,7 @@ export async function fetchSpeech(
 
 export async function getAvailableVoices(): Promise<TtsVoice[]> {
   try {
-    const res = await fetch('/api/tts/voices')
+    const res = await fetch(apiUrl('/api/tts/voices'), { headers: apiHeaders() })
     if (!res.ok) return []
     const data = await res.json()
     return data.voices
@@ -50,7 +53,7 @@ export async function getAvailableVoices(): Promise<TtsVoice[]> {
 
 export async function checkTtsHealth(): Promise<boolean> {
   try {
-    const res = await fetch('/api/tts/health')
+    const res = await fetch(apiUrl('/api/tts/health'))
     return res.ok
   } catch {
     return false

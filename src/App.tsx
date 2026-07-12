@@ -12,6 +12,11 @@ import { PlanPage } from './pages/PlanPage'
 import { ProgressPage } from './pages/ProgressPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { ExamPage } from './pages/ExamPage'
+import { DeclensionPage } from './pages/DeclensionPage'
+import { ConjugationPage } from './pages/ConjugationPage'
+import { NaturalizationPage } from './pages/NaturalizationPage'
+import { DictationPage } from './pages/DictationPage'
+import { CefrPage } from './pages/CefrPage'
 
 export default function App() {
   return (
@@ -27,6 +32,11 @@ export default function App() {
           <Route path="dialogs" element={<DialogsPage />} />
           <Route path="dialogs/:id" element={<DialogsPage />} />
           <Route path="practice" element={<PracticePage />} />
+          <Route path="declensions" element={<DeclensionPage />} />
+          <Route path="conjugations" element={<ConjugationPage />} />
+          <Route path="dictations" element={<DictationPage />} />
+          <Route path="cefr" element={<CefrPage />} />
+          <Route path="naturalization" element={<NaturalizationPage />} />
           <Route path="games" element={<GamesPage />} />
           <Route path="tutor" element={<AiTutorPage />} />
           <Route path="exam" element={<ExamPage />} />

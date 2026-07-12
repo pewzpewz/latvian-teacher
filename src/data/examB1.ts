@@ -2,20 +2,26 @@ export type LearningGoal = 'exam' | 'daily' | 'work' | 'general'
 
 export type ExamQuestion = {
   id: string
-  type: 'choose' | 'fill' | 'translate'
+  type: 'choose' | 'fill' | 'translate' | 'writing' | 'speaking'
   question: string
   passage?: string
   answer: string
   options?: string[]
   hint?: string
+  keywords?: string[]
+  sampleAnswer?: string
 }
+
+export type ExamSectionType = 'reading' | 'grammar' | 'writing' | 'listening' | 'speaking' | 'speaking-live'
 
 export type ExamSection = {
   id: string
   title: string
-  type: 'reading' | 'grammar'
+  type: ExamSectionType
   description: string
   timeMinutes: number
+  /** Текст для TTS — только аудирование, не показывается до ответа */
+  audioScript?: string
   questions: ExamQuestion[]
 }
 
@@ -164,6 +170,147 @@ export const examSections: ExamSection[] = [
         hint: 'Vieta — lokatīvs',
       },
     ],
+  },
+  {
+    id: 'listening-1',
+    title: 'Аудирование — объявление',
+    type: 'listening',
+    description: 'Прослушайте объявление (TTS) и ответьте на вопросы — как на экзамене B1.',
+    timeMinutes: 12,
+    audioScript:
+      'Labdien! Ar autobusu numur divi simts piecpadsmit jūs varat nokļūt lidostā. Biļetes cena ir divi eiro. Autobuss atiet no pieturas pie Centrālās stacijas katras pusstundas.',
+    questions: [
+      {
+        id: 'l1',
+        type: 'choose',
+        question: 'Kur var nokļūt ar autobusu 215?',
+        answer: 'Lidostā',
+        options: ['Lidostā', 'Jūrmalā', 'Centrāltirgū', 'Mežā'],
+      },
+      {
+        id: 'l2',
+        type: 'choose',
+        question: 'Cik maksā biļete?',
+        answer: 'Divi eiro',
+        options: ['Viens eiro', 'Divi eiro', 'Trīs eiro', 'Bezmaksas'],
+      },
+      {
+        id: 'l3',
+        type: 'choose',
+        question: 'No kurienes atiet autobuss?',
+        answer: 'Pie Centrālās stacijas',
+        options: [
+          'Pie Centrālās stacijas',
+          'Pie lidostas',
+          'Pie Rīgas doms',
+          'Pie universitātes',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'listening-2',
+    title: 'Аудирование — телефонный разговор',
+    type: 'listening',
+    description: 'Короткий диалог по телефону — типичная задача VISC B1.',
+    timeMinutes: 10,
+    audioScript:
+      'Allo! Jā, labdien. Es vēlos pierakstīties pie ārsta. Man sāp galva jau divas dienas. Vai ir brīvs laiks piektdienā pulksten trīs? Jā, labi. Paldies, uz redzēšanos!',
+    questions: [
+      {
+        id: 'l4',
+        type: 'choose',
+        question: 'Kāpēc zvanītājs vēlas pierakstīties?',
+        answer: 'Sāp galva',
+        options: ['Sāp galva', 'Grib ceļot', 'Meklē darbu', 'Grib mācīties valodu'],
+      },
+      {
+        id: 'l5',
+        type: 'choose',
+        question: 'Kad ir vizīte?',
+        answer: 'Piektdienā pulksten trīs',
+        options: [
+          'Piektdienā pulksten trīs',
+          'Rīt no rīta',
+          'Sestdienā',
+          'Nekad',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'writing-1',
+    title: 'Письмо — формальное письмо',
+    type: 'writing',
+    description: 'Напишите короткое письмо (3–5 предложений) — формат экзамена B1.',
+    timeMinutes: 20,
+    questions: [
+      {
+        id: 'w1',
+        type: 'writing',
+        question:
+          'Напишите письмо учителю: завтра не сможете прийти на занятие и просите прощения. Укажите причину (например, визит к врачу).',
+        answer: 'Labdien! Es atvainojos, bet rīt nevaru nākt uz nodarbību, jo man ir vizīte pie ārsta. Vai varu saņemt mājasdarbu? Paldies!',
+        keywords: ['labdien', 'rīt', 'nevaru', 'nodarb', 'atvainoj', 'ārsta', 'paldies'],
+        sampleAnswer:
+          'Labdien! Es atvainojos, bet rīt nevaru nākt uz nodarbību, jo man ir vizīte pie ārsta. Vai varu saņemt mājasdarbu? Paldies!',
+        hint: 'Labdien → причина → вежливая просьба → Paldies',
+      },
+      {
+        id: 'w2',
+        type: 'writing',
+        question:
+          'Напишите короткое сообщение другу: пригласите его в субботу в кино и предложите встретиться у центрального вокзала в 18:00.',
+        answer:
+          'Sveiks! Vai gribi iet uz kino sestdien? Satiksimies pie Centrālās stacijas pulksten astoņpadsmit. Gaidīšu atbildi!',
+        keywords: ['sestdien', 'kino', 'satik', 'centrāl', 'pulksten', 'astoņ'],
+        sampleAnswer:
+          'Sveiks! Vai gribi iet uz kino sestdien? Satiksimies pie Centrālās stacijas pulksten astoņpadsmit. Gaidīšu atbildi!',
+        hint: 'Sveiks/Sveika → приглашение → место и время',
+      },
+    ],
+  },
+  {
+    id: 'speaking-1',
+    title: 'Говорение — базовые фразы',
+    type: 'speaking',
+    description: 'Произнесите фразу вслух (микрофон). Полный экзамен — раздел «Live экзаменатор».',
+    timeMinutes: 10,
+    questions: [
+      {
+        id: 's1',
+        type: 'speaking',
+        question: 'Поприветствуйте экзаменатора (формально).',
+        answer: 'Labdien',
+        keywords: ['labdien'],
+        hint: 'Labdien — нейтральное формальное приветствие',
+      },
+      {
+        id: 's2',
+        type: 'speaking',
+        question: 'Скажите: «Меня зовут …» (подставьте любое имя).',
+        answer: 'Mani sauc',
+        keywords: ['mani', 'sauc'],
+        hint: 'Mani sauc + vārds',
+      },
+      {
+        id: 's3',
+        type: 'speaking',
+        question: 'Поблагодарите и попрощайтесь.',
+        answer: 'Paldies, uz redzēšanos',
+        keywords: ['paldies', 'redzēšanos'],
+        hint: 'Paldies, uz redzēšanos!',
+      },
+    ],
+  },
+  {
+    id: 'speaking-live-1',
+    title: 'Говорение B1 — Live экзаменатор',
+    type: 'speaking-live',
+    description:
+      'Полноценный устный экзамен через WebRTC: 4 задания с AI-экзаменатором (VISC формат).',
+    timeMinutes: 15,
+    questions: [],
   },
 ]
 

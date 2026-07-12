@@ -5,13 +5,13 @@ import { useStore } from '../store/useStore'
 import {
   achievements,
   milestones,
-  CATEGORY_LABELS,
   getTotalXp,
   type Achievement,
 } from '../data/achievements'
 import { lessons } from '../data/lessons'
 import { AchievementCard, MilestoneNode, ProgressRing } from '../components/ProgressWidgets'
 import { RetentionAnalyticsCard } from '../components/RetentionAnalyticsCard'
+import { useTranslation } from '../hooks/useTranslation'
 
 const container = {
   hidden: { opacity: 0 },
@@ -19,6 +19,7 @@ const container = {
 }
 
 export function ProgressPage() {
+  const { t } = useTranslation()
   const progress = useStore((s) => s.progress)
   const unlocked = progress.unlockedAchievements
   const [filter, setFilter] = useState<Achievement['category'] | 'all'>('all')
@@ -32,9 +33,18 @@ export function ProgressPage() {
     [filter],
   )
 
+  const categoryKeys: Record<Achievement['category'], string> = {
+    lessons: 'categories.lessons',
+    vocabulary: 'categories.vocabulary',
+    streak: 'categories.streak',
+    practice: 'categories.practice',
+    mastery: 'categories.mastery',
+    special: 'categories.special',
+  }
+
   const categories: Array<Achievement['category'] | 'all'> = [
     'all',
-    ...(Object.keys(CATEGORY_LABELS) as Achievement['category'][]),
+    ...(Object.keys(categoryKeys) as Achievement['category'][]),
   ]
 
   return (
@@ -52,15 +62,16 @@ export function ProgressPage() {
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Trophy size={22} className="text-gold" />
-              <span className="text-sm font-medium text-gold">Tavs progress</span>
+              <span className="text-sm font-medium text-gold">{t('progress.heroLabel')}</span>
             </div>
-            <h1 className="gradient-text text-4xl font-bold">Достижения</h1>
+            <h1 className="gradient-text text-4xl font-bold">{t('progress.title')}</h1>
             <p className="mt-2 text-muted">
-              Уровень <strong className="text-accent">{progress.estimatedLevel}</strong>
-              {' · '}
-              {unlockedCount} из {totalAchievements} наград
-              {' · '}
-              <span className="text-gold">{xp} XP</span>
+              {t('progress.subtitle', {
+                level: progress.estimatedLevel,
+                unlocked: unlockedCount,
+                total: totalAchievements,
+                xp,
+              })}
             </p>
           </div>
 
@@ -79,12 +90,12 @@ export function ProgressPage() {
               >
                 {unlockedCount}
               </motion.div>
-              <div className="text-xs text-muted">открыто</div>
+              <div className="text-xs text-muted">{t('progress.unlocked')}</div>
             </div>
             <div className="h-12 w-px bg-border" />
             <div className="text-center">
               <div className="text-4xl font-bold text-accent">{progress.streak}</div>
-              <div className="text-xs text-muted">дней 🔥</div>
+              <div className="text-xs text-muted">{t('progress.daysFire')}</div>
             </div>
           </motion.div>
         </div>
@@ -101,8 +112,8 @@ export function ProgressPage() {
           <ProgressRing
             value={progress.completedLessons.length}
             max={lessons.length}
-            label="Уроки"
-            sublabel="пройдено"
+            label={t('progress.ringLessons')}
+            sublabel={t('progress.ringLessonsSub')}
             color="#c41e3a"
             delay={0}
           />
@@ -111,8 +122,8 @@ export function ProgressPage() {
           <ProgressRing
             value={progress.wordsLearned}
             max={500}
-            label="Слова"
-            sublabel="выучено"
+            label={t('progress.ringWords')}
+            sublabel={t('progress.ringWordsSub')}
             color="#d4a853"
             delay={0.1}
           />
@@ -121,8 +132,8 @@ export function ProgressPage() {
           <ProgressRing
             value={Object.keys(progress.exerciseScores).length}
             max={30}
-            label="Упражнения"
-            sublabel="выполнено"
+            label={t('progress.ringExercises')}
+            sublabel={t('progress.ringExercisesSub')}
             color="#3ecf8e"
             delay={0.2}
           />
@@ -131,8 +142,8 @@ export function ProgressPage() {
           <ProgressRing
             value={unlockedCount}
             max={totalAchievements}
-            label="Награды"
-            sublabel="получено"
+            label={t('progress.ringRewards')}
+            sublabel={t('progress.ringRewardsSub')}
             color="#9b8cff"
             delay={0.3}
           />
@@ -145,7 +156,7 @@ export function ProgressPage() {
       <section className="mb-12">
         <div className="mb-6 flex items-center gap-2">
           <Star size={20} className="text-gold" />
-          <h2 className="text-xl font-semibold">Вехи пути</h2>
+          <h2 className="text-xl font-semibold">{t('progress.milestones')}</h2>
         </div>
         <div className="glass rounded-3xl p-8">
           {milestones.map((m, i) => {
@@ -174,7 +185,7 @@ export function ProgressPage() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Award size={20} className="text-accent" />
-            <h2 className="text-xl font-semibold">Achievements</h2>
+            <h2 className="text-xl font-semibold">{t('progress.achievements')}</h2>
           </div>
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
@@ -188,7 +199,7 @@ export function ProgressPage() {
                     : 'border border-border text-muted hover:text-text'
                 }`}
               >
-                {cat === 'all' ? 'Все' : CATEGORY_LABELS[cat as Achievement['category']]}
+                {cat === 'all' ? t('progress.allAchievements') : t(categoryKeys[cat as Achievement['category']])}
               </button>
             ))}
           </div>
@@ -213,8 +224,8 @@ export function ProgressPage() {
             className="mt-8 rounded-2xl border border-gold/30 bg-gradient-to-r from-gold/10 to-accent/10 p-8 text-center"
           >
             <div className="mb-2 text-5xl">👑</div>
-            <h3 className="text-xl font-bold text-gold">Tu esi čempions!</h3>
-            <p className="mt-2 text-muted">Все достижения получены — невероятная работа!</p>
+            <h3 className="text-xl font-bold text-gold">{t('progress.championTitle')}</h3>
+            <p className="mt-2 text-muted">{t('progress.championDesc')}</p>
           </motion.div>
         )}
       </section>
@@ -229,7 +240,7 @@ export function ProgressPage() {
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Zap size={18} className="text-gold" />
-            <span className="font-medium">Общий опыт</span>
+            <span className="font-medium">{t('progress.totalXp')}</span>
           </div>
           <span className="text-gold font-bold">{xp} XP</span>
         </div>
@@ -241,7 +252,7 @@ export function ProgressPage() {
             transition={{ duration: 1.5, ease: 'easeOut' }}
           />
         </div>
-        <p className="mt-2 text-xs text-muted">500 XP — максимальный ранг «Latviešu meistars»</p>
+        <p className="mt-2 text-xs text-muted">{t('progress.maxRank')}</p>
       </motion.div>
     </div>
   )

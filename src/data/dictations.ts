@@ -1,0 +1,96 @@
+/** AUTO-GENERATED — edit content/dictations.json, then npm run build:content */
+export type DictationItem = {
+  id: string
+  title: string
+  level: 'A0' | 'A1' | 'A2' | 'B1'
+  text: string
+  hintRu: string
+  slowRate: number
+}
+
+export const dictations: DictationItem[] = [
+  {
+    "id": "d1",
+    "title": "Приветствие",
+    "level": "A1",
+    "text": "Labdien! Kā jums klājas?",
+    "hintRu": "Добрый день! Как у вас дела?",
+    "slowRate": 0.65
+  },
+  {
+    "id": "d2",
+    "title": "Представление",
+    "level": "A1",
+    "text": "Mani sauc Anna. Es esmu no Rīgas.",
+    "hintRu": "Меня зовут Анна. Я из Риги.",
+    "slowRate": 0.65
+  },
+  {
+    "id": "d3",
+    "title": "В магазине",
+    "level": "A1",
+    "text": "Es gribu nopirkt maizi un pienu.",
+    "hintRu": "Я хочу купить хлеб и молоко.",
+    "slowRate": 0.7
+  },
+  {
+    "id": "d4",
+    "title": "Время",
+    "level": "A1",
+    "text": "Pulkstenis ir trīs. Mēs ejam mājās.",
+    "hintRu": "Три часа. Мы идём домой.",
+    "slowRate": 0.7
+  },
+  {
+    "id": "d5",
+    "title": "Погода",
+    "level": "A2",
+    "text": "Šodien ir saulains un silts. Rīt var liet.",
+    "hintRu": "Сегодня солнечно и тепло. Завтра может идти дождь.",
+    "slowRate": 0.75
+  },
+  {
+    "id": "d6",
+    "title": "На работе",
+    "level": "A2",
+    "text": "Es strādāju birojā no deviņiem līdz pieciem.",
+    "hintRu": "Я работаю в офисе с девяти до пяти.",
+    "slowRate": 0.75
+  },
+  {
+    "id": "d7",
+    "title": "У врача",
+    "level": "A2",
+    "text": "Man sāp galva un ir augsta temperatūra.",
+    "hintRu": "У меня болит голова и высокая температура.",
+    "slowRate": 0.7
+  },
+  {
+    "id": "d8",
+    "title": "Транспорт",
+    "level": "A2",
+    "text": "Autobuss atiet pēc piecām minūtēm no Centrālās stacijas.",
+    "hintRu": "Автобус отходит через пять минут от Центрального вокзала.",
+    "slowRate": 0.7
+  },
+  {
+    "id": "d9",
+    "title": "Планы",
+    "level": "B1",
+    "text": "Nākamnedēļ mēs braucam uz Jūrmalu un pavadīsim tur visu dienu.",
+    "hintRu": "На следующей неделе мы поедем в Юрмалу и проведём там весь день.",
+    "slowRate": 0.8
+  },
+  {
+    "id": "d10",
+    "title": "Новости",
+    "level": "B1",
+    "text": "Latvijā šogad notiek daudzi kultūras pasākumi un koncerti.",
+    "hintRu": "В Латвии в этом году проходит много культурных мероприятий и концертов.",
+    "slowRate": 0.8
+  }
+] as DictationItem[]
+
+export function getDictationById(id: string): DictationItem | undefined {
+  return dictations.find((d) => d.id === id)
+}

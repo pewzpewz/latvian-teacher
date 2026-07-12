@@ -8,6 +8,8 @@ export type LiveSession = {
   clientKey?: string
   provider?: string
   model?: string
+  lastUtteranceAt?: number
+  ws?: WebSocket
 }
 
 type ClientMsg =
@@ -16,6 +18,11 @@ type ClientMsg =
   | { type: 'interrupt' }
   | { type: 'ping' }
   | { type: 'webrtc_signal'; signal: string; payload?: unknown }
+
+type HandleOpts = {
+  utteranceCooldownMs?: number
+  onUtteranceAccepted?: () => void
+}
 
 function send(ws: WebSocket, data: Record<string, unknown>) {
   if (ws.readyState === ws.OPEN) {
@@ -27,7 +34,12 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms))
 }
 
-export async function handleLiveMessage(ws: WebSocket, session: LiveSession, raw: string) {
+export async function handleLiveMessage(
+  ws: WebSocket,
+  session: LiveSession,
+  raw: string,
+  opts: HandleOpts = {},
+) {
   let msg: ClientMsg
   try {
     msg = JSON.parse(raw) as ClientMsg
@@ -63,6 +75,16 @@ export async function handleLiveMessage(ws: WebSocket, session: LiveSession, raw
       const text = msg.text?.trim()
       if (!text) return
 
+      const cooldown = opts.utteranceCooldownMs ?? 1500
+      const now = Date.now()
+      if (session.lastUtteranceAt && now - session.lastUtteranceAt < cooldown) {
+        send(ws, { type: 'error', message: 'Слишком часто. Подождите секунду.' })
+        return
+      }
+
+      session.lastUtteranceAt = now
+      opts.onUtteranceAccepted?.()
+
       session.messages.push({ role: 'user', content: text })
       send(ws, { type: 'user_echo', text })
       send(ws, { type: 'state', phase: 'thinking' })
@@ -87,8 +109,8 @@ export async function handleLiveMessage(ws: WebSocket, session: LiveSession, raw
         send(ws, { type: 'assistant_done', text: full })
         send(ws, { type: 'state', phase: 'speaking' })
       } catch (e) {
-        const message = e instanceof Error ? e.message : 'AI error'
-        send(ws, { type: 'error', message })
+        console.error('Live AI error:', e)
+        send(ws, { type: 'error', message: 'AI временно недоступен' })
         send(ws, { type: 'state', phase: 'listening' })
       }
       return

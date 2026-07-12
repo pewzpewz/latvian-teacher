@@ -1,14 +1,27 @@
 import express from 'express'
-import cors from 'cors'
 import dotenv from 'dotenv'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
-import { WebSocketServer } from 'ws'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { synthesizeSpeech, LATVIAN_VOICES } from './tts.js'
 import { chat, generateAdaptiveJson, getAiStatus, glossWordInContext } from './ai.js'
-import { createLiveSession, handleLiveMessage } from './liveWs.js'
+import { attachLiveWebSocket } from './liveServer.js'
+import {
+  accessTokenMiddleware,
+  createCorsMiddleware,
+  createHelmetMiddleware,
+} from './middleware/security.js'
+import { sendAuthError, sendServerError, streamErrorPayload } from './middleware/errors.js'
+import {
+  adaptBodySchema,
+  chatBodySchema,
+  formatZodError,
+  glossBodySchema,
+  syncBodySchema,
+  ttsQuerySchema,
+} from './validation/schemas.js'
+import { isValidSyncId, loadSyncRecord, saveSyncRecord } from './syncStore.js'
 
 dotenv.config()
 
@@ -16,8 +29,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 3001
 
-app.use(cors())
+app.use(createHelmetMiddleware())
+app.use(createCorsMiddleware())
 app.use(express.json({ limit: '1mb' }))
+app.use('/api', accessTokenMiddleware)
 
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -41,6 +56,14 @@ const ttsLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Слишком много запросов TTS. Подождите.' },
+})
+
+const syncLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Слишком много запросов sync. Подождите.' },
 })
 
 const ADAPT_PROMPT = (profile: string) => `Tu esi latviešu valodas skolotājs. Analizē studenta profilu un izveido personalizētu mācību saturu.
@@ -91,14 +114,12 @@ app.get('/api/tts/voices', (_req, res) => {
 
 app.get('/api/tts', ttsLimiter, async (req, res) => {
   try {
-    const text = String(req.query.text ?? '')
-    const voice = String(req.query.voice ?? 'lv-LV-EveritaNeural')
-    const rate = parseFloat(String(req.query.rate ?? '0.9'))
-
-    if (!text.trim()) {
-      return res.status(400).json({ error: 'Text required' })
+    const parsed = ttsQuerySchema.safeParse(req.query)
+    if (!parsed.success) {
+      return res.status(400).json({ error: formatZodError(parsed.error) })
     }
 
+    const { text, voice, rate } = parsed.data
     const audio = await synthesizeSpeech(text, { voice, rate })
 
     res.set({
@@ -115,41 +136,34 @@ app.get('/api/tts', ttsLimiter, async (req, res) => {
 
 app.post('/api/chat', chatLimiter, async (req, res) => {
   try {
-    const { messages, apiKey: clientKey, profile, provider, model } = req.body as {
-      messages: { role: string; content: string }[]
-      apiKey?: string
-      profile?: string
-      provider?: string
-      model?: string
+    const parsed = chatBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: formatZodError(parsed.error) })
     }
 
-    if (!messages?.length) {
-      return res.status(400).json({ error: 'Messages required' })
-    }
-
+    const { messages, apiKey: clientKey, profile, provider, model } = parsed.data
     const content = await chat(messages, { clientKey, profile, provider, model })
     res.json({ content })
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Internal server error'
-    const status = message.includes('API') || message.includes('ключ') ? 401 : 500
+    const isAuth = message.includes('API') || message.includes('ключ')
     console.error('Chat error:', e)
-    res.status(status).json({ error: message })
+    if (isAuth) {
+      sendAuthError(res, e, 'Chat auth error')
+    } else {
+      sendServerError(res, e, 'Chat error')
+    }
   }
 })
 
 app.post('/api/chat/stream', chatLimiter, async (req, res) => {
   try {
-    const { messages, apiKey: clientKey, profile, provider, model } = req.body as {
-      messages: { role: string; content: string }[]
-      apiKey?: string
-      profile?: string
-      provider?: string
-      model?: string
+    const parsed = chatBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: formatZodError(parsed.error) })
     }
 
-    if (!messages?.length) {
-      return res.status(400).json({ error: 'Messages required' })
-    }
+    const { messages, apiKey: clientKey, profile, provider, model } = parsed.data
 
     res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
     res.setHeader('Cache-Control', 'no-cache, no-transform')
@@ -165,57 +179,75 @@ app.post('/api/chat/stream', chatLimiter, async (req, res) => {
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`)
     res.end()
   } catch (e) {
-    const message = e instanceof Error ? e.message : 'Internal server error'
     console.error('Chat stream error:', e)
-    res.write(`data: ${JSON.stringify({ error: message })}\n\n`)
+    res.write(`data: ${streamErrorPayload(e)}\n\n`)
     res.end()
   }
 })
 
 app.post('/api/gloss', glossLimiter, async (req, res) => {
   try {
-    const { word, sentence } = req.body as { word?: string; sentence?: string }
-    if (!word?.trim() || !sentence?.trim()) {
-      return res.status(400).json({ error: 'word and sentence required' })
+    const parsed = glossBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: formatZodError(parsed.error) })
     }
-    const translation = await glossWordInContext(word.trim(), sentence.trim())
+
+    const { word, sentence } = parsed.data
+    const translation = await glossWordInContext(word, sentence)
     res.json({ translation })
   } catch (e) {
-    const message = e instanceof Error ? e.message : 'Gloss failed'
-    console.error('Gloss error:', e)
-    res.status(500).json({ error: message })
+    sendServerError(res, e, 'Gloss error')
   }
 })
 
 app.post('/api/adapt', chatLimiter, async (req, res) => {
   try {
-    const { profile, apiKey: clientKey, provider, model } = req.body as {
-      profile: string
-      apiKey?: string
-      provider?: string
-      model?: string
+    const parsed = adaptBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: formatZodError(parsed.error) })
     }
 
-    if (!profile) {
-      return res.status(400).json({ error: 'Profile required' })
-    }
-
+    const { profile, apiKey: clientKey, provider, model } = parsed.data
     const raw = await generateAdaptiveJson(ADAPT_PROMPT(profile), { clientKey, provider, model })
-    const parsed = JSON.parse(raw.replace(/^```json\s*|```$/g, '').trim())
+    const json = JSON.parse(raw.replace(/^```json\s*|```$/g, '').trim()) as {
+      exercises?: { id?: string; [key: string]: unknown }[]
+      [key: string]: unknown
+    }
 
-    parsed.exercises = (parsed.exercises || []).map(
-      (e: { id?: string; [key: string]: unknown }, i: number) => ({
-        ...e,
-        id: e.id || `gen-${Date.now()}-${i}`,
-      }),
-    )
+    json.exercises = (json.exercises || []).map((e, i) => ({
+      ...e,
+      id: e.id || `gen-${Date.now()}-${i}`,
+    }))
 
-    res.json(parsed)
+    res.json(json)
   } catch (e) {
-    const message = e instanceof Error ? e.message : 'Failed to generate adaptive content'
-    console.error('Adapt error:', e)
-    res.status(500).json({ error: message })
+    sendServerError(res, e, 'Adapt error')
   }
+})
+
+app.get('/api/sync/:id', syncLimiter, (req, res) => {
+  const syncId = String(req.params.id ?? '')
+  if (!isValidSyncId(syncId)) {
+    return res.status(400).json({ error: 'Invalid sync ID' })
+  }
+  const record = loadSyncRecord(syncId)
+  if (!record) {
+    return res.status(404).json({ error: 'Sync record not found' })
+  }
+  res.json(record)
+})
+
+app.put('/api/sync/:id', syncLimiter, (req, res) => {
+  const syncId = String(req.params.id ?? '')
+  if (!isValidSyncId(syncId)) {
+    return res.status(400).json({ error: 'Invalid sync ID' })
+  }
+  const parsed = syncBodySchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: formatZodError(parsed.error) })
+  }
+  const updatedAt = saveSyncRecord(syncId, parsed.data.blob)
+  res.json({ ok: true, updatedAt })
 })
 
 if (process.env.NODE_ENV === 'production') {
@@ -227,18 +259,16 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const httpServer = createServer(app)
-
-const liveWss = new WebSocketServer({ server: httpServer, path: '/api/live/ws' })
-liveWss.on('connection', (ws) => {
-  const session = createLiveSession(`live-${Date.now()}`)
-  ws.on('message', (data) => {
-    void handleLiveMessage(ws, session, data.toString())
-  })
-})
+attachLiveWebSocket(httpServer)
 
 httpServer.listen(PORT, () => {
   const status = getAiStatus()
   console.log(`🇱🇻 Latvian Teacher API → http://localhost:${PORT}`)
   console.log(`   Live WS → ws://localhost:${PORT}/api/live/ws`)
   console.log(`   AI: ${status.provider} / ${status.model} ${status.configured ? '✓' : '(ключ не задан)'}`)
+  if (process.env.API_ACCESS_TOKEN) {
+    console.log('   API access token: enabled')
+  }
+  const origins = process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173,http://localhost:3001'
+  console.log(`   CORS origins: ${origins}`)
 })

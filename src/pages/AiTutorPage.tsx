@@ -8,32 +8,33 @@ import { ChatMessageContent } from '../components/ChatMessageContent'
 import { LiveTutorPanel } from '../components/LiveTutorPanel'
 import { abortSpeech } from '../lib/speechController'
 import { useSpeech } from '../hooks/useSpeech'
+import { useTranslation } from '../hooks/useTranslation'
 
-const WELCOME: ChatMessage = {
-  role: 'assistant',
-  content:
-    'Sveiki! Es esmu tavs latviešu valodas skolotājs. 🇱🇻\n\nЯ ваш AI-репетитор по латышскому. Могу объяснить грамматику, составить упражнения, проверить ваши фразы и вести диалог. Пишите на русском или латышском!',
-}
-
-const suggestions = [
-  'Объясни мне падежи простыми словами',
-  'Составь диалог для кафе',
-  'Проверь мою фразу: Es esmu students',
-  'Дай 5 новых слов на тему еды',
-  'Расскажи о латышских праздниках',
-]
+const SUGGESTION_KEYS = [
+  'tutor.suggestion1',
+  'tutor.suggestion2',
+  'tutor.suggestion3',
+  'tutor.suggestion4',
+  'tutor.suggestion5',
+] as const
 
 export function AiTutorPage() {
+  const { t } = useTranslation()
   const settings = useStore((s) => s.settings)
   const progress = useStore((s) => s.progress)
   const setChatHistory = useStore((s) => s.setChatHistory)
   const addStudyTime = useStore((s) => s.addStudyTime)
 
+  const welcomeMessage = useMemo(
+    (): ChatMessage => ({ role: 'assistant', content: t('tutor.welcome') }),
+    [t],
+  )
+
   const initialMessages = useMemo((): ChatMessage[] => {
     if (progress.chatHistory.length > 0) {
       return progress.chatHistory.map((m) => ({ role: m.role, content: m.content }))
     }
-    return [WELCOME]
+    return [welcomeMessage]
   }, []) // eslint-disable-line react-hooks/exhaustive-deps -- only on mount
 
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages)
@@ -72,7 +73,7 @@ export function AiTutorPage() {
   }
 
   const clearHistory = () => {
-    setMessages([WELCOME])
+    setMessages([welcomeMessage])
     setChatHistory([])
   }
 
@@ -111,11 +112,11 @@ export function AiTutorPage() {
       }
     } catch (e) {
       setMessages(messages)
-      setError(e instanceof Error ? e.message : 'Ошибка соединения')
+      setError(e instanceof Error ? e.message : t('common.errorConnection'))
     } finally {
       setLoading(false)
     }
-  }, [loading, messages, settings, progress, speakMessage, addStudyTime, setChatHistory])
+  }, [loading, messages, settings, progress, speakMessage, addStudyTime, setChatHistory, t])
 
   useEffect(() => {
     if (wasListeningRef.current && !listening && voiceMode && transcript.trim() && !loading) {
@@ -128,8 +129,8 @@ export function AiTutorPage() {
     <div className="flex h-[calc(100dvh-5rem)] flex-col md:h-[calc(100vh-4rem)]">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="gradient-text text-3xl font-bold">AI-репетитор</h1>
-          <p className="text-muted">Умный помощник для изучения латышского</p>
+          <h1 className="gradient-text text-3xl font-bold">{t('tutor.title')}</h1>
+          <p className="text-muted">{t('tutor.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex rounded-xl border border-border p-0.5">
@@ -141,7 +142,7 @@ export function AiTutorPage() {
               }`}
             >
               <MessageSquare size={14} />
-              Чат
+              {t('tutor.modeChat')}
             </button>
             <button
               type="button"
@@ -151,7 +152,7 @@ export function AiTutorPage() {
               }`}
             >
               <Radio size={14} />
-              Live
+              {t('common.live')}
             </button>
           </div>
           {viewMode === 'chat' && (
@@ -161,10 +162,10 @@ export function AiTutorPage() {
               className={`flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs ${
                 voiceMode ? 'border-accent bg-accent/15 text-accent' : 'border-border text-muted hover:text-text'
               }`}
-              title="Голосовой режим: STT → AI → TTS"
+              title={t('tutor.voiceModeTitle')}
             >
               {voiceMode ? <Mic size={14} /> : <MicOff size={14} />}
-              Push-to-talk
+              {t('tutor.pushToTalk')}
             </button>
           )}
           {viewMode === 'chat' && (
@@ -172,10 +173,10 @@ export function AiTutorPage() {
             type="button"
             onClick={clearHistory}
             className="flex items-center gap-1 rounded-xl border border-border px-3 py-1.5 text-xs text-muted hover:text-text"
-            title="Очистить историю"
+            title={t('tutor.clearHistoryTitle')}
           >
             <Trash2 size={14} />
-            Очистить
+            {t('tutor.clearHistory')}
           </button>
           )}
           <div className="flex items-center gap-2 text-xs">
@@ -184,11 +185,13 @@ export function AiTutorPage() {
             />
             {apiOnline
               ? aiStatus
-                ? `${aiStatus.provider} / ${aiStatus.model}${aiStatus.configured ? '' : ' — нужен ключ'}`
-                : 'Сервер подключён'
+                ? aiStatus.configured
+                  ? t('tutor.serverStatus', { provider: aiStatus.provider, model: aiStatus.model })
+                  : t('tutor.serverNeedsKey', { provider: aiStatus.provider, model: aiStatus.model })
+                : t('tutor.serverConnected')
               : apiOnline === false
-                ? 'Сервер offline'
-                : 'Проверка...'}
+                ? t('tutor.serverOffline')
+                : t('tutor.serverChecking')}
           </div>
         </div>
       </div>
@@ -197,18 +200,8 @@ export function AiTutorPage() {
         <div className="mb-4 flex items-start gap-2 rounded-xl border border-gold/20 bg-gold/5 px-4 py-3 text-sm">
           <AlertCircle size={16} className="mt-0.5 shrink-0 text-gold" />
           <div>
-            <p className="font-medium text-gold">Нужен API-ключ Gemini</p>
-            <p className="mt-1 text-muted">
-              1. Откройте{' '}
-              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="text-accent underline">
-                aistudio.google.com/apikey
-              </a>
-              <br />
-              2. Создайте ключ → вставьте в <code className="text-xs">server/.env</code> как{' '}
-              <code className="text-xs">GEMINI_API_KEY=...</code>
-              <br />
-              3. Перезапустите сервер (START.bat)
-            </p>
+            <p className="font-medium text-gold">{t('tutor.apiKeyNeeded')}</p>
+            <p className="mt-1 whitespace-pre-line text-muted">{t('tutor.apiKeySteps')}</p>
           </div>
         </div>
       )}
@@ -216,7 +209,7 @@ export function AiTutorPage() {
       {!settings.aiApiKey && aiStatus?.configured && (
         <div className="mb-4 flex items-center gap-2 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-sm text-success">
           <Sparkles size={16} />
-          <span>Gemini подключён через server/.env — можно общаться!</span>
+          <span>{t('tutor.geminiConnected')}</span>
         </div>
       )}
 
@@ -273,15 +266,15 @@ export function AiTutorPage() {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {suggestions.map((s) => (
+        {SUGGESTION_KEYS.map((key) => (
           <button
-            key={s}
+            key={key}
             type="button"
-            onClick={() => send(s)}
+            onClick={() => send(t(key))}
             disabled={loading}
             className="rounded-full border border-border px-3 py-1 text-xs text-muted hover:border-accent/30 hover:text-text disabled:opacity-40"
           >
-            {s}
+            {t(key)}
           </button>
         ))}
       </div>
@@ -295,7 +288,7 @@ export function AiTutorPage() {
             className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
               listening ? 'animate-pulse bg-red-500 text-white' : 'border border-accent bg-accent/10 text-accent'
             }`}
-            title={listening ? 'Остановить запись' : 'Нажмите и говорите'}
+            title={listening ? t('tutor.stopRecording') : t('tutor.pressAndSpeak')}
           >
             <Mic size={20} />
           </button>
@@ -305,7 +298,7 @@ export function AiTutorPage() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && send(input)}
-          placeholder="Задайте вопрос или напишите фразу на латышском..."
+          placeholder={t('tutor.inputPlaceholder')}
           className="flex-1 rounded-xl border border-border bg-surface-2 px-4 py-3 outline-none focus:border-accent"
           disabled={loading}
         />

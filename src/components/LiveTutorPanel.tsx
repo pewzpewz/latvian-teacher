@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Mic, MicOff, Radio, Square, Wifi } from 'lucide-react'
 import { LiveTutorSession, type LivePhase } from '../lib/liveTutorSession'
 import { ChatMessageContent } from './ChatMessageContent'
+import { useTranslation } from '../hooks/useTranslation'
 
 type Props = {
   profile: string
@@ -11,15 +12,6 @@ type Props = {
   voice: string
   speechRate: number
   onStudy: () => void
-}
-
-const phaseLabels: Record<LivePhase, string> = {
-  idle: 'Готов к подключению',
-  connecting: 'Подключение…',
-  listening: 'Слушаю — говорите по-латышски',
-  thinking: 'Думаю…',
-  speaking: 'Отвечаю…',
-  error: 'Ошибка',
 }
 
 const phaseColors: Record<LivePhase, string> = {
@@ -32,6 +24,7 @@ const phaseColors: Record<LivePhase, string> = {
 }
 
 export function LiveTutorPanel({ profile, apiKey, provider, model, voice, speechRate, onStudy }: Props) {
+  const { t } = useTranslation()
   const sessionRef = useRef<LiveTutorSession | null>(null)
   const [phase, setPhase] = useState<LivePhase>('idle')
   const [webrtcReady, setWebrtcReady] = useState(false)
@@ -39,6 +32,8 @@ export function LiveTutorPanel({ profile, apiKey, provider, model, voice, speech
   const [assistantText, setAssistantText] = useState('')
   const [error, setError] = useState('')
   const [active, setActive] = useState(false)
+
+  const phaseLabel = (p: LivePhase) => t(`live.phase_${p}_tutor`)
 
   useEffect(() => {
     return () => {
@@ -70,7 +65,7 @@ export function LiveTutorPanel({ profile, apiKey, provider, model, voice, speech
       await session.start()
     } catch (e) {
       setActive(false)
-      setError(e instanceof Error ? e.message : 'Ошибка')
+      setError(e instanceof Error ? e.message : t('common.errorGeneric'))
     }
   }
 
@@ -88,13 +83,13 @@ export function LiveTutorPanel({ profile, apiKey, provider, model, voice, speech
         <div>
           <h2 className="flex items-center gap-2 text-xl font-semibold">
             <Radio size={20} className="text-accent" />
-            Live-диалог
+            {t('live.tutorTitle')}
           </h2>
-          <p className="text-sm text-muted">WebRTC + WebSocket · STT → Gemini → Neural TTS</p>
+          <p className="text-sm text-muted">{t('live.tutorSubtitle')}</p>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted">
           <Wifi size={14} className={webrtcReady ? 'text-success' : ''} />
-          WebRTC {webrtcReady ? 'активен' : '—'}
+          {webrtcReady ? t('live.webrtcActive') : t('live.webrtcInactive')}
         </div>
       </div>
 
@@ -110,11 +105,11 @@ export function LiveTutorPanel({ profile, apiKey, provider, model, voice, speech
             <MicOff size={48} className="text-muted" />
           )}
         </div>
-        <p className="text-center text-lg font-medium">{phaseLabels[phase]}</p>
+        <p className="text-center text-lg font-medium">{phaseLabel(phase)}</p>
 
         {userText && (
           <div className="w-full max-w-lg rounded-xl bg-accent/10 px-4 py-3 text-sm">
-            <span className="text-xs text-muted">Вы: </span>
+            <span className="text-xs text-muted">{t('common.you')} </span>
             {userText}
           </div>
         )}
@@ -134,7 +129,7 @@ export function LiveTutorPanel({ profile, apiKey, provider, model, voice, speech
             className="flex items-center gap-2 rounded-xl bg-accent px-8 py-3 font-medium text-white hover:opacity-90"
           >
             <Mic size={18} />
-            Начать live-диалог
+            {t('live.startDialog')}
           </button>
         ) : (
           <>
@@ -143,7 +138,7 @@ export function LiveTutorPanel({ profile, apiKey, provider, model, voice, speech
               onClick={() => sessionRef.current?.interrupt()}
               className="rounded-xl border border-border px-5 py-2.5 text-sm hover:border-accent/40"
             >
-              Прервать ответ
+              {t('live.interrupt')}
             </button>
             <button
               type="button"
@@ -151,15 +146,13 @@ export function LiveTutorPanel({ profile, apiKey, provider, model, voice, speech
               className="flex items-center gap-2 rounded-xl border border-red-500/40 px-5 py-2.5 text-sm text-red-400 hover:bg-red-500/10"
             >
               <Square size={14} />
-              Завершить
+              {t('common.finish')}
             </button>
           </>
         )}
       </div>
 
-      <p className="mt-4 text-center text-xs text-muted">
-        Разрешите доступ к микрофону. Говорите по-латышски или смешанно — репетитор ответит голосом Everita/Nils.
-      </p>
+      <p className="mt-4 text-center text-xs text-muted">{t('live.tutorHint')}</p>
     </div>
   )
 }
