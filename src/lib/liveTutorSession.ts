@@ -192,6 +192,7 @@ export class LiveTutorSession {
           void this.speak(msg.text).then(() => {
             if (!this.destroyed) {
               this.setPhase('listening')
+              this.startListening()
             }
           })
         }
@@ -258,6 +259,7 @@ export class LiveTutorSession {
     abortSpeech()
     this.ws?.send(JSON.stringify({ type: 'interrupt' }))
     this.setPhase('listening')
+    this.startListening()
   }
 
   stop() {
