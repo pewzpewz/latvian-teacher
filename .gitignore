@@ -13,6 +13,11 @@ playwright-report
 blob-report
 .gh-auth.log
 
+# Local dev artifacts (patches, command output dumps)
+*.patch
+build-output.txt
+test-output.txt
+
 # Capacitor native build artifacts
 android/.gradle/
 android/app/build/
