@@ -242,8 +242,14 @@ app.post('/api/pronunciation', pronunciationLimiter, async (req, res) => {
       return res.status(400).json({ error: formatZodError(parsed.error) })
     }
 
-    const { expected, audioBase64, mimeType, apiKey: clientKey } = parsed.data
-    const result = await assessPronunciationWithGemini(expected, audioBase64, mimeType, clientKey)
+    const { expected, audioBase64, mimeType, sttTranscript, apiKey: clientKey } = parsed.data
+    const result = await assessPronunciationWithGemini(
+      expected,
+      audioBase64,
+      mimeType,
+      clientKey,
+      sttTranscript,
+    )
     res.json(result)
   } catch (e) {
     sendServerError(res, e, 'Pronunciation error')

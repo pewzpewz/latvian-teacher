@@ -1,4 +1,5 @@
 import { getModel, getProvider, resolveApiKey } from './ai.js'
+import { pickStricterTranscription } from './pronunciationTextScore.js'
 
 export type ServerPronunciationResult = {
   score: number
@@ -10,26 +11,39 @@ export type ServerPronunciationResult = {
   source: 'gemini' | 'stt'
 }
 
-const PRONunciation_PROMPT = (expected: string) => `You are a Latvian pronunciation examiner. Listen to the audio and compare it to the expected phrase.
+const PRONUNCIATION_PROMPT = (expected: string) => `You are a strict Latvian speech transcription assistant.
 
-Expected phrase (Latvian): "${expected}"
+Step 1 — Transcribe ONLY what you hear in the audio into "spokenApprox".
+Rules for spokenApprox:
+- Write exactly what the speaker said, letter by letter.
+- NEVER copy or auto-correct to the expected phrase.
+- If a consonant or vowel is skipped, omit it (e.g. hearing "labien" write "labien", NOT "labdien").
+- If pronunciation is unclear, write your best phonetic guess in Latin letters.
+
+Step 2 — Compare spokenApprox to the expected phrase: "${expected}"
+Fill "chars": one entry per character of the expected phrase (including spaces and punctuation).
+Status per char: match | diacritic | wrong | missing
+- missing = speaker skipped this sound/letter
+- wrong = speaker said a different sound
+
+Step 3 — "tips": max 3 short tips in Russian about concrete mistakes.
 
 Respond ONLY with valid JSON (no markdown):
 {
-  "accuracyScore": 0-100,
-  "accepted": boolean (true if clearly understandable and mostly correct),
-  "spokenApprox": "what you heard, in Latin letters",
-  "chars": [{"char":"l","status":"match|diacritic|wrong|missing"}, ... one entry per character of expected phrase including spaces],
-  "tips": ["max 3 short tips in Russian about pronunciation issues"]
+  "spokenApprox": "exactly what you heard",
+  "chars": [{"char":"l","status":"match|diacritic|wrong|missing"}],
+  "tips": ["..."]
 }
 
-Focus on Latvian diacritics: ā, ē, ī, ū, č, š, ž, ģ, ķ, ļ, ņ. Mark diacritic errors as "diacritic".`
+Do NOT include accuracyScore or accepted — scoring is computed separately.
+Focus on Latvian diacritics: ā, ē, ī, ū, č, š, ž, ģ, ķ, ļ, ņ.`
 
 export async function assessPronunciationWithGemini(
   expected: string,
   audioBase64: string,
   mimeType: string,
   clientKey?: string,
+  sttTranscript?: string,
 ): Promise<ServerPronunciationResult> {
   const provider = getProvider()
   if (provider !== 'gemini') {
@@ -58,12 +72,12 @@ export async function assessPronunciationWithGemini(
                 data: audioBase64,
               },
             },
-            { text: PRONunciation_PROMPT(expected) },
+            { text: PRONUNCIATION_PROMPT(expected) },
           ],
         },
       ],
       generationConfig: {
-        temperature: 0.2,
+        temperature: 0,
         maxOutputTokens: 1024,
         responseMimeType: 'application/json',
       },
@@ -93,24 +107,36 @@ export async function assessPronunciationWithGemini(
     throw new Error('Invalid JSON from Gemini pronunciation')
   }
 
-  const score = Math.min(100, Math.max(0, Math.round(parsed.accuracyScore ?? 0)))
-  const similarity = score / 100
-  const accepted = parsed.accepted ?? similarity >= 0.85
+  const geminiSpoken = parsed.spokenApprox?.trim() || ''
+  const textAnalysis = pickStricterTranscription(expected, geminiSpoken, sttTranscript?.trim())
 
-  const chars = (parsed.chars ?? []).map((c) => ({
+  const score = Math.round(textAnalysis.similarity * 100)
+  const similarity = textAnalysis.similarity
+  const accepted = textAnalysis.accepted
+
+  const geminiChars = (parsed.chars ?? []).map((c) => ({
     char: c.char,
     status: (['match', 'diacritic', 'wrong', 'missing'].includes(c.status)
       ? c.status
       : 'wrong') as 'match' | 'diacritic' | 'wrong' | 'missing',
   }))
 
+  const chars =
+    textAnalysis.chars.some((c) => c.status !== 'match' && c.status !== 'diacritic')
+      ? textAnalysis.chars
+      : geminiChars.length > 0
+        ? geminiChars
+        : textAnalysis.chars
+
+  const tips = [...new Set([...(parsed.tips ?? []), ...textAnalysis.tips])].slice(0, 3)
+
   return {
     score,
     accepted,
     similarity,
     chars: chars.length > 0 ? chars : expected.split('').map((char) => ({ char, status: 'wrong' as const })),
-    tips: (parsed.tips ?? []).slice(0, 3),
-    spokenApprox: parsed.spokenApprox?.trim() || '—',
+    tips,
+    spokenApprox: textAnalysis.spokenDisplay,
     source: 'gemini',
   }
 }

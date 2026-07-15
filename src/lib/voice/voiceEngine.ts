@@ -133,7 +133,17 @@ export class VoiceEngine {
 
     if (useGemini && audioBlob) {
       try {
-        const result = await assessPronunciationAudio(input.expected, audioBlob)
+        const result = await assessPronunciationAudio(input.expected, audioBlob, this.transcript)
+        const sttCheck = scoreTranscript({
+          mode,
+          expected: input.expected,
+          keywords: input.keywords,
+          transcript: this.transcript,
+        })
+        if (sttCheck.similarity < result.similarity) {
+          this.setPhase('idle')
+          return { ...sttCheck, source: result.source }
+        }
         this.setPhase('idle')
         return result
       } catch (e) {

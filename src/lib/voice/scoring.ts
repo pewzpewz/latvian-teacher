@@ -4,7 +4,7 @@ import { checkSpeakingAnswer } from '../examCheck'
 import type { PronunciationAssessment, VoiceEvaluateInput, VoiceMode } from './types'
 
 export const VOICE_THRESHOLDS: Record<VoiceMode, number> = {
-  pronunciation: 0.85,
+  pronunciation: 0.9,
   dialogTurn: 0.85,
   examSpeaking: 0.78,
   conversation: 0,

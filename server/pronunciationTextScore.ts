@@ -1,10 +1,4 @@
-import {
-  foldDiacritics,
-  levenshtein,
-  matchPronunciation,
-  normalizeForSpeech,
-  pronunciationSimilarity,
-} from './pronunciationMatch'
+/** Text-only pronunciation scoring (mirrors client phonemeFeedback). */
 
 export type PhonemeStatus = 'match' | 'diacritic' | 'wrong' | 'missing'
 
@@ -13,12 +7,29 @@ export type PhonemeChar = {
   status: PhonemeStatus
 }
 
-export type PronunciationAnalysis = {
+export type TextPronunciationAnalysis = {
   similarity: number
   accepted: boolean
   chars: PhonemeChar[]
   tips: string[]
   spokenDisplay: string
+}
+
+const PRONUNCIATION_THRESHOLD = 0.9
+
+const DIACRITIC_FOLD: Record<string, string> = {
+  ā: 'a',
+  ē: 'e',
+  ī: 'i',
+  ū: 'u',
+  ō: 'o',
+  č: 'c',
+  š: 's',
+  ž: 'z',
+  ģ: 'g',
+  ķ: 'k',
+  ļ: 'l',
+  ņ: 'n',
 }
 
 const DIACRITIC_PAIRS: [string, string][] = [
@@ -36,9 +47,57 @@ const DIACRITIC_PAIRS: [string, string][] = [
   ['ņ', 'n'],
 ]
 
+function foldDiacritics(text: string): string {
+  return text.replace(/[āēīūōčšžģķļņ]/g, (ch) => DIACRITIC_FOLD[ch] ?? ch)
+}
+
+function normalizeForSpeech(text: string): string {
+  return foldDiacritics(
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/[.,!?;:«»"']/g, '')
+      .replace(/\s+/g, ' '),
+  )
+}
+
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0
+  if (a.length === 0) return b.length
+  if (b.length === 0) return a.length
+
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i)
+
+  for (let i = 1; i <= a.length; i++) {
+    let prev = i
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      const next = Math.min(row[j] + 1, prev + 1, row[j - 1] + cost)
+      row[j - 1] = prev
+      prev = next
+    }
+    row[b.length] = prev
+  }
+
+  return row[b.length]
+}
+
+function pronunciationSimilarity(spoken: string, expected: string): number {
+  const a = normalizeForSpeech(spoken)
+  const b = normalizeForSpeech(expected)
+  if (!a && !b) return 1
+  if (!a || !b) return 0
+  const dist = levenshtein(a, b)
+  const maxLen = Math.max(a.length, b.length)
+  return 1 - dist / maxLen
+}
+
+function matchPronunciation(spoken: string, expected: string, threshold = PRONUNCIATION_THRESHOLD): boolean {
+  return pronunciationSimilarity(spoken, expected) >= threshold
+}
+
 type AlignOp = 'match' | 'sub' | 'ins' | 'del'
 
-/** DP alignment on normalized strings, mapped back to expected graphemes. */
 function alignNormalized(expectedNorm: string, spokenNorm: string): AlignOp[] {
   const m = expectedNorm.length
   const n = spokenNorm.length
@@ -114,10 +173,9 @@ function collectDiacriticTips(expected: string, spokenNorm: string): string[] {
   return [...tips].slice(0, 3)
 }
 
-/** Пофонемный разбор произношения для UI-подсветки. */
-export function analyzePronunciation(spoken: string, expected: string): PronunciationAnalysis {
+export function analyzePronunciationFromText(spoken: string, expected: string): TextPronunciationAnalysis {
   const similarity = pronunciationSimilarity(spoken, expected)
-  const accepted = matchPronunciation(spoken, expected, 0.9)
+  const accepted = matchPronunciation(spoken, expected)
   const expectedNorm = normalizeForSpeech(expected)
   const spokenNorm = normalizeForSpeech(spoken)
   const ops = alignNormalized(expectedNorm, spokenNorm)
@@ -153,15 +211,30 @@ export function analyzePronunciation(spoken: string, expected: string): Pronunci
   }
 
   const tips = collectDiacriticTips(expected, spokenNorm)
-  if (!accepted && similarity < 0.85 && levenshtein(spokenNorm, expectedNorm) <= 3) {
+  if (!accepted && similarity < 0.9 && levenshtein(spokenNorm, expectedNorm) <= 3) {
     tips.push('Близко! Обратите внимание на выделенные буквы.')
+  }
+  if (!accepted && ops.includes('del')) {
+    tips.unshift('Пропущена буква или звук — произнесите слово полностью.')
   }
 
   return {
     similarity,
     accepted,
     chars: chars.length > 0 ? chars : expected.split('').map((char) => ({ char, status: 'wrong' as const })),
-    tips,
+    tips: tips.slice(0, 3),
     spokenDisplay: spoken.trim() || '—',
   }
+}
+
+/** Pick the stricter of two transcriptions (lower similarity to expected). */
+export function pickStricterTranscription(
+  expected: string,
+  primary: string,
+  secondary?: string,
+): TextPronunciationAnalysis {
+  const a = analyzePronunciationFromText(primary, expected)
+  if (!secondary?.trim()) return a
+  const b = analyzePronunciationFromText(secondary, expected)
+  return a.similarity <= b.similarity ? a : b
 }

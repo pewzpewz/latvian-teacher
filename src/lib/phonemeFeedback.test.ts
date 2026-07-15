@@ -21,4 +21,10 @@ describe('analyzePronunciation', () => {
     expect(r.accepted).toBe(false)
     expect(r.similarity).toBeLessThan(0.5)
   })
+
+  it('rejects omitted consonant (labien vs labdien)', () => {
+    const r = analyzePronunciation('labien', 'labdien')
+    expect(r.accepted).toBe(false)
+    expect(r.chars.some((c) => c.char === 'd' && c.status === 'missing')).toBe(true)
+  })
 })

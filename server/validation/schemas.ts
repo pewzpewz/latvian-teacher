@@ -49,6 +49,7 @@ export const pronunciationBodySchema = z.object({
   expected: z.string().trim().min(1).max(500),
   audioBase64: z.string().min(16).max(1_400_000),
   mimeType: z.string().max(64).default('audio/webm'),
+  sttTranscript: z.string().max(500).optional(),
   apiKey: z.string().max(512).optional(),
 })
 

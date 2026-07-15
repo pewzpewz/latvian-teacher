@@ -16,6 +16,7 @@ type ApiResponse = {
 export async function assessPronunciationAudio(
   expected: string,
   audioBlob: Blob,
+  sttTranscript?: string,
 ): Promise<PronunciationAssessment> {
   const buffer = await audioBlob.arrayBuffer()
   const bytes = new Uint8Array(buffer)
@@ -30,6 +31,7 @@ export async function assessPronunciationAudio(
       expected,
       audioBase64,
       mimeType: audioBlob.type || 'audio/webm',
+      sttTranscript: sttTranscript?.trim() || undefined,
     }),
   })
 

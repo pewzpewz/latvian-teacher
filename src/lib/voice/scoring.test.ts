@@ -10,7 +10,16 @@ describe('voice scoring', () => {
     })
     expect(r.accepted).toBe(true)
     expect(r.source).toBe('stt')
-    expect(r.score).toBeGreaterThan(80)
+    expect(r.score).toBeGreaterThanOrEqual(90)
+  })
+
+  it('pronunciation mode rejects omitted consonant', () => {
+    const r = scoreTranscript({
+      mode: 'pronunciation',
+      expected: 'labdien',
+      transcript: 'labien',
+    })
+    expect(r.accepted).toBe(false)
   })
 
   it('dialogTurn uses threshold 0.85', () => {
