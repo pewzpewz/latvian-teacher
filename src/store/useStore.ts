@@ -55,6 +55,8 @@ export type UserSettings = {
   uiLanguage: UiLanguage
   streakReminderEnabled: boolean
   streakReminderHour: number
+  /** Pronunciation assessment: auto (Gemini + STT fallback), gemini only, stt only */
+  pronunciationEngine: 'auto' | 'gemini' | 'stt'
   /** UUID для E2E sync — пароль не хранится */
   syncId: string | null
   lastSyncedAt: string | null
@@ -112,6 +114,7 @@ const defaultSettings: UserSettings = {
   uiLanguage: 'ru',
   streakReminderEnabled: false,
   streakReminderHour: 19,
+  pronunciationEngine: 'auto',
   syncId: null,
   lastSyncedAt: null,
 }
@@ -214,6 +217,10 @@ function migrateSettings(raw: Partial<UserSettings>): UserSettings {
   if (!raw.aiProvider || raw.aiProvider === 'openai') {
     merged.aiProvider = 'gemini'
     merged.aiModel = 'gemini-3-flash-preview'
+  }
+
+  if (!raw.pronunciationEngine) {
+    merged.pronunciationEngine = 'auto'
   }
 
   return merged

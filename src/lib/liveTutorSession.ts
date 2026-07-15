@@ -2,6 +2,7 @@ import { apiAccessTokenQuery } from './apiHeaders'
 import { wsApiUrl } from './apiBase'
 import { fetchSpeech, playAudioUrl } from './tts'
 import { abortSpeech } from './speechController'
+import { SttAdapter } from './voice/sttAdapter'
 
 export type LivePhase = 'idle' | 'connecting' | 'listening' | 'thinking' | 'speaking' | 'error'
 
@@ -29,11 +30,10 @@ export class LiveTutorSession {
   private pc: RTCPeerConnection | null = null
   private dc: RTCDataChannel | null = null
   private mediaStream: MediaStream | null = null
-  private recognition: SpeechRecognition | null = null
+  private stt: SttAdapter | null = null
   private callbacks: LiveCallbacks
   private options: LiveSessionOptions
   private phase: LivePhase = 'idle'
-  private listening = false
   private destroyed = false
 
   constructor(callbacks: LiveCallbacks, options: LiveSessionOptions = {}) {
@@ -86,62 +86,37 @@ export class LiveTutorSession {
   }
 
   private setupContinuousSTT() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SR) throw new Error('Браузер не поддерживает распознавание речи')
-
-    const rec = new SR()
-    rec.lang = 'lv-LV'
-    rec.interimResults = true
-    rec.continuous = true
-
-    rec.onresult = (event) => {
-      if (this.phase === 'thinking' || this.phase === 'speaking') return
-
-      let interim = ''
-      let final = ''
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript
-        if (event.results[i].isFinal) final += t
-        else interim += t
-      }
-
-      const preview = (final || interim).trim()
-      if (preview) this.callbacks.onUserText(preview)
-
-      if (final.trim() && this.ws?.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({ type: 'user_utterance', text: final.trim() }))
-        this.stopListening()
-      }
-    }
-
-    rec.onend = () => {
-      this.listening = false
-      if (!this.destroyed && this.phase === 'listening' && this.options.autoResumeListen !== false) {
-        window.setTimeout(() => this.startListening(), 300)
-      }
-    }
-
-    rec.onerror = () => {
-      this.listening = false
-    }
-
-    this.recognition = rec
+    this.stt = new SttAdapter(
+      {
+        onInterim: (text) => {
+          if (this.phase === 'thinking' || this.phase === 'speaking') return
+          this.callbacks.onUserText(text)
+        },
+        onFinal: (text) => {
+          if (this.phase === 'thinking' || this.phase === 'speaking') return
+          this.callbacks.onUserText(text)
+          if (text.trim() && this.ws?.readyState === WebSocket.OPEN) {
+            this.ws.send(JSON.stringify({ type: 'user_utterance', text: text.trim() }))
+            this.stopListening()
+          }
+        },
+      },
+      {
+        continuous: true,
+        interimResults: true,
+        autoResume: true,
+        canAcceptResults: () => this.phase === 'listening' && !this.destroyed,
+      },
+    )
   }
 
   startListening() {
-    if (this.listening || !this.recognition || this.phase !== 'listening') return
-    try {
-      this.recognition.start()
-      this.listening = true
-    } catch {
-      /* already started */
-    }
+    if (this.phase !== 'listening' || !this.stt) return
+    this.stt.start()
   }
 
   stopListening() {
-    if (!this.listening) return
-    this.recognition?.stop()
-    this.listening = false
+    this.stt?.stop()
   }
 
   private async speak(text: string) {
@@ -265,6 +240,8 @@ export class LiveTutorSession {
   stop() {
     this.destroyed = true
     this.stopListening()
+    this.stt?.destroy()
+    this.stt = null
     abortSpeech()
     this.ws?.close()
     this.ws = null

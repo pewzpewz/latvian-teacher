@@ -51,6 +51,7 @@ const settings = {
   uiLanguage: 'ru',
   streakReminderEnabled: false,
   streakReminderHour: 19,
+  pronunciationEngine: 'auto',
   syncId: null,
   lastSyncedAt: null,
 } satisfies UserSettings

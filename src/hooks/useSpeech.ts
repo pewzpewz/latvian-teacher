@@ -18,6 +18,7 @@ import {
   subscribeSpeech,
   waitWhilePaused,
 } from '../lib/speechController'
+import { SttAdapter } from '../lib/voice/sttAdapter'
 
 export function useSpeech() {
   const speechRate = useStore((s) => s.settings.speechRate)
@@ -27,7 +28,7 @@ export function useSpeech() {
   const paused = useSyncExternalStore(subscribeSpeech, getPausedSnapshot)
   const [listening, setListening] = useState(false)
   const [transcript, setTranscript] = useState('')
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const sttRef = useRef<SttAdapter | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const stopSpeaking = useCallback(() => abortSpeech(), [])
@@ -195,33 +196,31 @@ export function useSpeech() {
   )
 
   const startListening = useCallback(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognition) return
-    const recognition = new SpeechRecognition()
-    recognition.lang = 'lv-LV'
-    recognition.interimResults = true
-    recognition.continuous = false
-    recognition.onstart = () => {
-      setListening(true)
-      setTranscript('')
-    }
-    recognition.onresult = (event) => {
-      setTranscript(
-        Array.from(event.results)
-          .map((r) => r[0].transcript)
-          .join(''),
-      )
-    }
-    recognition.onend = () => setListening(false)
-    recognition.onerror = () => setListening(false)
-    recognitionRef.current = recognition
-    recognition.start()
+    sttRef.current?.destroy()
+    const stt = new SttAdapter(
+      {
+        onInterim: (text) => setTranscript(text),
+        onFinal: (text) => setTranscript(text),
+        onStart: () => {
+          setListening(true)
+          setTranscript('')
+        },
+        onEnd: () => setListening(false),
+        onError: () => setListening(false),
+      },
+      { continuous: false, interimResults: true },
+    )
+    sttRef.current = stt
+    stt.start()
   }, [])
 
   const stopListening = useCallback(() => {
-    recognitionRef.current?.stop()
+    sttRef.current?.stop()
     setListening(false)
+  }, [])
+
+  useEffect(() => {
+    return () => sttRef.current?.destroy()
   }, [])
 
   useEffect(() => {

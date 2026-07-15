@@ -45,6 +45,13 @@ export const syncBodySchema = z.object({
   }),
 })
 
+export const pronunciationBodySchema = z.object({
+  expected: z.string().trim().min(1).max(500),
+  audioBase64: z.string().min(16).max(1_400_000),
+  mimeType: z.string().max(64).default('audio/webm'),
+  apiKey: z.string().max(512).optional(),
+})
+
 export function formatZodError(error: z.ZodError): string {
   return error.issues[0]?.message ?? 'Invalid request'
 }

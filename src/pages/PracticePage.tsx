@@ -1,7 +1,6 @@
-import { useState, useMemo } from 'react'
-import { Mic, MicOff, Volume2, Check, X, RefreshCw, Zap } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Mic, MicOff, Volume2, Check, X, RefreshCw, Zap, Loader2 } from 'lucide-react'
 import { useSpeech } from '../hooks/useSpeech'
-import { analyzePronunciation } from '../lib/phonemeFeedback'
 import { PronunciationFeedback } from '../components/PronunciationFeedback'
 import { useStore } from '../store/useStore'
 import {
@@ -11,15 +10,37 @@ import {
 } from '../data/practiceItems'
 import { getAdaptivePracticeItems, estimateLevel } from '../lib/adaptive'
 import { useTranslation } from '../hooks/useTranslation'
+import { useVoiceEngine } from '../lib/voice/useVoiceEngine'
+import type { PronunciationAssessment } from '../lib/voice/types'
 
 export function PracticePage() {
   const { t } = useTranslation()
-  const { speak, speaking, startListening, stopListening, listening, transcript } = useSpeech()
+  const { speak, speaking } = useSpeech()
+  const pronunciationEngine = useStore((s) => s.settings.pronunciationEngine)
   const { progress, recordPronunciation } = useStore()
   const [phraseIndex, setPhraseIndex] = useState(0)
   const [result, setResult] = useState<'correct' | 'wrong' | null>(null)
-  const [analysis, setAnalysis] = useState<ReturnType<typeof analyzePronunciation> | null>(null)
+  const [analysis, setAnalysis] = useState<PronunciationAssessment | null>(null)
   const [mode, setMode] = useState<'adaptive' | 'phrases' | 'words'>('adaptive')
+
+  const voiceOptions = useMemo(
+    () => ({
+      mode: 'pronunciation' as const,
+      captureAudio: true,
+      pronunciationPreference: pronunciationEngine,
+    }),
+    [pronunciationEngine],
+  )
+
+  const {
+    listening,
+    processing,
+    transcript,
+    error: voiceError,
+    startRecording,
+    stopRecording,
+    evaluate,
+  } = useVoiceEngine(voiceOptions)
 
   const level = progress.estimatedLevel || estimateLevel(progress)
 
@@ -43,12 +64,16 @@ export function PracticePage() {
 
   const current = items[phraseIndex] ?? items[0]
 
-  const checkPronunciation = () => {
-    stopListening()
-    const report = analyzePronunciation(transcript, current.lv)
-    setAnalysis(report)
-    setResult(report.accepted ? 'correct' : 'wrong')
-    recordPronunciation(report.accepted)
+  const checkPronunciation = async () => {
+    stopRecording()
+    try {
+      const report = await evaluate(current.lv)
+      setAnalysis(report)
+      setResult(report.accepted ? 'correct' : 'wrong')
+      recordPronunciation(report.accepted)
+    } catch {
+      setResult('wrong')
+    }
   }
 
   const next = () => {
@@ -117,18 +142,23 @@ export function PracticePage() {
 
           <button
             type="button"
-            onClick={listening ? checkPronunciation : startListening}
+            onClick={() => void (listening ? checkPronunciation() : startRecording())}
+            disabled={processing}
             className={`flex h-16 w-16 items-center justify-center rounded-full transition-colors ${
               listening
                 ? 'animate-pulse bg-red-500/20 text-red-400'
                 : 'bg-success/15 text-success hover:bg-success/25'
             }`}
           >
-            {listening ? <MicOff size={28} /> : <Mic size={28} />}
+            {processing ? <Loader2 size={28} className="animate-spin" /> : listening ? <MicOff size={28} /> : <Mic size={28} />}
           </button>
         </div>
 
-        {listening && (
+        {processing && (
+          <p className="mb-4 text-sm text-muted">{t('voice.analyzing')}</p>
+        )}
+
+        {listening && !processing && (
           <p className="mb-4 text-sm text-muted">{t('common.speakPromptShort')}</p>
         )}
 
@@ -138,27 +168,30 @@ export function PracticePage() {
           </p>
         )}
 
-        {result && (
+        {voiceError && <p className="mb-4 text-sm text-red-400">{voiceError}</p>}
+
+        {result && analysis && (
           <div
             className={`mb-4 rounded-xl p-3 ${
               result === 'correct' ? 'bg-success/10 text-success' : 'bg-red-500/10 text-red-400'
             }`}
           >
-            <div className="flex items-center justify-center gap-2">
-              {result === 'correct' ? <Check size={18} /> : <X size={18} />}
-              {result === 'correct'
-                ? t('common.excellentWithPercent', {
-                    percent: Math.round((analysis?.similarity ?? 1) * 100),
-                  })
-                : t('practice.discrepancies')}
+            <div className="flex flex-col items-center justify-center gap-1">
+              <div className="flex items-center gap-2">
+                {result === 'correct' ? <Check size={18} /> : <X size={18} />}
+                {result === 'correct'
+                  ? t('common.excellentWithPercent', { percent: analysis.score })
+                  : t('practice.discrepancies')}
+              </div>
+              <p className="text-xs opacity-80">
+                {analysis.source === 'gemini' ? t('voice.sourceGemini') : t('voice.sourceStt')}
+              </p>
             </div>
-            {analysis && (
-              <PronunciationFeedback
-                chars={analysis.chars}
-                tips={analysis.tips}
-                spoken={analysis.spokenDisplay}
-              />
-            )}
+            <PronunciationFeedback
+              chars={analysis.chars}
+              tips={analysis.tips}
+              spoken={analysis.spokenDisplay}
+            />
           </div>
         )}
 

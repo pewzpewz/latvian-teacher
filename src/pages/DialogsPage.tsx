@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, User, Mic, MicOff, Check, X, BookOpen, Drama } from 'lucide-react'
+import { ArrowLeft, User, Mic, MicOff, Check, X, BookOpen, Drama, Loader2 } from 'lucide-react'
 import { dialogs, getDialogById, type DialogLine } from '../data/dialogs'
 import { SpeakButton } from '../components/SpeakButton'
 import { useStore } from '../store/useStore'
 import { useSpeech } from '../hooks/useSpeech'
-import { matchPronunciation } from '../lib/pronunciationMatch'
 import { useTranslation } from '../hooks/useTranslation'
+import { useVoiceEngine } from '../lib/voice/useVoiceEngine'
 
 const USER_SPEAKERS = new Set(['Jūs', 'Tu'])
 
@@ -29,7 +29,27 @@ export function DialogsPage() {
 
   const dialogsCompleted = useStore((s) => s.progress.dialogsCompleted)
   const completeDialog = useStore((s) => s.completeDialog)
-  const { speak, startListening, stopListening, listening, transcript } = useSpeech()
+  const pronunciationEngine = useStore((s) => s.settings.pronunciationEngine)
+  const { speak } = useSpeech()
+
+  const voiceOptions = useMemo(
+    () => ({
+      mode: 'dialogTurn' as const,
+      captureAudio: true,
+      geminiForShortDialog: true,
+      pronunciationPreference: pronunciationEngine,
+    }),
+    [pronunciationEngine],
+  )
+
+  const {
+    listening,
+    processing,
+    transcript,
+    startRecording,
+    stopRecording,
+    evaluate,
+  } = useVoiceEngine(voiceOptions)
 
   useEffect(() => {
     if (searchParams.get('mode') === 'practice') setViewMode('practice')
@@ -58,16 +78,20 @@ export function DialogsPage() {
     }
   }, [selected, practiceIndex, finishDialog])
 
-  const checkUserLine = useCallback(() => {
+  const checkUserLine = useCallback(async () => {
     if (!selected) return
-    stopListening()
+    stopRecording()
     const line = selected.lines[practiceIndex]
-    const correct = matchPronunciation(transcript, line.lv)
-    setPracticeResult(correct ? 'correct' : 'wrong')
-    if (correct) {
-      setTimeout(advancePractice, 800)
+    try {
+      const report = await evaluate(line.lv)
+      setPracticeResult(report.accepted ? 'correct' : 'wrong')
+      if (report.accepted) {
+        setTimeout(advancePractice, 800)
+      }
+    } catch {
+      setPracticeResult('wrong')
     }
-  }, [selected, practiceIndex, transcript, stopListening, advancePractice])
+  }, [selected, practiceIndex, stopRecording, evaluate, advancePractice])
 
   if (selected) {
     const isCompleted = dialogsCompleted.includes(selected.id)
@@ -213,12 +237,13 @@ export function DialogsPage() {
                 <div className="mb-6 flex justify-center">
                   <button
                     type="button"
-                    onClick={listening ? checkUserLine : startListening}
+                    onClick={() => void (listening ? checkUserLine() : startRecording())}
+                    disabled={processing}
                     className={`flex h-16 w-16 items-center justify-center rounded-full ${
                       listening ? 'animate-pulse bg-red-500/20 text-red-400' : 'bg-success/15 text-success'
                     }`}
                   >
-                    {listening ? <MicOff size={28} /> : <Mic size={28} />}
+                    {processing ? <Loader2 size={28} className="animate-spin" /> : listening ? <MicOff size={28} /> : <Mic size={28} />}
                   </button>
                 </div>
 

@@ -402,6 +402,17 @@
 
 ---
 
+## Фаза 5 — Voice Engine + Gemini произношение
+
+- [x] **Voice Engine** — единый `src/lib/voice/` (STT, scoring, modes) — 2026-07-15
+- [x] **Миграция** Practice, Dialogs, Live, useSpeech на SttAdapter — 2026-07-15
+- [x] **POST /api/pronunciation** — Gemini multimodal audio — 2026-07-15
+- [x] **Practice UI** — score 0–100, loading, source badge, settings — 2026-07-15
+- [x] **Dialogs** — Gemini для коротких реплик (≤8 слов) — 2026-07-15
+- [ ] **Дикция** (темп, паузы) — отложено, см. `docs/VOICE.md`
+
+---
+
 ## Связанные файлы
 
 - Canvas: `~/.cursor/projects/d-cursor/canvases/latvian-teacher-roadmap.canvas.tsx`
@@ -410,3 +421,4 @@
 - Рынок: `docs/MARKET_COMPARISON.md`
 - Деплой: `docs/DEPLOY.md`
 - Мобильные сборки: `docs/MOBILE.md`
+- Голос / произношение: `docs/VOICE.md`

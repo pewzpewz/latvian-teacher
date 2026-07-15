@@ -14,8 +14,8 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   return NotificationApi.requestPermission()
 }
 
-export function studiedToday(progress: UserProgress): boolean {
-  const today = new Date().toISOString().slice(0, 10)
+export function studiedToday(progress: UserProgress, now = new Date()): boolean {
+  const today = now.toISOString().slice(0, 10)
   return progress.todayStudyDate === today && progress.todayStudyMinutes > 0
 }
 
@@ -27,7 +27,7 @@ export function shouldShowStreakReminder(
   if (!settings.streakReminderEnabled) return false
   if (!isNotificationSupported() || globalThis.Notification.permission !== 'granted') return false
   if (progress.streak <= 0) return false
-  if (studiedToday(progress)) return false
+  if (studiedToday(progress, now)) return false
 
   const hour = now.getHours()
   if (hour !== settings.streakReminderHour) return false

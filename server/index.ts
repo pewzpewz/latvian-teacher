@@ -18,10 +18,12 @@ import {
   chatBodySchema,
   formatZodError,
   glossBodySchema,
+  pronunciationBodySchema,
   syncBodySchema,
   ttsQuerySchema,
 } from './validation/schemas.js'
 import { isValidSyncId, loadSyncRecord, saveSyncRecord } from './syncStore.js'
+import { assessPronunciationWithGemini } from './pronunciation.js'
 
 dotenv.config()
 
@@ -31,7 +33,7 @@ const PORT = process.env.PORT || 3001
 
 app.use(createHelmetMiddleware())
 app.use(createCorsMiddleware())
-app.use(express.json({ limit: '1mb' }))
+app.use(express.json({ limit: '2mb' }))
 app.use('/api', accessTokenMiddleware)
 
 const chatLimiter = rateLimit({
@@ -64,6 +66,14 @@ const syncLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Слишком много запросов sync. Подождите.' },
+})
+
+const pronunciationLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Слишком много запросов pronunciation. Подождите.' },
 })
 
 const ADAPT_PROMPT = (profile: string) => `Tu esi latviešu valodas skolotājs. Analizē studenta profilu un izveido personalizētu mācību saturu.
@@ -222,6 +232,21 @@ app.post('/api/adapt', chatLimiter, async (req, res) => {
     res.json(json)
   } catch (e) {
     sendServerError(res, e, 'Adapt error')
+  }
+})
+
+app.post('/api/pronunciation', pronunciationLimiter, async (req, res) => {
+  try {
+    const parsed = pronunciationBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: formatZodError(parsed.error) })
+    }
+
+    const { expected, audioBase64, mimeType, apiKey: clientKey } = parsed.data
+    const result = await assessPronunciationWithGemini(expected, audioBase64, mimeType, clientKey)
+    res.json(result)
+  } catch (e) {
+    sendServerError(res, e, 'Pronunciation error')
   }
 })
 

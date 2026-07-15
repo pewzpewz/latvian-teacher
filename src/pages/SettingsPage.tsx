@@ -220,6 +220,29 @@ export function SettingsPage() {
               className="w-full accent-accent"
             />
           </label>
+
+          <label className="mt-4 block">
+            <span className="mb-2 block text-sm text-muted">{t('settings.pronunciationEngine')}</span>
+            <div className="flex flex-wrap gap-2">
+              {(['auto', 'gemini', 'stt'] as const).map((engine) => (
+                <button
+                  key={engine}
+                  type="button"
+                  onClick={() => setLocal({ ...local, pronunciationEngine: engine })}
+                  className={`rounded-xl px-4 py-2 text-sm ${
+                    local.pronunciationEngine === engine ? 'bg-accent text-white' : 'border border-border'
+                  }`}
+                >
+                  {engine === 'auto'
+                    ? t('settings.pronunciationAuto')
+                    : engine === 'gemini'
+                      ? t('settings.pronunciationGemini')
+                      : t('settings.pronunciationStt')}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1 text-xs text-muted">{t('settings.pronunciationEngineHint')}</p>
+          </label>
         </section>
 
         <section className="glass rounded-2xl p-6">
