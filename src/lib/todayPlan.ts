@@ -53,14 +53,14 @@ export function buildTodayPlan(
       id: 'dictation-a1',
       title: t('today.dictation'),
       description: t('today.dictationDesc'),
-      link: '/dictations',
+      link: '/training/dictation',
       kind: 'practice',
     })
     items.push({
       id: 'declensions-drill',
       title: t('today.declension'),
       description: t('today.declensionDesc'),
-      link: '/declensions',
+      link: '/grammar/declensions',
       kind: 'practice',
     })
   }
@@ -71,7 +71,7 @@ export function buildTodayPlan(
       id: 'conjugations-drill',
       title: t('today.conjugation'),
       description: t('today.conjugationDesc'),
-      link: '/conjugations',
+      link: '/grammar/conjugations',
       kind: 'practice',
     })
   }
@@ -115,7 +115,7 @@ export function buildTodayPlan(
       id: 'practice',
       title: pronAction.title,
       description: pronAction.description,
-      link: '/practice',
+      link: '/training/pronunciation',
       kind: 'practice',
     })
   }

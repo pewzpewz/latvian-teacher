@@ -37,8 +37,8 @@ export function getCefrTracks(t: TFunction): CefrTrack[] {
       milestones: [
         { id: 'a1-lessons', title: t('cefr.mA1Lessons'), description: t('cefr.mA1LessonsD'), link: '/lessons' },
         { id: 'a1-vocab', title: t('cefr.mA1Vocab'), description: t('cefr.mA1VocabD'), link: '/vocabulary' },
-        { id: 'a1-decl', title: t('cefr.mA1Decl'), description: t('cefr.mA1DeclD'), link: '/declensions' },
-        { id: 'a1-dict', title: t('cefr.mA1Dict'), description: t('cefr.mA1DictD'), link: '/dictations' },
+        { id: 'a1-decl', title: t('cefr.mA1Decl'), description: t('cefr.mA1DeclD'), link: '/grammar/declensions' },
+        { id: 'a1-dict', title: t('cefr.mA1Dict'), description: t('cefr.mA1DictD'), link: '/training/dictation' },
       ],
     },
     {
@@ -49,7 +49,7 @@ export function getCefrTracks(t: TFunction): CefrTrack[] {
         { id: 'a2-lessons', title: t('cefr.mA2Lessons'), description: t('cefr.mA2LessonsD'), link: '/lessons' },
         { id: 'a2-vocab', title: t('cefr.mA2Vocab'), description: t('cefr.mA2VocabD'), link: '/vocabulary?level=A2' },
         { id: 'a2-exam', title: t('cefr.mA2Exam'), description: t('cefr.mA2ExamD'), link: '/exam' },
-        { id: 'a2-conj', title: t('cefr.mA2Conj'), description: t('cefr.mA2ConjD'), link: '/conjugations' },
+        { id: 'a2-conj', title: t('cefr.mA2Conj'), description: t('cefr.mA2ConjD'), link: '/grammar/conjugations' },
       ],
     },
     {

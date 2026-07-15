@@ -82,10 +82,10 @@ const SKILL_LINK: Record<string, string> = {
   'topic-greetings': '/lessons/greetings-1',
   'topic-alphabet': '/lessons/alphabet-1',
   'noun-nom-sg': '/lessons/grammar-nouns-1',
-  'noun-dat-sg': '/lessons/cases-intro',
-  'noun-acc-sg': '/lessons/cases-intro',
+  'noun-dat-sg': '/grammar/declensions',
+  'noun-acc-sg': '/grammar/declensions',
   'verb-present': '/lessons/grammar-verbs-1',
-  'verb-past': '/conjugations',
+  'verb-past': '/grammar/conjugations',
 }
 
 function categoryLabel(t: TFunction, key: string): string {
@@ -113,7 +113,7 @@ function buildSkillSnapshots(
 }
 
 function linkForSkill(skillId: string): string {
-  if (skillId.startsWith('phoneme-')) return '/practice'
+  if (skillId.startsWith('phoneme-')) return '/training/pronunciation'
   return SKILL_LINK[skillId] ?? '/lessons'
 }
 
@@ -251,7 +251,7 @@ export function analyzeLearning(progress: UserProgress, t: TFunction = createT('
       type: 'practice',
       title: t('adaptive.pronTitle'),
       description: t('adaptive.pronDesc', { score: conf }),
-      link: '/practice',
+      link: '/training/pronunciation',
       priority: Math.round(urgencyForSkillState(weakestPhoneme, now) * 10),
       reason: t('adaptive.pronReasonPhoneme', { sound: skillLabel(weakestPhoneme.skillId) }),
     })
@@ -263,7 +263,7 @@ export function analyzeLearning(progress: UserProgress, t: TFunction = createT('
         type: 'practice',
         title: t('adaptive.pronTitle'),
         description: t('adaptive.pronDesc', { score: pronScore }),
-        link: '/practice',
+        link: '/training/pronunciation',
         priority: Math.round(skillUrgency(pronScore / 100, 8) * 10),
         reason: t('adaptive.pronReason'),
       })
@@ -273,7 +273,7 @@ export function analyzeLearning(progress: UserProgress, t: TFunction = createT('
         type: 'practice',
         title: t('adaptive.pronStartTitle'),
         description: t('adaptive.pronStartDesc'),
-        link: '/practice',
+        link: '/training/pronunciation',
         priority: Math.round(skillUrgency(0.7, 4) * 10),
         reason: t('adaptive.pronStartReason'),
       })

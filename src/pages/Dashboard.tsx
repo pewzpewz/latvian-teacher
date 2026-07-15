@@ -37,11 +37,11 @@ const todayIcons = {
 const quickLinkKeys = [
   { to: '/lessons', icon: BookOpen, labelKey: 'dashboard.quickLessons', descKey: 'dashboard.quickLessonsDesc', color: 'text-accent' },
   { to: '/vocabulary', icon: Brain, labelKey: 'dashboard.quickVocabulary', descKey: 'dashboard.quickVocabularyDesc', color: 'text-gold' },
-  { to: '/declensions', icon: Layers, labelKey: 'dashboard.quickDeclensions', descKey: 'dashboard.quickDeclensionsDesc', color: 'text-info' },
-  { to: '/conjugations', icon: Zap, labelKey: 'dashboard.quickConjugations', descKey: 'dashboard.quickConjugationsDesc', color: 'text-info' },
+  { to: '/grammar/declensions', icon: Layers, labelKey: 'dashboard.quickDeclensions', descKey: 'dashboard.quickDeclensionsDesc', color: 'text-info' },
+  { to: '/grammar/conjugations', icon: Zap, labelKey: 'dashboard.quickConjugations', descKey: 'dashboard.quickConjugationsDesc', color: 'text-info' },
   { to: '/dialogs', icon: MessageCircle, labelKey: 'dashboard.quickDialogs', descKey: 'dashboard.quickDialogsDesc', color: 'text-info' },
-  { to: '/practice', icon: Mic, labelKey: 'dashboard.quickPractice', descKey: 'dashboard.quickPracticeDesc', color: 'text-success' },
-  { to: '/games', icon: Gamepad2, labelKey: 'dashboard.quickGames', descKey: 'dashboard.quickGamesDesc', color: 'text-gold' },
+  { to: '/training/pronunciation', icon: Mic, labelKey: 'dashboard.quickPractice', descKey: 'dashboard.quickPracticeDesc', color: 'text-success' },
+  { to: '/training/games', icon: Gamepad2, labelKey: 'dashboard.quickGames', descKey: 'dashboard.quickGamesDesc', color: 'text-gold' },
   { to: '/tutor', icon: Sparkles, labelKey: 'dashboard.quickTutor', descKey: 'dashboard.quickTutorDesc', color: 'text-accent' },
 ] as const
 

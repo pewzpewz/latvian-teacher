@@ -11,12 +11,9 @@ import {
   Trophy,
   Target,
   Volume2,
-  Gamepad2,
   GraduationCap,
   Layers,
   Flag,
-  Zap,
-  Headphones,
   Map,
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
@@ -24,24 +21,45 @@ import { checkTtsHealth } from '../lib/tts'
 import { useTranslation } from '../hooks/useTranslation'
 import { dayCountLabel } from '../i18n/plural'
 
-const navItems = [
-  { to: '/', icon: Home, labelKey: 'nav.home' },
-  { to: '/plan', icon: Target, labelKey: 'nav.plan' },
-  { to: '/progress', icon: Trophy, labelKey: 'nav.progress' },
-  { to: '/lessons', icon: BookOpen, labelKey: 'nav.lessons' },
-  { to: '/declensions', icon: Layers, labelKey: 'nav.declensions' },
-  { to: '/conjugations', icon: Zap, labelKey: 'nav.conjugations' },
-  { to: '/dictations', icon: Headphones, labelKey: 'nav.dictations' },
-  { to: '/cefr', icon: Map, labelKey: 'nav.cefr' },
-  { to: '/naturalization', icon: Flag, labelKey: 'nav.naturalization' },
-  { to: '/vocabulary', icon: Brain, labelKey: 'nav.vocabulary' },
-  { to: '/dialogs', icon: MessageCircle, labelKey: 'nav.dialogs' },
-  { to: '/practice', icon: Mic, labelKey: 'nav.practice' },
-  { to: '/games', icon: Gamepad2, labelKey: 'nav.games' },
-  { to: '/exam', icon: GraduationCap, labelKey: 'nav.exam' },
-  { to: '/tutor', icon: Sparkles, labelKey: 'nav.tutor' },
-  { to: '/settings', icon: Settings, labelKey: 'nav.settings' },
+type NavItem = { to: string; icon: typeof Home; labelKey: string }
+type NavGroup = { labelKey?: string; items: NavItem[] }
+
+const navGroups: NavGroup[] = [
+  {
+    labelKey: 'nav.groupOverview',
+    items: [
+      { to: '/', icon: Home, labelKey: 'nav.home' },
+      { to: '/plan', icon: Target, labelKey: 'nav.plan' },
+      { to: '/progress', icon: Trophy, labelKey: 'nav.progress' },
+    ],
+  },
+  {
+    labelKey: 'nav.groupLearn',
+    items: [
+      { to: '/lessons', icon: BookOpen, labelKey: 'nav.lessons' },
+      { to: '/grammar', icon: Layers, labelKey: 'nav.grammar' },
+      { to: '/vocabulary', icon: Brain, labelKey: 'nav.vocabulary' },
+      { to: '/dialogs', icon: MessageCircle, labelKey: 'nav.dialogs' },
+    ],
+  },
+  {
+    labelKey: 'nav.groupTraining',
+    items: [{ to: '/training', icon: Mic, labelKey: 'nav.training' }],
+  },
+  {
+    labelKey: 'nav.groupGoals',
+    items: [
+      { to: '/cefr', icon: Map, labelKey: 'nav.cefr' },
+      { to: '/exam', icon: GraduationCap, labelKey: 'nav.exam' },
+      { to: '/naturalization', icon: Flag, labelKey: 'nav.naturalization' },
+    ],
+  },
+  {
+    items: [{ to: '/tutor', icon: Sparkles, labelKey: 'nav.tutor' }],
+  },
 ]
+
+const settingsItem: NavItem = { to: '/settings', icon: Settings, labelKey: 'nav.settings' }
 
 type SidebarProps = {
   mobileOpen?: boolean
@@ -55,6 +73,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
   const unlockedCount = useStore((s) => s.progress.unlockedAchievements.length)
   const ttsEngine = useStore((s) => s.settings.ttsEngine)
   const [neuralOk, setNeuralOk] = useState<boolean | null>(null)
+  const SettingsIcon = settingsItem.icon
 
   useEffect(() => {
     if (ttsEngine === 'neural') {
@@ -80,12 +99,40 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        {navItems.map(({ to, icon: Icon, labelKey }) => (
+      <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+        {navGroups.map((group, i) => (
+          <div key={group.labelKey ?? i}>
+            {group.labelKey && (
+              <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-wide text-muted/70">
+                {t(group.labelKey)}
+              </p>
+            )}
+            <div className="space-y-1">
+              {group.items.map(({ to, icon: Icon, labelKey }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={to === '/'}
+                  onClick={onMobileClose}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                      isActive
+                        ? 'bg-accent/15 text-accent'
+                        : 'text-muted hover:bg-surface-2 hover:text-text'
+                    }`
+                  }
+                >
+                  <Icon size={18} />
+                  {t(labelKey)}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div className="border-t border-border pt-2">
           <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
+            to={settingsItem.to}
             onClick={onMobileClose}
             className={({ isActive }) =>
               `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
@@ -95,10 +142,10 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
               }`
             }
           >
-            <Icon size={18} />
-            {t(labelKey)}
+            <SettingsIcon size={18} />
+            {t(settingsItem.labelKey)}
           </NavLink>
-        ))}
+        </div>
       </nav>
 
       <div className="border-t border-border px-6 py-4">
