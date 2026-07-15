@@ -41,6 +41,11 @@ export function useVoiceEngine(options: VoiceEngineOptions) {
     [],
   )
 
+  const clearTranscript = useCallback(() => {
+    engineRef.current?.clearTranscript()
+    setTranscript('')
+  }, [])
+
   return {
     phase,
     listening: phase === 'recording',
@@ -50,5 +55,6 @@ export function useVoiceEngine(options: VoiceEngineOptions) {
     startRecording,
     stopRecording,
     evaluate,
+    clearTranscript,
   }
 }

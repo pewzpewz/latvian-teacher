@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { analyzePronunciation } from '../lib/phonemeFeedback'
 import { Mic, MicOff, Volume2, Check, X, RefreshCw, Zap, Loader2 } from 'lucide-react'
 import { useSpeech } from '../hooks/useSpeech'
 import { PronunciationFeedback } from '../components/PronunciationFeedback'
@@ -40,7 +41,11 @@ export function PracticePage() {
     startRecording,
     stopRecording,
     evaluate,
+    clearTranscript,
   } = useVoiceEngine(voiceOptions)
+
+  const wasListeningRef = useRef(false)
+  const evaluatingRef = useRef(false)
 
   const level = progress.estimatedLevel || estimateLevel(progress)
 
@@ -64,7 +69,9 @@ export function PracticePage() {
 
   const current = items[phraseIndex] ?? items[0]
 
-  const checkPronunciation = async () => {
+  const runEvaluation = useCallback(async () => {
+    if (evaluatingRef.current || processing) return
+    evaluatingRef.current = true
     stopRecording()
     try {
       const report = await evaluate(current.lv)
@@ -72,13 +79,53 @@ export function PracticePage() {
       setResult(report.accepted ? 'correct' : 'wrong')
       recordPronunciation(report.accepted)
     } catch {
-      setResult('wrong')
+      const fallback = analyzePronunciation(transcript, current.lv)
+      setAnalysis({
+        ...fallback,
+        score: Math.round(fallback.similarity * 100),
+        source: 'stt',
+      })
+      setResult(fallback.accepted ? 'correct' : 'wrong')
+      recordPronunciation(fallback.accepted)
+    } finally {
+      evaluatingRef.current = false
     }
+  }, [current.lv, evaluate, processing, recordPronunciation, stopRecording, transcript])
+
+  useEffect(() => {
+    if (listening) {
+      wasListeningRef.current = true
+      return
+    }
+    if (
+      wasListeningRef.current &&
+      !processing &&
+      !result &&
+      transcript.trim() &&
+      !evaluatingRef.current
+    ) {
+      wasListeningRef.current = false
+      void runEvaluation()
+    }
+  }, [listening, processing, transcript, result, runEvaluation])
+
+  const handleMic = async () => {
+    if (processing) return
+    if (listening) {
+      stopRecording()
+      return
+    }
+    setResult(null)
+    setAnalysis(null)
+    clearTranscript()
+    await startRecording()
   }
 
   const next = () => {
     setResult(null)
     setAnalysis(null)
+    clearTranscript()
+    wasListeningRef.current = false
     setPhraseIndex((i) => (i + 1) % items.length)
   }
 
@@ -142,7 +189,7 @@ export function PracticePage() {
 
           <button
             type="button"
-            onClick={() => void (listening ? checkPronunciation() : startRecording())}
+            onClick={() => void handleMic()}
             disabled={processing}
             className={`flex h-16 w-16 items-center justify-center rounded-full transition-colors ${
               listening

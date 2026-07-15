@@ -44,6 +44,11 @@ export class VoiceEngine {
     return this.transcript
   }
 
+  clearTranscript() {
+    this.transcript = ''
+    this.listeners.onTranscript?.('')
+  }
+
   private setPhase(phase: VoicePhase) {
     this.phase = phase
     this.listeners.onPhase?.(phase)
