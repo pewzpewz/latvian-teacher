@@ -124,7 +124,7 @@ export const createStoreActions: SliceCreator = (set, get) => ({
     progress.pronunciationAttempts.total += 1
     if (correct) progress.pronunciationAttempts.correct += 1
     trackCategory(progress, 'pronunciation', correct)
-    progress.phonemeStats = recordPhonemeChars(progress.phonemeStats, chars, correct)
+    progress.phonemeStats = recordPhonemeChars(progress.phonemeStats, chars)
     trackStudyMinutes(progress, 1)
     persistProgress(progress)
     set({ progress })

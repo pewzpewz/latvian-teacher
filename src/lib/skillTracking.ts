@@ -2,7 +2,7 @@ import { lessons } from '../data/lessons'
 import type { Exercise } from '../data/lessons'
 import { skillWeight } from '../data/skills'
 import { applySkillUpdate, decayedPKnow, type SkillState } from './knowledgeTracing'
-import { phonemeIdsFromChars } from './phonemeMap'
+import { phonemeResultsFromChars } from './phonemeMap'
 import type { PhonemeChar } from './phonemeFeedback'
 
 const CATEGORY_SKILL_MAP: Record<string, string[]> = {
@@ -59,21 +59,20 @@ export function applySkillIdsUpdate(
 export function recordPhonemeChars(
   phonemeStats: Record<string, SkillState>,
   chars: PhonemeChar[] | undefined,
-  overallCorrect: boolean,
   now = Date.now(),
 ): Record<string, SkillState> {
-  if (overallCorrect || !chars?.length) {
+  if (!chars?.length) {
     return phonemeStats
   }
 
-  const problemIds = phonemeIdsFromChars(chars)
-  if (problemIds.length === 0) {
+  const results = phonemeResultsFromChars(chars)
+  if (results.length === 0) {
     return phonemeStats
   }
 
   let next = phonemeStats
-  for (const id of problemIds) {
-    next = applySkillUpdate(next, id, false, now)
+  for (const { phonemeId, correct } of results) {
+    next = applySkillUpdate(next, phonemeId, correct, now)
   }
 
   return next

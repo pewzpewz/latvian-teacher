@@ -27,17 +27,24 @@ export const CHAR_TO_PHONEME: Record<string, string> = {
   r: 'phoneme-rolled-r',
 }
 
-const PROBLEM_STATUSES = new Set(['wrong', 'missing', 'diacritic'])
+export type PhonemeResult = { phonemeId: string; correct: boolean }
 
-export function phonemeIdsFromChars(chars: PhonemeChar[]): string[] {
-  const ids = new Set<string>()
+/**
+ * Per-character correctness for every recognizable phoneme in the attempt —
+ * not just the ones that went wrong. `match` counts as correct=true so a
+ * skill can actually recover, not just decay. `diacritic` (e.g. said "a"
+ * instead of "ā") counts as an error for that phoneme's skill, same as
+ * `wrong`/`missing`.
+ */
+export function phonemeResultsFromChars(chars: PhonemeChar[]): PhonemeResult[] {
+  const results: PhonemeResult[] = []
   for (const c of chars) {
-    if (!PROBLEM_STATUSES.has(c.status)) continue
     const key = c.char.toLowerCase()
     const id = CHAR_TO_PHONEME[key]
-    if (id) ids.add(id)
+    if (!id) continue
+    results.push({ phonemeId: id, correct: c.status === 'match' })
   }
-  return [...ids]
+  return results
 }
 
 export function phonemeIdsFromText(lv: string): string[] {
