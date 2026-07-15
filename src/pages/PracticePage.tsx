@@ -33,6 +33,10 @@ export function PracticePage() {
     [pronunciationEngine],
   )
 
+  const wasListeningRef = useRef(false)
+  const evaluatingRef = useRef(false)
+  const runEvaluationRef = useRef<() => Promise<void>>(async () => {})
+
   const {
     listening,
     processing,
@@ -40,12 +44,14 @@ export function PracticePage() {
     error: voiceError,
     startRecording,
     stopRecording,
+    getTranscript,
     evaluate,
     clearTranscript,
-  } = useVoiceEngine(voiceOptions)
-
-  const wasListeningRef = useRef(false)
-  const evaluatingRef = useRef(false)
+  } = useVoiceEngine(voiceOptions, {
+    onUtteranceEnded: () => {
+      void runEvaluationRef.current()
+    },
+  })
 
   const level = progress.estimatedLevel || estimateLevel(progress)
 
@@ -70,16 +76,17 @@ export function PracticePage() {
   const current = items[phraseIndex] ?? items[0]
 
   const runEvaluation = useCallback(async () => {
-    if (evaluatingRef.current || processing) return
+    if (evaluatingRef.current) return
     evaluatingRef.current = true
     stopRecording()
+    const spoken = getTranscript()
     try {
       const report = await evaluate(current.lv)
       setAnalysis(report)
       setResult(report.accepted ? 'correct' : 'wrong')
       recordPronunciation(report.accepted)
     } catch {
-      const fallback = analyzePronunciation(transcript, current.lv)
+      const fallback = analyzePronunciation(spoken, current.lv)
       setAnalysis({
         ...fallback,
         score: Math.round(fallback.similarity * 100),
@@ -90,29 +97,19 @@ export function PracticePage() {
     } finally {
       evaluatingRef.current = false
     }
-  }, [current.lv, evaluate, processing, recordPronunciation, stopRecording, transcript])
+  }, [current.lv, evaluate, getTranscript, recordPronunciation, stopRecording])
+
+  runEvaluationRef.current = runEvaluation
 
   useEffect(() => {
-    if (listening) {
-      wasListeningRef.current = true
-      return
-    }
-    if (
-      wasListeningRef.current &&
-      !processing &&
-      !result &&
-      transcript.trim() &&
-      !evaluatingRef.current
-    ) {
-      wasListeningRef.current = false
-      void runEvaluation()
-    }
-  }, [listening, processing, transcript, result, runEvaluation])
+    if (listening) wasListeningRef.current = true
+  }, [listening])
 
   const handleMic = async () => {
-    if (processing) return
+    if (processing || evaluatingRef.current) return
     if (listening) {
-      stopRecording()
+      wasListeningRef.current = false
+      await runEvaluation()
       return
     }
     setResult(null)

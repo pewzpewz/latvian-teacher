@@ -13,6 +13,8 @@ export type VoiceEngineListeners = {
   onPhase?: (phase: VoicePhase) => void
   onTranscript?: (text: string) => void
   onError?: (message: string) => void
+  /** Fired when single-shot STT ends with a transcript (pronunciation mode). */
+  onUtteranceEnded?: () => void
 }
 
 export class VoiceEngine {
@@ -78,6 +80,9 @@ export class VoiceEngine {
         onEnd: () => {
           if (this.phase === 'recording' && !sttOpts.continuous) {
             this.setPhase('idle')
+            if (this.transcript.trim()) {
+              this.listeners.onUtteranceEnded?.()
+            }
           }
         },
         onError: (msg) => this.listeners.onError?.(msg),
