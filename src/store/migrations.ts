@@ -10,6 +10,8 @@ export function migrateProgress(raw: Partial<UserProgress>): UserProgress {
     ...raw,
     estimatedLevel: raw.estimatedLevel ?? estimateLevel(raw as UserProgress),
     categoryStats: raw.categoryStats ?? {},
+    skillStats: raw.skillStats ?? {},
+    phonemeStats: raw.phonemeStats ?? {},
     exerciseAttempts: raw.exerciseAttempts ?? [],
     pronunciationAttempts: raw.pronunciationAttempts ?? { correct: 0, total: 0 },
     adaptiveWords: raw.adaptiveWords ?? [],

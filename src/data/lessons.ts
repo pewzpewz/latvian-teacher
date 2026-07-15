@@ -27,6 +27,7 @@ export type Exercise = {
   answer: string
   options?: string[]
   hint?: string
+  skillIds?: string[]
 }
 
 const coreLessons: Lesson[] = [
@@ -82,6 +83,7 @@ const coreLessons: Lesson[] = [
         question: 'Переведите: вода',
         answer: 'ūdens',
         hint: 'Длинная «ū»',
+        skillIds: ['phoneme-long-u', 'topic-alphabet'],
       },
       {
         id: 'a2',
@@ -89,6 +91,7 @@ const coreLessons: Lesson[] = [
         question: 'Какая буква обозначает «ч»?',
         answer: 'č',
         options: ['c', 'č', 'š', 'ž'],
+        skillIds: ['phoneme-ch', 'topic-alphabet'],
       },
       {
         id: 'a3',
@@ -96,6 +99,7 @@ const coreLessons: Lesson[] = [
         question: 'Переведите: двор',
         answer: 'sēta',
         hint: 'Длинная «ē»',
+        skillIds: ['phoneme-long-e', 'topic-alphabet'],
       },
     ],
   },
@@ -152,12 +156,14 @@ const coreLessons: Lesson[] = [
         type: 'translate',
         question: 'Переведите: Добрый день!',
         answer: 'Labdien!',
+        skillIds: ['topic-greetings'],
       },
       {
         id: 'g2',
         type: 'translate',
         question: 'Переведите: Спасибо!',
         answer: 'Paldies!',
+        skillIds: ['topic-greetings'],
       },
       {
         id: 'g3',
@@ -165,6 +171,7 @@ const coreLessons: Lesson[] = [
         question: 'Как сказать «Приятно познакомиться»?',
         answer: 'Prieks iepazīties!',
         options: ['Kā Tevi sauc?', 'Prieks iepazīties!', 'Uz redzēšanos!', 'Labdien!'],
+        skillIds: ['topic-greetings'],
       },
     ],
   },
@@ -209,12 +216,14 @@ const coreLessons: Lesson[] = [
         question: 'Какой род у слова «māte»?',
         answer: 'sieviešu',
         options: ['vīriešu', 'sieviešu', 'neitrālais'],
+        skillIds: ['noun-nom-sg'],
       },
       {
         id: 'n2',
         type: 'translate',
         question: 'Множественное число от «draugs» (друг)?',
         answer: 'draugi',
+        skillIds: ['noun-nom-sg'],
       },
     ],
   },
@@ -266,12 +275,14 @@ const coreLessons: Lesson[] = [
         type: 'fill',
         question: 'Es ___ students. (я — студент)',
         answer: 'esmu',
+        skillIds: ['verb-present'],
       },
       {
         id: 'v2',
         type: 'translate',
         question: 'Переведите: Мы из Риги.',
         answer: 'Mēs esam no Rīgas.',
+        skillIds: ['verb-present'],
       },
     ],
   },
@@ -373,6 +384,7 @@ const coreLessons: Lesson[] = [
         question: 'Сколько падежей в латышском?',
         answer: '7',
         options: ['5', '6', '7', '8'],
+        skillIds: ['noun-dat-sg', 'noun-acc-sg'],
       },
     ],
   },

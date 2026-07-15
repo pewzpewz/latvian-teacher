@@ -1,11 +1,18 @@
 import { vocabulary } from './vocabulary'
 import { lessons } from './lessons'
 import type { Level } from '../lib/adaptive'
+import { phonemeIdsFromText } from '../lib/phonemeMap'
 
 export type PracticeItem = {
   lv: string
   ru: string
   reason?: string
+  phonemes?: string[]
+}
+
+export function practiceItemWithPhonemes(item: PracticeItem): PracticeItem {
+  const phonemes = item.phonemes ?? phonemeIdsFromText(item.lv)
+  return phonemes.length > 0 ? { ...item, phonemes } : item
 }
 
 /** Готовые фразы и предложения для произношения */

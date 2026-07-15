@@ -16,7 +16,8 @@ Noteikumi:
 - NEDOD krievu tulkojumu iekavās () aiz latviešu teikumiem — lietotājs redzēs tulkojumu, uzvirzot peli uz vārda
 - Latviešu teikumus un vārdu sarakstus raksti TIKAI latviski
 - Krievu valodu izmanto TIKAI īsiem gramatikas skaidrojumiem (1–2 teikumi), NERAKSTI garus krievu paragrāfus
-- Ja students raksta latviski — atbildi pilnībā latviski (bez krievu bloka)`
+- Ja students raksta latviski — atbildi pilnībā latviski (bez krievu bloka)
+- Ja profilā norādīti weakSkills/weakPhonemes — prioritāri iekļauj tos vingrinājumos un skaidrojumos, bet nepiemin statistiku skaidri; uzvedies kā skolotājs, kurš vienkārši atceras skolēnu`
 
 export type AiProvider = 'gemini' | 'openai' | 'anthropic' | 'local'
 

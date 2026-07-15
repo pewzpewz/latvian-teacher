@@ -1,5 +1,10 @@
 import type { StateCreator } from 'zustand'
 import { estimateLevel } from '../lib/adaptive'
+import {
+  applySkillIdsUpdate,
+  recordPhonemeChars,
+  resolveSkillIdsForAttempt,
+} from '../lib/skillTracking'
 import { checkNewAchievements, type Achievement } from '../data/achievements'
 import { createNewStoredCard, gradeStoredCard, isCardDue } from '../lib/fsrsSrs'
 import { mergeProgress, mergeSettings } from '../lib/backup'
@@ -84,6 +89,11 @@ export const createStoreActions: SliceCreator = (set, get) => ({
       progress.exerciseAttempts = progress.exerciseAttempts.slice(-200)
     }
 
+    const skillIds = resolveSkillIdsForAttempt(id, meta)
+    if (skillIds.length > 0) {
+      progress.skillStats = applySkillIdsUpdate(progress.skillStats, skillIds, correct)
+    }
+
     progress.estimatedLevel = estimateLevel(progress)
     persistProgress(progress)
     set({ progress })
@@ -109,11 +119,12 @@ export const createStoreActions: SliceCreator = (set, get) => ({
     get().checkAchievements()
   },
 
-  recordPronunciation: (correct) => {
+  recordPronunciation: (correct, chars) => {
     const progress = { ...get().progress }
     progress.pronunciationAttempts.total += 1
     if (correct) progress.pronunciationAttempts.correct += 1
     trackCategory(progress, 'pronunciation', correct)
+    progress.phonemeStats = recordPhonemeChars(progress.phonemeStats, chars, correct)
     trackStudyMinutes(progress, 1)
     persistProgress(progress)
     set({ progress })

@@ -4,9 +4,14 @@ import type { TFunction } from '../i18n'
 import { createT } from '../i18n'
 import { lessons } from '../data/lessons'
 import { vocabulary } from '../data/vocabulary'
+import { minimalPairs } from '../data/minimalPairs'
+import { skillLabel, skillWeight } from '../data/skills'
+import { decayedPKnow, skillUrgency } from './knowledgeTracing'
+import { weakSkillStates, urgencyForSkillState } from './skillTracking'
 import {
   getWordPracticeItems,
   PRACTICE_PHRASES,
+  practiceItemWithPhonemes,
   type PracticeItem,
 } from '../data/practiceItems'
 
@@ -36,10 +41,18 @@ export type PlanAction = {
   reason: string
 }
 
+export type SkillSnapshot = {
+  skillId: string
+  label: string
+  confidence: number
+}
+
 export type LearningAnalysis = {
   estimatedLevel: Level
   weakAreas: { name: string; score: number; total: number }[]
   strongAreas: { name: string; score: number }[]
+  weakSkills: SkillSnapshot[]
+  weakPhonemes: SkillSnapshot[]
   masteryPercent: number
   actions: PlanAction[]
   wordsToReview: string[]
@@ -65,6 +78,16 @@ const CATEGORY_KEYS: Record<string, string> = {
   'Природа': 'wordCategories.nature',
 }
 
+const SKILL_LINK: Record<string, string> = {
+  'topic-greetings': '/lessons/greetings-1',
+  'topic-alphabet': '/lessons/alphabet-1',
+  'noun-nom-sg': '/lessons/grammar-nouns-1',
+  'noun-dat-sg': '/lessons/cases-intro',
+  'noun-acc-sg': '/lessons/cases-intro',
+  'verb-present': '/lessons/grammar-verbs-1',
+  'verb-past': '/conjugations',
+}
+
 function categoryLabel(t: TFunction, key: string): string {
   const mapped = CATEGORY_KEYS[key]
   return mapped ? t(mapped) : key
@@ -74,6 +97,24 @@ function getCategoryScore(progress: UserProgress, category: string) {
   const stats = progress.categoryStats[category]
   if (!stats || stats.total === 0) return null
   return Math.round((stats.correct / stats.total) * 100)
+}
+
+function buildSkillSnapshots(
+  stats: UserProgress['skillStats'] | UserProgress['phonemeStats'],
+  threshold = 0.5,
+  minReps = 1,
+  now = Date.now(),
+): SkillSnapshot[] {
+  return weakSkillStates(stats, minReps, threshold, now).map((s) => ({
+    skillId: s.skillId,
+    label: skillLabel(s.skillId),
+    confidence: Math.round(decayedPKnow(s, now) * 100),
+  }))
+}
+
+function linkForSkill(skillId: string): string {
+  if (skillId.startsWith('phoneme-')) return '/practice'
+  return SKILL_LINK[skillId] ?? '/lessons'
 }
 
 export function estimateLevel(progress: UserProgress): Level {
@@ -90,6 +131,7 @@ export function estimateLevel(progress: UserProgress): Level {
 
 export function analyzeLearning(progress: UserProgress, t: TFunction = createT('ru')): LearningAnalysis {
   const estimatedLevel = progress.estimatedLevel || estimateLevel(progress)
+  const now = Date.now()
 
   const weakAreas = Object.entries(progress.categoryStats)
     .filter(([, s]) => s.total >= 2)
@@ -110,14 +152,15 @@ export function analyzeLearning(progress: UserProgress, t: TFunction = createT('
     .filter((a) => a.score >= 80)
     .sort((a, b) => b.score - a.score)
 
+  const weakSkills = buildSkillSnapshots(progress.skillStats, 0.55, 2, now)
+  const weakPhonemes = buildSkillSnapshots(progress.phonemeStats, 0.55, 1, now)
+
   const totalAttempts = Object.values(progress.categoryStats).reduce((s, c) => s + c.total, 0)
   const totalCorrect = Object.values(progress.categoryStats).reduce((s, c) => s + c.correct, 0)
   const masteryPercent = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0
 
   const actions: PlanAction[] = []
 
-  // SRS words due or failed
-  const now = Date.now()
   const failedWords = Object.entries(progress.srsCards)
     .filter(([, c]) => c.reps === 0 && c.last_review)
     .map(([id]) => id)
@@ -127,40 +170,52 @@ export function analyzeLearning(progress: UserProgress, t: TFunction = createT('
     .map((c) => c.wordId)
 
   if (dueWords.length > 0 || failedWords.length > 0) {
+    const srsUrgency = Math.round(skillUrgency(0.25, 10) * 10)
     actions.push({
       id: 'vocab-review',
       type: 'vocabulary',
       title: t('adaptive.vocabReview'),
       description: t('adaptive.vocabReviewDesc', { count: dueWords.length + failedWords.length }),
       link: '/vocabulary?mode=cards',
-      priority: 90,
+      priority: srsUrgency,
       reason: t('adaptive.vocabReason'),
     })
   }
 
-  // Weak area review
+  for (const state of weakSkillStates(progress.skillStats, 2, 0.55, now).slice(0, 2)) {
+    const label = skillLabel(state.skillId)
+    const priority = Math.round(urgencyForSkillState(state, now) * 10)
+    actions.push({
+      id: `skill-${state.skillId}`,
+      type: 'review',
+      title: t('adaptive.reviewArea', { name: label }),
+      description: t('adaptive.reviewAreaDesc', { score: Math.round(decayedPKnow(state, now) * 100) }),
+      link: linkForSkill(state.skillId),
+      priority,
+      reason: t('adaptive.reviewReason', { score: Math.round(decayedPKnow(state, now) * 100) }),
+    })
+  }
+
   for (const area of weakAreas.slice(0, 2)) {
     const rawName = Object.keys(CATEGORY_KEYS).find((k) => categoryLabel(t, k) === area.name) || area.name
     const relatedLesson = lessons.find(
       (l) => l.category === rawName || l.title.toLowerCase().includes(area.name.toLowerCase()),
     )
-    if (relatedLesson) {
+    if (relatedLesson && !actions.some((a) => a.link === `/lessons/${relatedLesson.id}`)) {
+      const pKnow = area.score / 100
       actions.push({
         id: `review-${rawName}`,
         type: 'review',
         title: t('adaptive.reviewArea', { name: area.name }),
         description: t('adaptive.reviewAreaDesc', { score: area.score }),
         link: `/lessons/${relatedLesson.id}`,
-        priority: 85 - area.score,
+        priority: Math.round(skillUrgency(pKnow, skillWeight(rawName) || 7) * 10),
         reason: t('adaptive.reviewReason', { score: area.score }),
       })
     }
   }
 
-  // Adaptive exercises
-  const pendingAdaptive = progress.adaptiveExercises.filter(
-    (e) => !progress.exerciseScores[e.id],
-  )
+  const pendingAdaptive = progress.adaptiveExercises.filter((e) => !progress.exerciseScores[e.id])
   if (pendingAdaptive.length > 0) {
     actions.push({
       id: 'adaptive-exercises',
@@ -168,12 +223,11 @@ export function analyzeLearning(progress: UserProgress, t: TFunction = createT('
       title: t('adaptive.adaptiveEx'),
       description: t('adaptive.adaptiveExDesc', { count: pendingAdaptive.length }),
       link: '/plan',
-      priority: 95,
+      priority: Math.round(skillUrgency(0.2, 9) * 10),
       reason: t('adaptive.adaptiveReason'),
     })
   }
 
-  // Next uncompleted lesson
   const nextLesson = lessons.find((l) => !progress.completedLessons.includes(l.id))
   if (nextLesson) {
     const levelIdx = LEVEL_ORDER.indexOf(nextLesson.level)
@@ -184,36 +238,48 @@ export function analyzeLearning(progress: UserProgress, t: TFunction = createT('
       title: nextLesson.title,
       description: nextLesson.subtitle,
       link: `/lessons/${nextLesson.id}`,
-      priority: levelIdx <= userIdx + 1 ? 70 : 50,
+      priority: Math.round(skillUrgency(0.5, levelIdx <= userIdx + 1 ? 7 : 5) * 10),
       reason: levelIdx > userIdx ? t('adaptive.nextLevelReason') : t('adaptive.nextLessonReason'),
     })
   }
 
-  // Pronunciation if weak
-  const pronScore = getCategoryScore(progress, 'pronunciation')
-  if (pronScore !== null && pronScore < 70) {
+  const weakestPhoneme = weakSkillStates(progress.phonemeStats, 1, 0.7, now)[0]
+  if (weakestPhoneme) {
+    const conf = Math.round(decayedPKnow(weakestPhoneme, now) * 100)
     actions.push({
       id: 'practice-pron',
       type: 'practice',
       title: t('adaptive.pronTitle'),
-      description: t('adaptive.pronDesc', { score: pronScore }),
+      description: t('adaptive.pronDesc', { score: conf }),
       link: '/practice',
-      priority: 80,
-      reason: t('adaptive.pronReason'),
+      priority: Math.round(urgencyForSkillState(weakestPhoneme, now) * 10),
+      reason: t('adaptive.pronReasonPhoneme', { sound: skillLabel(weakestPhoneme.skillId) }),
     })
-  } else if (progress.pronunciationAttempts.total < 5) {
-    actions.push({
-      id: 'practice-start',
-      type: 'practice',
-      title: t('adaptive.pronStartTitle'),
-      description: t('adaptive.pronStartDesc'),
-      link: '/practice',
-      priority: 40,
-      reason: t('adaptive.pronStartReason'),
-    })
+  } else {
+    const pronScore = getCategoryScore(progress, 'pronunciation')
+    if (pronScore !== null && pronScore < 70) {
+      actions.push({
+        id: 'practice-pron',
+        type: 'practice',
+        title: t('adaptive.pronTitle'),
+        description: t('adaptive.pronDesc', { score: pronScore }),
+        link: '/practice',
+        priority: Math.round(skillUrgency(pronScore / 100, 8) * 10),
+        reason: t('adaptive.pronReason'),
+      })
+    } else if (progress.pronunciationAttempts.total < 5) {
+      actions.push({
+        id: 'practice-start',
+        type: 'practice',
+        title: t('adaptive.pronStartTitle'),
+        description: t('adaptive.pronStartDesc'),
+        link: '/practice',
+        priority: Math.round(skillUrgency(0.7, 4) * 10),
+        reason: t('adaptive.pronStartReason'),
+      })
+    }
   }
 
-  // Dialog recommendation based on level
   if (estimatedLevel !== 'A0') {
     actions.push({
       id: 'dialog',
@@ -221,7 +287,7 @@ export function analyzeLearning(progress: UserProgress, t: TFunction = createT('
       title: t('adaptive.dialogTitle'),
       description: t('adaptive.dialogDesc'),
       link: estimatedLevel === 'A2' ? '/dialogs/d3' : '/dialogs/d1',
-      priority: 35,
+      priority: Math.round(skillUrgency(0.6, 3.5) * 10),
       reason: t('adaptive.dialogReason'),
     })
   }
@@ -233,13 +299,15 @@ export function analyzeLearning(progress: UserProgress, t: TFunction = createT('
   const lastAdapt = progress.lastAdaptationAt ?? 0
   const daysSinceAdapt = (Date.now() - lastAdapt) / (1000 * 60 * 60 * 24)
   const needsAiRefresh =
-    (weakAreas.length > 0 && daysSinceAdapt > 1 && pendingAdaptive.length < 3) ||
+    ((weakAreas.length > 0 || weakSkills.length > 0) && daysSinceAdapt > 1 && pendingAdaptive.length < 3) ||
     (totalAttempts >= 10 && progress.adaptiveExercises.length === 0)
 
   return {
     estimatedLevel,
     weakAreas,
     strongAreas,
+    weakSkills,
+    weakPhonemes,
     masteryPercent,
     actions: actions.slice(0, 6),
     wordsToReview,
@@ -251,11 +319,33 @@ export function getAdaptivePracticeItems(progress: UserProgress, t: TFunction = 
   const analysis = analyzeLearning(progress, t)
   const level = progress.estimatedLevel || estimateLevel(progress)
   const items: PracticeItem[] = []
+  const now = Date.now()
+
+  for (const ph of weakSkillStates(progress.phonemeStats, 1, 0.6, now).slice(0, 2)) {
+    const pairs = minimalPairs.filter((p) => p.phonemeId === ph.skillId)
+    for (const pair of pairs.slice(0, 2)) {
+      items.push(
+        practiceItemWithPhonemes({
+          lv: pair.lv,
+          ru: pair.ru,
+          reason: t('adaptive.phonemeDrill', { sound: skillLabel(ph.skillId) }),
+        }),
+      )
+    }
+  }
 
   for (const area of analysis.weakAreas) {
     const rawName = Object.keys(CATEGORY_KEYS).find((k) => categoryLabel(t, k) === area.name) ?? area.name
     const words = vocabulary.filter((w) => w.category === rawName || w.category === area.name).slice(0, 3)
-    words.forEach((w) => items.push({ lv: w.lv, ru: w.ru, reason: t('adaptive.weakArea', { name: area.name }) }))
+    words.forEach((w) =>
+      items.push(
+        practiceItemWithPhonemes({
+          lv: w.lv,
+          ru: w.ru,
+          reason: t('adaptive.weakArea', { name: area.name }),
+        }),
+      ),
+    )
   }
 
   for (const area of analysis.weakAreas.slice(0, 2)) {
@@ -266,24 +356,35 @@ export function getAdaptivePracticeItems(progress: UserProgress, t: TFunction = 
     for (const lesson of relatedLessons.slice(0, 1)) {
       for (const section of lesson.sections) {
         for (const ex of (section.examples ?? []).slice(0, 2)) {
-          items.push({ lv: ex.lv, ru: ex.ru, reason: `Повторить: ${area.name}` })
+          items.push(
+            practiceItemWithPhonemes({
+              lv: ex.lv,
+              ru: ex.ru,
+              reason: t('adaptive.reviewArea', { name: area.name }),
+            }),
+          )
         }
       }
     }
   }
 
-  // Проваленные / просроченные SRS-слова
   for (const wordId of analysis.wordsToReview.slice(0, 5)) {
     const w = vocabulary.find((v) => v.id === wordId)
-    if (w) items.push({ lv: w.lv, ru: w.ru, reason: 'Нужно повторить из словаря' })
+    if (w) {
+      items.push(
+        practiceItemWithPhonemes({
+          lv: w.lv,
+          ru: w.ru,
+          reason: t('adaptive.vocabReviewReason'),
+        }),
+      )
+    }
   }
 
-  // Персональные слова от AI
   progress.adaptiveWords.forEach((w) => {
-    items.push({ lv: w.lv, ru: w.ru, reason: w.reason })
+    items.push(practiceItemWithPhonemes({ lv: w.lv, ru: w.ru, reason: w.reason }))
   })
 
-  // Недавние ошибки в упражнениях — подтягиваем слова из той же категории
   const mistakeCategories = [
     ...new Set(
       progress.exerciseAttempts
@@ -296,21 +397,30 @@ export function getAdaptivePracticeItems(progress: UserProgress, t: TFunction = 
     vocabulary
       .filter((w) => w.category === cat)
       .slice(0, 2)
-      .forEach((w) => items.push({ lv: w.lv, ru: w.ru, reason: t('adaptive.weakArea', { name: categoryLabel(t, cat) }) }))
+      .forEach((w) =>
+        items.push(
+          practiceItemWithPhonemes({
+            lv: w.lv,
+            ru: w.ru,
+            reason: t('adaptive.weakArea', { name: categoryLabel(t, cat) }),
+          }),
+        ),
+      )
   }
 
   const deduped = dedupePracticeItems(items)
 
   if (deduped.length > 0) return deduped
 
-  // Стартовый набор для новых пользователей — не дублирует режим «Фразы»
-  const starterWords = getWordPracticeItems(level).slice(0, 6).map((w) => ({
-    ...w,
-    reason: `Словарь уровня ${level}`,
-  }))
+  const starterWords = getWordPracticeItems(level)
+    .slice(0, 6)
+    .map((w) => ({
+      ...practiceItemWithPhonemes(w),
+      reason: t('adaptive.starterWords', { level }),
+    }))
   const starterPhrases = PRACTICE_PHRASES.slice(0, 4).map((p) => ({
-    ...p,
-    reason: 'Базовые фразы для вашего уровня',
+    ...practiceItemWithPhonemes(p),
+    reason: t('adaptive.starterPhrases'),
   }))
 
   return dedupePracticeItems([...starterWords, ...starterPhrases])
@@ -335,6 +445,7 @@ export function buildProfileSummary(
   settings?: { learningGoal?: string; selfReportedLevel?: string | null; userName?: string },
 ): string {
   const analysis = analyzeLearning(progress)
+  const now = Date.now()
   const completed = progress.completedLessons
     .map((id) => lessons.find((l) => l.id === id)?.title)
     .filter(Boolean)
@@ -348,6 +459,15 @@ export function buildProfileSummary(
     completedLessons: completed,
     weakAreas: analysis.weakAreas,
     strongAreas: analysis.strongAreas,
+    weakSkills: Object.values(progress.skillStats)
+      .filter((s) => decayedPKnow(s, now) < 0.5)
+      .map((s) => ({
+        skill: skillLabel(s.skillId),
+        confidence: Math.round(decayedPKnow(s, now) * 100),
+      })),
+    weakPhonemes: Object.values(progress.phonemeStats)
+      .filter((s) => decayedPKnow(s, now) < 0.5)
+      .map((s) => skillLabel(s.skillId)),
     recentMistakes: progress.exerciseAttempts
       .filter((a) => !a.correct)
       .slice(-10)

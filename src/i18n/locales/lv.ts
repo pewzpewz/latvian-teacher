@@ -531,6 +531,10 @@ export const lv: TranslationDict = {
     tasksPending: 'Personīgie uzdevumi parādīsies pēc dažām nodarbībām vai pēc Izveidot man',
     wordsToReview: 'Vārdi atkārtošanai',
     adaptConfirm: 'Izveidot personīgos vārdus un uzdevumus no jūsu progresa? Tiks izmantots AI (Gemini).',
+    skillMap: 'Prasmju karte',
+    weakSkills: 'Vājas prasmes',
+    weakPhonemes: 'Vājie skaņi',
+    skillMapEmpty: 'Iziet nodarbības un praksi — šeit parādīsies jūsu prasmes',
   },
   progress: {
     heroLabel: 'Tavs progress',
@@ -720,6 +724,11 @@ export const lv: TranslationDict = {
     dialogDesc: 'Pielietojiet zināšanas reālā situācijā',
     dialogReason: 'Prakse kontekstā',
     weakArea: 'Vāja tēma: {{name}}',
+    phonemeDrill: 'Skanis: {{sound}}',
+    vocabReviewReason: 'Jāatkārto no vārdnīcas',
+    starterWords: 'Līmeņa {{level}} vārdnīca',
+    starterPhrases: 'Pamata frāzes jūsu līmenim',
+    pronReasonPhoneme: 'Vāja izruna: {{sound}}',
   },
   wordCategories: {
     alphabet: 'Alfabēts',

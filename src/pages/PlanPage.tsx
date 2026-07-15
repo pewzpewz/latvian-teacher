@@ -150,6 +150,59 @@ export function PlanPage() {
         </div>
       </section>
 
+      {/* Skill map */}
+      <section className="mb-8">
+        <h2 className="mb-4 text-lg font-semibold">{t('plan.skillMap')}</h2>
+        {analysis.weakSkills.length === 0 && analysis.weakPhonemes.length === 0 ? (
+          <p className="text-sm text-muted">{t('plan.skillMapEmpty')}</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-6">
+            <div className="glass rounded-2xl p-6">
+              <h3 className="mb-4 font-semibold text-gold">{t('plan.weakSkills')}</h3>
+              {analysis.weakSkills.length === 0 ? (
+                <p className="text-sm text-muted">{t('plan.strongTopicsEmpty')}</p>
+              ) : (
+                analysis.weakSkills.map((skill) => (
+                  <div key={skill.skillId} className="mb-3">
+                    <div className="mb-1 flex justify-between text-sm">
+                      <span>{skill.label}</span>
+                      <span className="text-gold">{skill.confidence}%</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
+                      <div
+                        className="h-full rounded-full bg-gold transition-all"
+                        style={{ width: `${skill.confidence}%` }}
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="glass rounded-2xl p-6">
+              <h3 className="mb-4 font-semibold text-accent">{t('plan.weakPhonemes')}</h3>
+              {analysis.weakPhonemes.length === 0 ? (
+                <p className="text-sm text-muted">{t('plan.strongTopicsEmpty')}</p>
+              ) : (
+                analysis.weakPhonemes.map((skill) => (
+                  <div key={skill.skillId} className="mb-3">
+                    <div className="mb-1 flex justify-between text-sm">
+                      <span>{skill.label}</span>
+                      <span className="text-accent">{skill.confidence}%</span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-surface-2">
+                      <div
+                        className="h-full rounded-full bg-accent transition-all"
+                        style={{ width: `${skill.confidence}%` }}
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* Weak / Strong areas */}
       <div className="mb-8 grid grid-cols-2 gap-6">
         <div className="glass rounded-2xl p-6">

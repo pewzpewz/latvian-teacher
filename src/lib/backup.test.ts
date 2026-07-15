@@ -14,6 +14,8 @@ const baseProgress: UserProgress = {
   wordsLearned: 3,
   estimatedLevel: 'A0',
   categoryStats: { grammar: { correct: 1, total: 2 } },
+  skillStats: {},
+  phonemeStats: {},
   exerciseAttempts: [],
   pronunciationAttempts: { correct: 0, total: 0 },
   adaptiveWords: [],

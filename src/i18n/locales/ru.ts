@@ -533,6 +533,10 @@ export const ru: TranslationDict = {
     tasksPending: 'Персональные задания появятся после нескольких уроков или по кнопке «Создать под меня»',
     wordsToReview: 'Слова к повторению',
     adaptConfirm: 'Создать персональные слова и упражнения на основе вашего прогресса? Используется AI (Gemini).',
+    skillMap: 'Карта навыков',
+    weakSkills: 'Слабые навыки',
+    weakPhonemes: 'Слабые звуки',
+    skillMapEmpty: 'Пройдите уроки и практику — здесь появятся ваши навыки',
   },
   progress: {
     heroLabel: 'Ваш прогресс',
@@ -722,6 +726,11 @@ export const ru: TranslationDict = {
     dialogDesc: 'Примените знания в реальной ситуации',
     dialogReason: 'Практика в контексте',
     weakArea: 'Слабая тема: {{name}}',
+    phonemeDrill: 'Звук: {{sound}}',
+    vocabReviewReason: 'Нужно повторить из словаря',
+    starterWords: 'Словарь уровня {{level}}',
+    starterPhrases: 'Базовые фразы для вашего уровня',
+    pronReasonPhoneme: 'Слабое произношение: {{sound}}',
   },
   wordCategories: {
     alphabet: 'Алфавит',

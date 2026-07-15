@@ -19,6 +19,8 @@ const progress = {
   wordsLearned: 3,
   estimatedLevel: 'A0',
   categoryStats: {},
+  skillStats: {},
+  phonemeStats: {},
   exerciseAttempts: [],
   pronunciationAttempts: { correct: 0, total: 0 },
   adaptiveWords: [],

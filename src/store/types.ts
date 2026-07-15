@@ -2,6 +2,8 @@ import type { AdaptiveExercise, AdaptiveWord, Level } from '../lib/adaptive'
 import type { LearningGoal } from '../data/examB1'
 import type { UiLanguage } from '../i18n'
 import type { StoredFsrsCard } from '../lib/fsrsSrs'
+import type { SkillState } from '../lib/knowledgeTracing'
+import type { PhonemeChar } from '../lib/phonemeFeedback'
 
 export type SrsCard = StoredFsrsCard
 
@@ -53,6 +55,8 @@ export type UserProgress = {
   wordsLearned: number
   estimatedLevel: Level
   categoryStats: Record<string, CategoryStats>
+  skillStats: Record<string, SkillState>
+  phonemeStats: Record<string, SkillState>
   exerciseAttempts: ExerciseAttempt[]
   pronunciationAttempts: { correct: number; total: number }
   adaptiveWords: AdaptiveWord[]
@@ -84,7 +88,7 @@ export type StoreActions = {
   completeLesson: (id: string) => void
   recordExercise: (id: string, correct: boolean, meta?: { lessonId?: string; category?: string }) => void
   updateSrsCard: (wordId: string, quality: 0 | 1 | 2 | 3 | 4 | 5, category?: string) => void
-  recordPronunciation: (correct: boolean) => void
+  recordPronunciation: (correct: boolean, chars?: PhonemeChar[]) => void
   addStudyTime: (minutes: number) => void
   updateStreak: () => void
   getDueCards: () => string[]

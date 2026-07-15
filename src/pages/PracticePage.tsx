@@ -84,7 +84,7 @@ export function PracticePage() {
       const report = await evaluate(current.lv)
       setAnalysis(report)
       setResult(report.accepted ? 'correct' : 'wrong')
-      recordPronunciation(report.accepted)
+      recordPronunciation(report.accepted, report.chars)
     } catch {
       const fallback = analyzePronunciation(spoken, current.lv)
       setAnalysis({
@@ -93,7 +93,7 @@ export function PracticePage() {
         source: 'stt',
       })
       setResult(fallback.accepted ? 'correct' : 'wrong')
-      recordPronunciation(fallback.accepted)
+      recordPronunciation(fallback.accepted, fallback.chars)
     } finally {
       evaluatingRef.current = false
     }

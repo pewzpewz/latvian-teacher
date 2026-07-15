@@ -531,6 +531,10 @@ export const en: TranslationDict = {
     tasksPending: 'Personal tasks appear after a few lessons or when you tap Create for me',
     wordsToReview: 'Words to review',
     adaptConfirm: 'Create personal words and exercises from your progress? This uses AI (Gemini).',
+    skillMap: 'Skill map',
+    weakSkills: 'Weak skills',
+    weakPhonemes: 'Weak sounds',
+    skillMapEmpty: 'Complete lessons and practice — your skills will appear here',
   },
   progress: {
     heroLabel: 'Your progress',
@@ -720,6 +724,11 @@ export const en: TranslationDict = {
     dialogDesc: 'Apply knowledge in a real situation',
     dialogReason: 'Practice in context',
     weakArea: 'Weak topic: {{name}}',
+    phonemeDrill: 'Sound: {{sound}}',
+    vocabReviewReason: 'Review from vocabulary',
+    starterWords: 'Level {{level}} vocabulary',
+    starterPhrases: 'Basic phrases for your level',
+    pronReasonPhoneme: 'Weak pronunciation: {{sound}}',
   },
   wordCategories: {
     alphabet: 'Alphabet',
