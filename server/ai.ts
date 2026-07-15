@@ -374,3 +374,43 @@ export async function glossWordInContext(word: string, sentence: string): Promis
   glossCache.set(key, clean)
   return clean
 }
+
+const messageTranslateCache = new Map<string, string>()
+
+export async function translateChatMessage(text: string): Promise<string> {
+  const key = text.trim().slice(0, 400)
+  if (!key) return ''
+
+  const cached = messageTranslateCache.get(key)
+  if (cached) return cached
+
+  const { provider, model, apiKey } = resolveConfig({})
+  if (!apiKey) throw new Error(getKeyHint(provider))
+
+  const prompt = `Переведи на русский весь текст сообщения из чата латышского репетитора.
+Сохрани структуру: нумерацию, абзацы, списки.
+Если в тексте смешаны латышский и русский — собери один связный русский текст, понятный ученику.
+Только перевод, без пояснений и без кавычек вокруг всего ответа.
+
+Текст:
+${text.slice(0, 6000)}`
+
+  let translation: string
+  switch (provider) {
+    case 'gemini':
+      translation = await chatGemini(
+        [{ role: 'user', content: prompt }],
+        'Ты переводчик lv→ru. Отвечай только переводом.',
+        apiKey,
+        model,
+        { maxOutputTokens: 1024, temperature: 0.2 },
+      )
+      break
+    default:
+      translation = await chat([{ role: 'user', content: prompt }], {})
+  }
+
+  const clean = translation.trim().replace(/^["«]|["»]$/g, '')
+  messageTranslateCache.set(key, clean)
+  return clean
+}

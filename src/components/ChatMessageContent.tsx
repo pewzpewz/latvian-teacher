@@ -1,125 +1,17 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Languages } from 'lucide-react'
 import {
   stripBracketTranslations,
-  isHoverableLine,
-  isLatvianWord,
-  WORD_TOKEN_RE,
   cleanMarkdown,
   countCyrillic,
   countLatin,
+  needsMessageTranslation,
 } from '../lib/chatText'
-import { getWordGloss, peekCachedGloss } from '../lib/wordGloss'
+import { getMessageTranslation, peekMessageTranslation } from '../lib/messageTranslation'
 import { useTranslation } from '../hooks/useTranslation'
-
-type HoverWordProps = {
-  word: string
-  sentence: string
-}
-
-function HoverWord({ word, sentence }: HoverWordProps) {
-  const { t } = useTranslation()
-  const [tip, setTip] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [visible, setVisible] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const genRef = useRef(0)
-  const spanRef = useRef<HTMLSpanElement>(null)
-
-  const fetchGloss = () => {
-    const cached = peekCachedGloss(word, sentence)
-    if (cached) {
-      setTip(cached)
-      setLoading(false)
-      return
-    }
-
-    setLoading(true)
-    setTip(null)
-
-    timerRef.current = setTimeout(async () => {
-      const gen = ++genRef.current
-      try {
-        const gloss = await getWordGloss(word, sentence)
-        if (gen !== genRef.current) return
-        setTip(gloss || t('chat.glossNotFound'))
-      } catch {
-        if (gen === genRef.current) setTip(t('chat.glossNotFound'))
-      } finally {
-        if (gen === genRef.current) setLoading(false)
-      }
-    }, 80)
-  }
-
-  const show = () => {
-    setVisible(true)
-    fetchGloss()
-  }
-
-  const hide = () => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    if (longPressRef.current) clearTimeout(longPressRef.current)
-    genRef.current++
-    setVisible(false)
-    setLoading(false)
-    setTip(null)
-  }
-
-  const onMouseEnter = () => show()
-
-  const onMouseLeave = () => hide()
-
-  const onTouchStart = () => {
-    longPressRef.current = setTimeout(() => show(), 450)
-  }
-
-  const onTouchEnd = () => {
-    if (longPressRef.current) {
-      clearTimeout(longPressRef.current)
-      longPressRef.current = null
-    }
-  }
-
-  useEffect(() => {
-    if (!visible) return
-
-    const onDocPointer = (e: PointerEvent) => {
-      if (spanRef.current && !spanRef.current.contains(e.target as Node)) {
-        hide()
-      }
-    }
-
-    document.addEventListener('pointerdown', onDocPointer)
-    return () => document.removeEventListener('pointerdown', onDocPointer)
-  }, [visible])
-
-  const showTooltip = visible && (loading || (tip && tip.length > 0))
-
-  return (
-    <span ref={spanRef} className="relative inline">
-      <span
-        className="cursor-help border-b border-dotted border-accent/40 text-accent/90 transition-colors hover:border-accent hover:text-accent"
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-        onTouchCancel={onTouchEnd}
-      >
-        {word}
-      </span>
-      {showTooltip && (
-        <span className="absolute bottom-full left-1/2 z-50 mb-1.5 max-w-[240px] -translate-x-1/2 whitespace-normal rounded-lg border border-gold/30 bg-surface px-2.5 py-1 text-center text-xs font-medium text-text shadow-lg">
-          {loading ? <span className="text-muted">{t('chat.translating')}</span> : tip}
-          <span className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-border" />
-        </span>
-      )}
-    </span>
-  )
-}
 
 function renderLine(line: string, lineIndex: number) {
   const cleaned = cleanMarkdown(line)
-  const sentence = stripBracketTranslations(cleaned)
   const cyr = countCyrillic(cleaned)
   const lat = countLatin(cleaned)
 
@@ -134,27 +26,130 @@ function renderLine(line: string, lineIndex: number) {
     )
   }
 
-  if (!isHoverableLine(cleaned)) {
-    return <span key={lineIndex}>{cleaned}</span>
-  }
+  return <span key={lineIndex}>{cleaned}</span>
+}
 
-  const tokens: ReactNode[] = []
-  let match: RegExpExecArray | null
-  const re = new RegExp(WORD_TOKEN_RE.source, WORD_TOKEN_RE.flags)
-  let tokenIdx = 0
+type TranslateControlsProps = {
+  content: string
+  role: 'user' | 'assistant'
+  pinned: boolean
+  onPinnedChange: (pinned: boolean) => void
+  onTranslation: (text: string | null, loading: boolean) => void
+}
 
-  while ((match = re.exec(cleaned)) !== null) {
-    const token = match[0]
-    if (isLatvianWord(token, cleaned)) {
-      tokens.push(
-        <HoverWord key={`${lineIndex}-${tokenIdx++}`} word={token} sentence={sentence} />,
-      )
-    } else {
-      tokens.push(<span key={`${lineIndex}-${tokenIdx++}`}>{token}</span>)
+function MessageTranslateControls({
+  content,
+  role,
+  pinned,
+  onPinnedChange,
+  onTranslation,
+}: TranslateControlsProps) {
+  const { t } = useTranslation()
+  const [hoverOpen, setHoverOpen] = useState(false)
+  const [translation, setTranslation] = useState<string | null>(() => peekMessageTranslation(content))
+  const [loading, setLoading] = useState(false)
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const genRef = useRef(0)
+
+  const loadTranslation = async () => {
+    const cached = peekMessageTranslation(content)
+    if (cached) {
+      setTranslation(cached)
+      onTranslation(cached, false)
+      return cached
+    }
+
+    setLoading(true)
+    onTranslation(translation, true)
+    const gen = ++genRef.current
+    try {
+      const ru = await getMessageTranslation(content)
+      if (gen !== genRef.current) return ru
+      const result = ru || t('chat.translationNotFound')
+      setTranslation(result)
+      onTranslation(result, false)
+      return ru
+    } catch {
+      if (gen === genRef.current) {
+        const fail = t('chat.translationNotFound')
+        setTranslation(fail)
+        onTranslation(fail, false)
+      }
+      return ''
+    } finally {
+      if (gen === genRef.current) setLoading(false)
     }
   }
 
-  return <span key={lineIndex}>{tokens}</span>
+  const showHover = () => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
+    hoverTimerRef.current = setTimeout(() => {
+      setHoverOpen(true)
+      void loadTranslation()
+    }, 280)
+  }
+
+  const hideHover = () => {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current)
+      hoverTimerRef.current = null
+    }
+    if (!pinned) setHoverOpen(false)
+  }
+
+  const togglePinned = () => {
+    if (pinned) {
+      onPinnedChange(false)
+      return
+    }
+    onPinnedChange(true)
+    setHoverOpen(false)
+    void loadTranslation()
+  }
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
+    }
+  }, [])
+
+  const btnClass =
+    role === 'user'
+      ? 'text-white/70 hover:text-white'
+      : 'text-muted hover:text-accent'
+
+  return (
+    <div className="absolute right-0 top-0">
+      <button
+        type="button"
+        onClick={togglePinned}
+        onMouseEnter={showHover}
+        onMouseLeave={hideHover}
+        onFocus={showHover}
+        onBlur={hideHover}
+        className={`rounded-md p-0.5 transition-colors ${btnClass} ${pinned ? 'text-accent' : ''}`}
+        title={t('chat.showTranslation')}
+        aria-label={t('chat.showTranslation')}
+        aria-expanded={pinned || hoverOpen}
+      >
+        <Languages size={14} />
+      </button>
+
+      {hoverOpen && !pinned && (
+        <div
+          className="absolute right-0 top-full z-50 mt-1 w-[min(280px,calc(100vw-3rem))] rounded-lg border border-gold/30 bg-surface px-3 py-2 text-xs leading-relaxed text-text shadow-lg"
+          onMouseEnter={() => setHoverOpen(true)}
+          onMouseLeave={hideHover}
+        >
+          {loading ? (
+            <span className="text-muted">{t('chat.translating')}</span>
+          ) : (
+            translation
+          )}
+        </div>
+      )}
+    </div>
+  )
 }
 
 type Props = {
@@ -163,17 +158,61 @@ type Props = {
 }
 
 export function ChatMessageContent({ content, role }: Props) {
+  const { t } = useTranslation()
   const display = role === 'assistant' ? stripBracketTranslations(content) : content
   const lines = display.split('\n')
+  const showTranslate = needsMessageTranslation(display)
+  const [pinned, setPinned] = useState(false)
+  const [translation, setTranslation] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const body: ReactNode[] = lines.map((line, i) => (
+    <span key={i}>
+      {renderLine(line, i)}
+      {i < lines.length - 1 ? '\n' : null}
+    </span>
+  ))
 
   return (
-    <div className="whitespace-pre-wrap leading-relaxed">
-      {lines.map((line, i) => (
-        <span key={i}>
-          {role === 'assistant' ? renderLine(line, i) : line}
-          {i < lines.length - 1 ? '\n' : null}
-        </span>
-      ))}
+    <div>
+      <div className={`relative ${showTranslate ? 'pr-6' : ''}`}>
+        {showTranslate && (
+          <MessageTranslateControls
+            content={display}
+            role={role}
+            pinned={pinned}
+            onPinnedChange={setPinned}
+            onTranslation={(text, isLoading) => {
+              setTranslation(text)
+              setLoading(isLoading)
+            }}
+          />
+        )}
+        <div className="whitespace-pre-wrap leading-relaxed">{body}</div>
+      </div>
+
+      {showTranslate && pinned && (
+        <div
+          className={`mt-2 rounded-lg border px-3 py-2 text-xs leading-relaxed ${
+            role === 'user'
+              ? 'border-white/20 bg-white/10 text-white/90'
+              : 'border-gold/25 bg-gold/5 text-muted'
+          }`}
+        >
+          <p
+            className={`mb-1 text-[10px] font-medium uppercase tracking-wide ${
+              role === 'user' ? 'text-white/60' : 'text-gold'
+            }`}
+          >
+            {t('chat.fullTranslation')}
+          </p>
+          {loading ? (
+            <span className={role === 'user' ? 'text-white/70' : 'text-muted'}>{t('chat.translating')}</span>
+          ) : (
+            translation
+          )}
+        </div>
+      )}
     </div>
   )
 }

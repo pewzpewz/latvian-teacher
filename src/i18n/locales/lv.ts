@@ -803,5 +803,8 @@ export const lv: TranslationDict = {
   chat: {
     glossNotFound: 'tulkojums nav atrasts',
     translating: 'tulku…',
+    showTranslation: 'Rādīt tulkojumu',
+    fullTranslation: 'Tulkojums',
+    translationNotFound: 'tulkojums nav atrasts',
   },
 }

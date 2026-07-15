@@ -21,6 +21,10 @@ export const glossBodySchema = z.object({
   sentence: z.string().trim().min(1).max(4_000),
 })
 
+export const translateBodySchema = z.object({
+  text: z.string().trim().min(1).max(8_000),
+})
+
 export const adaptBodySchema = z.object({
   profile: z.string().trim().min(1).max(16_000),
   apiKey: z.string().max(512).optional(),

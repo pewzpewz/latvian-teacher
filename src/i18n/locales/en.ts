@@ -803,5 +803,8 @@ export const en: TranslationDict = {
   chat: {
     glossNotFound: 'Translation not found',
     translating: 'Translating…',
+    showTranslation: 'Show translation',
+    fullTranslation: 'Translation',
+    translationNotFound: 'Translation not found',
   },
 }

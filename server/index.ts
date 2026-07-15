@@ -5,7 +5,7 @@ import { createServer } from 'http'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { synthesizeSpeech, LATVIAN_VOICES } from './tts.js'
-import { chat, generateAdaptiveJson, getAiStatus, glossWordInContext } from './ai.js'
+import { chat, generateAdaptiveJson, getAiStatus, glossWordInContext, translateChatMessage } from './ai.js'
 import { attachLiveWebSocket } from './liveServer.js'
 import {
   accessTokenMiddleware,
@@ -18,6 +18,7 @@ import {
   chatBodySchema,
   formatZodError,
   glossBodySchema,
+  translateBodySchema,
   pronunciationBodySchema,
   syncBodySchema,
   ttsQuerySchema,
@@ -206,6 +207,20 @@ app.post('/api/gloss', glossLimiter, async (req, res) => {
     res.json({ translation })
   } catch (e) {
     sendServerError(res, e, 'Gloss error')
+  }
+})
+
+app.post('/api/translate-message', glossLimiter, async (req, res) => {
+  try {
+    const parsed = translateBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: formatZodError(parsed.error) })
+    }
+
+    const translation = await translateChatMessage(parsed.data.text)
+    res.json({ translation })
+  } catch (e) {
+    sendServerError(res, e, 'Translate error')
   }
 })
 

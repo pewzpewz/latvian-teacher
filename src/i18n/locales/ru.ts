@@ -805,5 +805,8 @@ export const ru: TranslationDict = {
   chat: {
     glossNotFound: 'перевод не найден',
     translating: 'перевожу…',
+    showTranslation: 'Показать перевод',
+    fullTranslation: 'Перевод',
+    translationNotFound: 'перевод не найден',
   },
 }

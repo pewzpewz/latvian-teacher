@@ -175,3 +175,24 @@ export async function fetchWordGloss(word: string, sentence: string): Promise<st
     clearTimeout(timeout)
   }
 }
+
+export async function fetchMessageTranslation(text: string): Promise<string> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 20_000)
+  try {
+    const response = await fetch(apiUrl('/api/translate-message'), {
+      method: 'POST',
+      headers: apiHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ text }),
+      signal: controller.signal,
+    })
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      throw new Error((err as { error?: string }).error || 'Translation failed')
+    }
+    const data = await response.json()
+    return (data.translation as string)?.trim() || ''
+  } finally {
+    clearTimeout(timeout)
+  }
+}

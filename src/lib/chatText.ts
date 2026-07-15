@@ -138,4 +138,11 @@ export function splitForTts(text: string, maxLen = 450): string[] {
   return chunks
 }
 
+export function needsMessageTranslation(text: string): boolean {
+  const stripped = stripBracketTranslations(text)
+  const cyr = countCyrillic(stripped)
+  const lat = countLatin(stripped)
+  return lat >= 3 && lat >= cyr
+}
+
 export const WORD_TOKEN_RE = /([\p{L}][\p{L}'’-]*|[^\p{L}\s]+|\s+)/gu
