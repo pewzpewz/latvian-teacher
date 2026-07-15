@@ -12,7 +12,7 @@ import {
   createCorsMiddleware,
   createHelmetMiddleware,
 } from './middleware/security.js'
-import { sendAuthError, sendServerError, streamErrorPayload } from './middleware/errors.js'
+import { sendAuthError, sendServerError, streamErrorPayload, logServerError } from './middleware/errors.js'
 import {
   adaptBodySchema,
   chatBodySchema,
@@ -139,7 +139,7 @@ app.get('/api/tts', ttsLimiter, async (req, res) => {
     })
     res.send(audio)
   } catch (e) {
-    console.error('TTS error:', e)
+    logServerError('TTS error:', e)
     res.status(500).json({ error: 'TTS synthesis failed' })
   }
 })
@@ -157,7 +157,6 @@ app.post('/api/chat', chatLimiter, async (req, res) => {
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Internal server error'
     const isAuth = message.includes('API') || message.includes('ключ')
-    console.error('Chat error:', e)
     if (isAuth) {
       sendAuthError(res, e, 'Chat auth error')
     } else {
@@ -189,7 +188,7 @@ app.post('/api/chat/stream', chatLimiter, async (req, res) => {
     res.write(`data: ${JSON.stringify({ done: true })}\n\n`)
     res.end()
   } catch (e) {
-    console.error('Chat stream error:', e)
+    logServerError('Chat stream error:', e)
     res.write(`data: ${streamErrorPayload(e)}\n\n`)
     res.end()
   }

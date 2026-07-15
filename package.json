@@ -10,6 +10,7 @@
     "icons:generate": "node scripts/generate-icons.mjs",
     "build:content": "node scripts/validate-content.mjs && node scripts/build-content.mjs",
     "validate:content": "node scripts/validate-content.mjs",
+    "validate:i18n": "node scripts/validate-i18n.mjs",
     "vocab:merge": "node scripts/merge-vocabulary.mjs",
     "prebuild": "npm run build:content && npm run icons:generate",
     "build": "tsc -b && vite build",

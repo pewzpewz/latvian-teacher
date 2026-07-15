@@ -26,6 +26,9 @@ jobs:
       - name: Validate content JSON
         run: npm run validate:content
 
+      - name: Validate i18n keys
+        run: npm run validate:i18n
+
       - name: Generate content & icons
         run: npm run build:content && npm run icons:generate
 

@@ -1,4 +1,5 @@
 import type { WebSocket } from 'ws'
+import { logServerError } from './middleware/errors.js'
 import { chat } from './ai.js'
 
 export type LiveSession = {
@@ -109,7 +110,7 @@ export async function handleLiveMessage(
         send(ws, { type: 'assistant_done', text: full })
         send(ws, { type: 'state', phase: 'speaking' })
       } catch (e) {
-        console.error('Live AI error:', e)
+        logServerError('Live AI error:', e)
         send(ws, { type: 'error', message: 'AI временно недоступен' })
         send(ws, { type: 'state', phase: 'listening' })
       }
