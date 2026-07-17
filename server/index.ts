@@ -5,7 +5,7 @@ import { createServer } from 'http'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { synthesizeSpeech, LATVIAN_VOICES } from './tts.js'
-import { chat, generateAdaptiveJson, getAiStatus, glossWordInContext, translateChatMessage } from './ai.js'
+import { chat, generateAdaptiveJson, getAiStatus, glossWordInContext, translateChatMessage, extractJsonObject } from './ai.js'
 import { attachLiveWebSocket } from './liveServer.js'
 import {
   accessTokenMiddleware,
@@ -102,10 +102,17 @@ Atbildi TIKAI ar derīgu JSON (bez markdown):
 
 Noteikumi:
 - 3-5 vārdi, 2-4 vingrinājumi
-- Fokuss uz vājajām tēmām
+- Prioritāri weakSkills / weakPhonemes / weakAreas no profila
 - Pielāgo grūtību studenta līmenim
 - Izmanto pareizos diakritiskos zīmes
 - type: "translate", "fill" vai "choose" (choose jāpievieno "options" masīvs)`
+
+const MAX_ADAPT_PROFILE_CHARS = 6_000
+
+function truncateAdaptProfile(profile: string): string {
+  if (profile.length <= MAX_ADAPT_PROFILE_CHARS) return profile
+  return `${profile.slice(0, MAX_ADAPT_PROFILE_CHARS)}…`
+}
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
@@ -232,13 +239,27 @@ app.post('/api/adapt', chatLimiter, async (req, res) => {
     }
 
     const { profile, apiKey: clientKey, provider, model } = parsed.data
-    const raw = await generateAdaptiveJson(ADAPT_PROMPT(profile), { clientKey, provider, model })
-    const json = JSON.parse(raw.replace(/^```json\s*|```$/g, '').trim()) as {
+    const compactProfile = truncateAdaptProfile(profile)
+    const raw = await generateAdaptiveJson(ADAPT_PROMPT(compactProfile), { clientKey, provider, model })
+
+    let json: {
+      words?: unknown[]
       exercises?: { id?: string; [key: string]: unknown }[]
+      tip?: string
       [key: string]: unknown
     }
+    try {
+      json = JSON.parse(extractJsonObject(raw)) as typeof json
+    } catch {
+      logServerError('Adapt JSON parse failed:', raw.slice(0, 200))
+      return res.status(502).json({ error: 'AI returned invalid JSON. Try again.' })
+    }
 
-    json.exercises = (json.exercises || []).map((e, i) => ({
+    if (!Array.isArray(json.words) || !Array.isArray(json.exercises)) {
+      return res.status(502).json({ error: 'AI response missing words/exercises. Try again.' })
+    }
+
+    json.exercises = json.exercises.map((e, i) => ({
       ...e,
       id: e.id || `gen-${Date.now()}-${i}`,
     }))

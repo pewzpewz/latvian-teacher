@@ -449,6 +449,22 @@ export function buildProfileSummary(
   const completed = progress.completedLessons
     .map((id) => lessons.find((l) => l.id === id)?.title)
     .filter(Boolean)
+    .slice(-12)
+
+  const weakSkills = Object.values(progress.skillStats)
+    .filter((s) => decayedPKnow(s, now) < 0.5)
+    .sort((a, b) => decayedPKnow(a, now) - decayedPKnow(b, now))
+    .slice(0, 8)
+    .map((s) => ({
+      skill: skillLabel(s.skillId),
+      confidence: Math.round(decayedPKnow(s, now) * 100),
+    }))
+
+  const weakPhonemes = Object.values(progress.phonemeStats)
+    .filter((s) => decayedPKnow(s, now) < 0.5)
+    .sort((a, b) => decayedPKnow(a, now) - decayedPKnow(b, now))
+    .slice(0, 6)
+    .map((s) => skillLabel(s.skillId))
 
   return JSON.stringify({
     level: analysis.estimatedLevel,
@@ -457,20 +473,13 @@ export function buildProfileSummary(
     userName: settings?.userName ?? '',
     masteryPercent: analysis.masteryPercent,
     completedLessons: completed,
-    weakAreas: analysis.weakAreas,
-    strongAreas: analysis.strongAreas,
-    weakSkills: Object.values(progress.skillStats)
-      .filter((s) => decayedPKnow(s, now) < 0.5)
-      .map((s) => ({
-        skill: skillLabel(s.skillId),
-        confidence: Math.round(decayedPKnow(s, now) * 100),
-      })),
-    weakPhonemes: Object.values(progress.phonemeStats)
-      .filter((s) => decayedPKnow(s, now) < 0.5)
-      .map((s) => skillLabel(s.skillId)),
+    weakAreas: analysis.weakAreas.slice(0, 5),
+    strongAreas: analysis.strongAreas.slice(0, 3),
+    weakSkills,
+    weakPhonemes,
     recentMistakes: progress.exerciseAttempts
       .filter((a) => !a.correct)
-      .slice(-10)
+      .slice(-8)
       .map((a) => ({ category: a.category, exerciseId: a.exerciseId })),
     wordsLearned: progress.wordsLearned,
     streak: progress.streak,

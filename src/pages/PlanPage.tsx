@@ -55,7 +55,7 @@ export function PlanPage() {
         model: settings.aiModel,
       })
 
-      const words = result.words.map((w, i) => ({
+      const words = (result.words ?? []).map((w, i) => ({
         id: `aw-${Date.now()}-${i}`,
         lv: w.lv,
         ru: w.ru,
@@ -64,13 +64,17 @@ export function PlanPage() {
         createdAt: Date.now(),
       }))
 
-      const exercises = result.exercises.map((e) => ({
+      const exercises = (result.exercises ?? []).map((e) => ({
         ...e,
         createdAt: Date.now(),
       }))
 
+      if (words.length === 0 && exercises.length === 0) {
+        throw new Error(t('common.generationError'))
+      }
+
       addAdaptiveContent(words, exercises)
-      setGenTip(result.tip)
+      setGenTip(result.tip ?? '')
     } catch (e) {
       setGenError(e instanceof Error ? e.message : t('common.generationError'))
     } finally {

@@ -225,7 +225,7 @@ async function generateJsonGemini(
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.8,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
         responseMimeType: 'application/json',
       },
     }),
@@ -237,9 +237,27 @@ async function generateJsonGemini(
   }
 
   const data = await response.json()
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-  if (!text) throw new Error('Gemini returned empty JSON')
+  const candidate = data.candidates?.[0]
+  const text = candidate?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('') ?? ''
+  if (!text.trim()) {
+    const reason = candidate?.finishReason || data.promptFeedback?.blockReason || 'empty'
+    throw new Error(`Gemini returned empty JSON (${reason})`)
+  }
   return text
+}
+
+/** Extract a JSON object from model output that may include fences or prose. */
+export function extractJsonObject(raw: string): string {
+  const trimmed = raw.trim()
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)
+  const candidate = (fenced?.[1] ?? trimmed).trim()
+  if (candidate.startsWith('{') && candidate.endsWith('}')) return candidate
+
+  const start = candidate.indexOf('{')
+  const end = candidate.lastIndexOf('}')
+  if (start >= 0 && end > start) return candidate.slice(start, end + 1)
+
+  throw new Error('Model did not return valid JSON')
 }
 
 function resolveConfig(options: { clientKey?: string; provider?: string; model?: string }) {
