@@ -28,6 +28,7 @@ export const skills: Skill[] = [
   { id: 'verb-past', type: 'grammar', label: 'Pagātne', weight: 9 },
   { id: 'topic-greetings', type: 'topic', label: 'Sveicieni', weight: 8 },
   { id: 'topic-alphabet', type: 'grammar', label: 'Alfabēts', weight: 10 },
+  { id: 'topic-listening', type: 'topic', label: 'Klausīšanās', weight: 9 },
 ]
 
 const skillById = new Map(skills.map((s) => [s.id, s]))

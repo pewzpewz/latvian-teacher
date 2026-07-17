@@ -1,43 +1,69 @@
 {
-  "id": "city-1",
-  "title": "Город и транспорт",
-  "subtitle": "Улицы, транспорт, ориентирование",
-  "level": "A1",
-  "category": "phrases",
-  "lvaTheme": "environment",
-  "duration": 16,
-  "sections": [
-    {
-      "title": "В городе",
-      "content": "Рига и другие города Латвии: полезная лексика для повседневной навигации.",
-      "examples": [
-        { "lv": "Kur ir tuvākā stacija?", "ru": "Где ближайшая станция?" },
-        { "lv": "Autobuss brauc uz centru.", "ru": "Автобус едет в центр." },
-        { "lv": "Pagriezieties pa kreisi.", "ru": "Поверните налево." }
-      ]
-    },
-    {
-      "title": "Транспорт",
-      "content": "Общественный транспорт в Риге: autobuss, tramvajs, trolejbus, vilciens.",
-      "examples": [
-        { "lv": "Biļete, lūdzu.", "ru": "Билет, пожалуйста." },
-        { "lv": "Cik maksā braukšana?", "ru": "Сколько стоит проезд?" }
-      ]
-    }
-  ],
-  "exercises": [
-    {
-      "id": "cty1",
-      "type": "translate",
-      "question": "Переведите: станция",
-      "answer": "stacija"
-    },
-    {
-      "id": "cty2",
-      "type": "choose",
-      "question": "«Поверните направо» по-латышски:",
-      "answer": "Pagriezieties pa labi.",
-      "options": ["Pagriezieties pa labi.", "Ejiet taisni.", "Pagriezieties pa kreisi."]
-    }
-  ]
+    "id": "city-1",
+    "title": "Город и транспорт",
+    "subtitle": "Улицы, транспорт, ориентирование",
+    "level": "A1",
+    "category": "phrases",
+    "lvaTheme": "environment",
+    "duration": 16,
+    "sections": [
+        {
+            "title": "В городе",
+            "content": "Рига и другие города Латвии: полезная лексика для повседневной навигации.",
+            "examples": [
+                {
+                    "lv": "Kur ir tuvākā stacija?",
+                    "ru": "Где ближайшая станция?"
+                },
+                {
+                    "lv": "Autobuss brauc uz centru.",
+                    "ru": "Автобус едет в центр."
+                },
+                {
+                    "lv": "Pagriezieties pa kreisi.",
+                    "ru": "Поверните налево."
+                }
+            ]
+        },
+        {
+            "title": "Транспорт",
+            "content": "Общественный транспорт в Риге: autobuss, tramvajs, trolejbus, vilciens.",
+            "examples": [
+                {
+                    "lv": "Biļete, lūdzu.",
+                    "ru": "Билет, пожалуйста."
+                },
+                {
+                    "lv": "Cik maksā braukšana?",
+                    "ru": "Сколько стоит проезд?"
+                }
+            ]
+        }
+    ],
+    "exercises": [
+        {
+            "id": "cty1",
+            "type": "translate",
+            "question": "Переведите: станция",
+            "answer": "stacija"
+        },
+        {
+            "id": "cty2",
+            "type": "choose",
+            "question": "«Поверните направо» по-латышски:",
+            "answer": "Pagriezieties pa labi.",
+            "options": [
+                "Pagriezieties pa labi.",
+                "Ejiet taisni.",
+                "Pagriezieties pa kreisi."
+            ]
+        },
+        {
+            "id": "city-1-listen1",
+            "type": "listen",
+            "question": "Прослушайте фразу и напишите её на латышском",
+            "answer": "Kur ir tuvākā stacija?",
+            "hint": "Где ближайшая станция?"
+        }
+    ]
 }

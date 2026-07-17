@@ -89,6 +89,12 @@ export type StoreActions = {
   recordExercise: (id: string, correct: boolean, meta?: { lessonId?: string; category?: string }) => void
   updateSrsCard: (wordId: string, quality: 0 | 1 | 2 | 3 | 4 | 5, category?: string) => void
   recordPronunciation: (correct: boolean, chars?: PhonemeChar[]) => void
+  recordDictationResult: (
+    dictationId: string,
+    correct: boolean,
+    spokenText: string,
+    expectedText: string,
+  ) => void
   addStudyTime: (minutes: number) => void
   updateStreak: () => void
   getDueCards: () => string[]

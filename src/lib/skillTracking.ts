@@ -11,6 +11,7 @@ const CATEGORY_SKILL_MAP: Record<string, string[]> = {
   alphabet: ['topic-alphabet', 'phoneme-sh', 'phoneme-zh'],
   grammar: ['verb-present'],
   pronunciation: ['phoneme-sh'],
+  dictation: ['topic-listening'],
 }
 
 export function findExerciseById(exerciseId: string, lessonId?: string): Exercise | undefined {

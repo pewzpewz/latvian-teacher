@@ -287,6 +287,7 @@ export type DictationItem = {
   text: string
   hintRu: string
   slowRate: number
+  category?: string
 }
 
 export const dictations: DictationItem[] = ${JSON.stringify(items, null, 2)} as DictationItem[]

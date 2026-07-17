@@ -1,3 +1,4 @@
+import { State } from 'ts-fsrs'
 import type { Level } from '../lib/adaptive'
 import type { UserProgress } from '../store/useStore'
 import type { TFunction } from '../i18n'
@@ -92,7 +93,10 @@ function lessonProgress(progress: UserProgress, maxLevel: Level): number {
 
 function vocabProgress(progress: UserProgress, levels: Level[], target: number): number {
   const pool = vocabulary.filter((v) => levels.includes(v.level as Level))
-  const learned = pool.filter((v) => progress.srsCards[v.id]?.reps > 0).length
+  // reps > 0 only means "was shown at least once" — it says nothing about whether
+  // the learner actually got it right. State.Review means the card graduated past
+  // the initial learning steps at least once, i.e. was genuinely recalled correctly.
+  const learned = pool.filter((v) => progress.srsCards[v.id]?.state === State.Review).length
   return Math.min(1, learned / target)
 }
 
@@ -117,7 +121,8 @@ function examProgress(
 function dictationProgress(progress: UserProgress, level: Level, min: number): number {
   const pool = dictations.filter((d) => d.level === level)
   const done = pool.filter((d) => progress.exerciseScores[`dict-${d.id}`] === true).length
-  return Math.min(1, done / Math.min(min, pool.length || 1))
+  const target = pool.length === 0 ? 1 : Math.min(min, pool.length)
+  return Math.min(1, done / target)
 }
 
 function natProgress(progress: UserProgress): number {
@@ -144,7 +149,7 @@ export function buildCefrTrackProgress(progress: UserProgress, track: CefrTrack)
         p = drillProgress(progress, declensionDrills, 10)
         break
       case 'a1-dict':
-        p = dictationProgress(progress, 'A1', 2)
+        p = dictationProgress(progress, 'A1', 4)
         break
       case 'a2-lessons':
         p = lessonProgress(progress, 'A2')
@@ -186,8 +191,10 @@ export function buildCefrTrackProgress(progress: UserProgress, track: CefrTrack)
 export function overallCefrLevel(progress: UserProgress, t: TFunction = createT('ru')): Level | 'B2' {
   for (const track of [...getCefrTracks(t)].reverse()) {
     const milestones = buildCefrTrackProgress(progress, track)
-    const avg = milestones.reduce((s, m) => s + m.progress, 0) / milestones.length
-    if (avg >= 0.75) return track.level as Level | 'B2'
+    // A weak milestone must not be masked by strong ones elsewhere — the whole
+    // point of leveling up is that every tracked skill actually cleared the bar.
+    const weakest = Math.min(...milestones.map((m) => m.progress))
+    if (weakest >= 0.75) return track.level as Level | 'B2'
   }
   return progress.estimatedLevel
 }

@@ -1,43 +1,68 @@
 {
-  "id": "work-1",
-  "title": "Работа и профессии",
-  "subtitle": "Офис, коллеги, рабочий день",
-  "level": "A1",
-  "category": "phrases",
-  "lvaTheme": "education",
-  "duration": 18,
-  "sections": [
-    {
-      "title": "На работе",
-      "content": "Базовые фразы для рабочего общения в Латвии.",
-      "examples": [
-        { "lv": "Es strādāju birojā.", "ru": "Я работаю в офисе." },
-        { "lv": "Mans kolēģis ir laipns.", "ru": "Мой коллега любезный." },
-        { "lv": "Šodien ir sapulce.", "ru": "Сегодня совещание." }
-      ]
-    },
-    {
-      "title": "Профессии",
-      "content": "Названия профессий часто оканчиваются на -ists/-e (skolotājs, ārsts).",
-      "examples": [
-        { "lv": "skolotājs / skolotāja", "ru": "учитель / учительница" },
-        { "lv": "ārsts / ārste", "ru": "врач" },
-        { "lv": "inženieris", "ru": "инженер" }
-      ]
-    }
-  ],
-  "exercises": [
-    {
-      "id": "wrk1",
-      "type": "translate",
-      "question": "Переведите: коллега",
-      "answer": "kolēģis"
-    },
-    {
-      "id": "wrk2",
-      "type": "fill",
-      "question": "Es ___ birojā. (работаю)",
-      "answer": "strādāju"
-    }
-  ]
+    "id": "work-1",
+    "title": "Работа и профессии",
+    "subtitle": "Офис, коллеги, рабочий день",
+    "level": "A1",
+    "category": "phrases",
+    "lvaTheme": "education",
+    "duration": 18,
+    "sections": [
+        {
+            "title": "На работе",
+            "content": "Базовые фразы для рабочего общения в Латвии.",
+            "examples": [
+                {
+                    "lv": "Es strādāju birojā.",
+                    "ru": "Я работаю в офисе."
+                },
+                {
+                    "lv": "Mans kolēģis ir laipns.",
+                    "ru": "Мой коллега любезный."
+                },
+                {
+                    "lv": "Šodien ir sapulce.",
+                    "ru": "Сегодня совещание."
+                }
+            ]
+        },
+        {
+            "title": "Профессии",
+            "content": "Названия профессий часто оканчиваются на -ists/-e (skolotājs, ārsts).",
+            "examples": [
+                {
+                    "lv": "skolotājs / skolotāja",
+                    "ru": "учитель / учительница"
+                },
+                {
+                    "lv": "ārsts / ārste",
+                    "ru": "врач"
+                },
+                {
+                    "lv": "inženieris",
+                    "ru": "инженер"
+                }
+            ]
+        }
+    ],
+    "exercises": [
+        {
+            "id": "wrk1",
+            "type": "translate",
+            "question": "Переведите: коллега",
+            "answer": "kolēģis"
+        },
+        {
+            "id": "wrk2",
+            "type": "fill",
+            "question": "Es ___ birojā. (работаю)",
+            "answer": "strādāju"
+        },
+        {
+            "id": "work-1-listen1",
+            "type": "listen",
+            "question": "Прослушайте фразу и напишите её на латышском",
+            "answer": "Es strādāju birojā.",
+            "hint": "Я работаю в офисе."
+        }
+    ]
 }

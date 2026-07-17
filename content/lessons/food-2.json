@@ -1,45 +1,74 @@
 {
-  "id": "food-2",
-  "title": "Еда и ресторан",
-  "subtitle": "Заказ, счёт, вкусы",
-  "level": "A1",
-  "category": "phrases",
-  "lvaTheme": "daily",
-  "duration": 17,
-  "sections": [
-    {
-      "title": "В ресторане",
-      "content": "Фразы для заказа еды — дополняют диалог «В кафе».",
-      "examples": [
-        { "lv": "Es gribētu pasūtīt ēdienu.", "ru": "Я хотел бы заказать еду." },
-        { "lv": "Vai var man rēķinu?", "ru": "Можно счёт?" },
-        { "lv": "Ēdiens ir ļoti garšīgs!", "ru": "Еда очень вкусная!" }
-      ]
-    },
-    {
-      "title": "Вкусы",
-      "content": "Прилагательные для описания еды.",
-      "examples": [
-        { "lv": "sāļš / salds", "ru": "солёный / сладкий" },
-        { "lv": "rūgts", "ru": "кислый" },
-        { "lv": "pikants", "ru": "острый" }
-      ],
-      "tip": "«Garšīgs» — вкусный, «garš» — высокий (не путать!)"
-    }
-  ],
-  "exercises": [
-    {
-      "id": "fd1",
-      "type": "translate",
-      "question": "Переведите: счёт (в ресторане)",
-      "answer": "rēķins"
-    },
-    {
-      "id": "fd2",
-      "type": "choose",
-      "question": "«Еда вкусная»:",
-      "answer": "Ēdiens ir garšīgs.",
-      "options": ["Ēdiens ir garšīgs.", "Ēdiens ir garš.", "Ēdiens ir labs."]
-    }
-  ]
+    "id": "food-2",
+    "title": "Еда и ресторан",
+    "subtitle": "Заказ, счёт, вкусы",
+    "level": "A1",
+    "category": "phrases",
+    "lvaTheme": "daily",
+    "duration": 17,
+    "sections": [
+        {
+            "title": "В ресторане",
+            "content": "Фразы для заказа еды — дополняют диалог «В кафе».",
+            "examples": [
+                {
+                    "lv": "Es gribētu pasūtīt ēdienu.",
+                    "ru": "Я хотел бы заказать еду."
+                },
+                {
+                    "lv": "Vai var man rēķinu?",
+                    "ru": "Можно счёт?"
+                },
+                {
+                    "lv": "Ēdiens ir ļoti garšīgs!",
+                    "ru": "Еда очень вкусная!"
+                }
+            ]
+        },
+        {
+            "title": "Вкусы",
+            "content": "Прилагательные для описания еды.",
+            "examples": [
+                {
+                    "lv": "sāļš / salds",
+                    "ru": "солёный / сладкий"
+                },
+                {
+                    "lv": "rūgts",
+                    "ru": "кислый"
+                },
+                {
+                    "lv": "pikants",
+                    "ru": "острый"
+                }
+            ],
+            "tip": "«Garšīgs» — вкусный, «garš» — высокий (не путать!)"
+        }
+    ],
+    "exercises": [
+        {
+            "id": "fd1",
+            "type": "translate",
+            "question": "Переведите: счёт (в ресторане)",
+            "answer": "rēķins"
+        },
+        {
+            "id": "fd2",
+            "type": "choose",
+            "question": "«Еда вкусная»:",
+            "answer": "Ēdiens ir garšīgs.",
+            "options": [
+                "Ēdiens ir garšīgs.",
+                "Ēdiens ir garš.",
+                "Ēdiens ir labs."
+            ]
+        },
+        {
+            "id": "food-2-listen1",
+            "type": "listen",
+            "question": "Прослушайте фразу и напишите её на латышском",
+            "answer": "Es gribētu pasūtīt ēdienu.",
+            "hint": "Я хотел бы заказать еду."
+        }
+    ]
 }

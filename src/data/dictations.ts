@@ -6,6 +6,7 @@ export type DictationItem = {
   text: string
   hintRu: string
   slowRate: number
+  category?: string
 }
 
 export const dictations: DictationItem[] = [
@@ -88,6 +89,132 @@ export const dictations: DictationItem[] = [
     "text": "Latvijā šogad notiek daudzi kultūras pasākumi un koncerti.",
     "hintRu": "В Латвии в этом году проходит много культурных мероприятий и концертов.",
     "slowRate": 0.8
+  },
+  {
+    "id": "d11",
+    "title": "Числа",
+    "level": "A0",
+    "text": "Viens, divi, trīs, četri, pieci.",
+    "hintRu": "Один, два, три, четыре, пять.",
+    "slowRate": 0.6,
+    "category": "numbers"
+  },
+  {
+    "id": "d12",
+    "title": "Приветствие",
+    "level": "A0",
+    "text": "Sveiki! Paldies! Lūdzu!",
+    "hintRu": "Привет! Спасибо! Пожалуйста!",
+    "slowRate": 0.6,
+    "category": "greetings"
+  },
+  {
+    "id": "d13",
+    "title": "Да и нет",
+    "level": "A0",
+    "text": "Jā, es saprotu. Nē, es nesaprotu.",
+    "hintRu": "Да, я понимаю. Нет, я не понимаю.",
+    "slowRate": 0.6,
+    "category": "basics"
+  },
+  {
+    "id": "d14",
+    "title": "Цвета",
+    "level": "A0",
+    "text": "Sarkans, zils, zaļš, dzeltens.",
+    "hintRu": "Красный, синий, зелёный, жёлтый.",
+    "slowRate": 0.6,
+    "category": "colors"
+  },
+  {
+    "id": "d15",
+    "title": "Извинение",
+    "level": "A0",
+    "text": "Atvainojiet, kur ir tualete?",
+    "hintRu": "Извините, где туалет?",
+    "slowRate": 0.6,
+    "category": "basics"
+  },
+  {
+    "id": "d16",
+    "title": "Дни недели",
+    "level": "A0",
+    "text": "Pirmdiena, otrdiena, trešdiena.",
+    "hintRu": "Понедельник, вторник, среда.",
+    "slowRate": 0.6,
+    "category": "time"
+  },
+  {
+    "id": "d17",
+    "title": "Семья",
+    "level": "A1",
+    "text": "Tas ir mans tēvs. Tā ir mana māsa.",
+    "hintRu": "Это мой отец. Это моя сестра.",
+    "slowRate": 0.65,
+    "category": "family"
+  },
+  {
+    "id": "d18",
+    "title": "В кафе",
+    "level": "A1",
+    "text": "Es gribētu kafiju un kūku, lūdzu.",
+    "hintRu": "Я хотел бы кофе и пирожное, пожалуйста.",
+    "slowRate": 0.65,
+    "category": "shopping"
+  },
+  {
+    "id": "d19",
+    "title": "Дорога",
+    "level": "A1",
+    "text": "Kur ir tuvākā stacija?",
+    "hintRu": "Где ближайшая станция?",
+    "slowRate": 0.65,
+    "category": "city"
+  },
+  {
+    "id": "d20",
+    "title": "Дом",
+    "level": "A1",
+    "text": "Es dzīvoju dzīvoklī Rīgas centrā.",
+    "hintRu": "Я живу в квартире в центре Риги.",
+    "slowRate": 0.65,
+    "category": "home"
+  },
+  {
+    "id": "d21",
+    "title": "Выходные",
+    "level": "A2",
+    "text": "Nedēļas nogalē mēs bieži braucam uz laukiem.",
+    "hintRu": "На выходных мы часто ездим за город.",
+    "slowRate": 0.75,
+    "category": "leisure"
+  },
+  {
+    "id": "d22",
+    "title": "Здоровье",
+    "level": "A2",
+    "text": "Man sāp galva un ir augsta temperatūra.",
+    "hintRu": "У меня болит голова и высокая температура.",
+    "slowRate": 0.75,
+    "category": "health"
+  },
+  {
+    "id": "d23",
+    "title": "Работа",
+    "level": "A2",
+    "text": "Es strādāju birojā no deviņiem līdz pieciem.",
+    "hintRu": "Я работаю в офисе с девяти до пяти.",
+    "slowRate": 0.75,
+    "category": "work"
+  },
+  {
+    "id": "d24",
+    "title": "Путешествие",
+    "level": "B1",
+    "text": "Nākamnedēļ mēs braucam uz Jūrmalu un pavadīsim tur visu dienu.",
+    "hintRu": "На следующей неделе мы поедем в Юрмалу и проведём там весь день.",
+    "slowRate": 0.8,
+    "category": "travel"
   }
 ] as DictationItem[]
 

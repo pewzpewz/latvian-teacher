@@ -61,6 +61,13 @@ export const lessonsExtra: Lesson[] = [
           "Ejiet taisni.",
           "Pagriezieties pa kreisi."
         ]
+      },
+      {
+        "id": "city-1-listen1",
+        "type": "listen",
+        "question": "Прослушайте фразу и напишите её на латышском",
+        "answer": "Kur ir tuvākā stacija?",
+        "hint": "Где ближайшая станция?"
       }
     ]
   },
@@ -191,6 +198,13 @@ export const lessonsExtra: Lesson[] = [
           "Es esmu divdesmit pieci.",
           "Man divdesmit pieci gadi."
         ]
+      },
+      {
+        "id": "family-1-listen1",
+        "type": "listen",
+        "question": "Прослушайте фразу и напишите её на латышском",
+        "answer": "vecāki",
+        "hint": "родители"
       }
     ]
   },
@@ -258,6 +272,13 @@ export const lessonsExtra: Lesson[] = [
           "Ēdiens ir garš.",
           "Ēdiens ir labs."
         ]
+      },
+      {
+        "id": "food-2-listen1",
+        "type": "listen",
+        "question": "Прослушайте фразу и напишите её на латышском",
+        "answer": "Es gribētu pasūtīt ēdienu.",
+        "hint": "Я хотел бы заказать еду."
       }
     ]
   },
@@ -450,6 +471,13 @@ export const lessonsExtra: Lesson[] = [
         "type": "translate",
         "question": "Переведите: кухня",
         "answer": "virtuve"
+      },
+      {
+        "id": "home-1-listen1",
+        "type": "listen",
+        "question": "Прослушайте фразу и напишите её на латышском",
+        "answer": "Es dzīvoju dzīvoklī.",
+        "hint": "Я живу в квартире."
       }
     ]
   },
@@ -507,6 +535,13 @@ export const lessonsExtra: Lesson[] = [
         "type": "fill",
         "question": "Cik tas ___? (стоит)",
         "answer": "maksā"
+      },
+      {
+        "id": "shopping-1-listen1",
+        "type": "listen",
+        "question": "Прослушайте фразу и напишите её на латышском",
+        "answer": "Cik tas maksā?",
+        "hint": "Сколько это стоит?"
       }
     ]
   },
@@ -564,6 +599,13 @@ export const lessonsExtra: Lesson[] = [
         "type": "fill",
         "question": "Es ___ ar sportu. (занимаюсь)",
         "answer": "nodarbojos"
+      },
+      {
+        "id": "sport-1-listen1",
+        "type": "listen",
+        "question": "Прослушайте фразу и напишите её на латышском",
+        "answer": "Es nodarbojos ar sportu.",
+        "hint": "Я занимаюсь спортом."
       }
     ]
   },
@@ -746,6 +788,13 @@ export const lessonsExtra: Lesson[] = [
         "type": "fill",
         "question": "Es ___ birojā. (работаю)",
         "answer": "strādāju"
+      },
+      {
+        "id": "work-1-listen1",
+        "type": "listen",
+        "question": "Прослушайте фразу и напишите её на латышском",
+        "answer": "Es strādāju birojā.",
+        "hint": "Я работаю в офисе."
       }
     ]
   }

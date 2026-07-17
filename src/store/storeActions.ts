@@ -5,6 +5,8 @@ import {
   recordPhonemeChars,
   resolveSkillIdsForAttempt,
 } from '../lib/skillTracking'
+import { analyzePronunciation } from '../lib/phonemeFeedback'
+import { findMissedVocabWords } from '../lib/dictationDiff'
 import { checkNewAchievements, type Achievement } from '../data/achievements'
 import { createNewStoredCard, gradeStoredCard, isCardDue } from '../lib/fsrsSrs'
 import { mergeProgress, mergeSettings } from '../lib/backup'
@@ -126,6 +128,48 @@ export const createStoreActions: SliceCreator = (set, get) => ({
     trackCategory(progress, 'pronunciation', correct)
     progress.phonemeStats = recordPhonemeChars(progress.phonemeStats, chars)
     trackStudyMinutes(progress, 1)
+    persistProgress(progress)
+    set({ progress })
+    get().checkAchievements()
+  },
+
+  recordDictationResult: (dictationId, correct, spokenText, expectedText) => {
+    const progress = { ...get().progress }
+    const id = `dict-${dictationId}`
+    progress.exerciseScores[id] = correct
+
+    trackCategory(progress, 'dictation', correct)
+    logStudyDay(progress, 2)
+
+    progress.exerciseAttempts.push({
+      exerciseId: id,
+      category: 'dictation',
+      correct,
+      timestamp: Date.now(),
+    })
+    if (progress.exerciseAttempts.length > 200) {
+      progress.exerciseAttempts = progress.exerciseAttempts.slice(-200)
+    }
+
+    const skillIds = resolveSkillIdsForAttempt(id, { category: 'dictation' })
+    if (skillIds.length > 0) {
+      progress.skillStats = applySkillIdsUpdate(progress.skillStats, skillIds, correct)
+    }
+
+    if (!correct) {
+      // What exactly was misheard/mistyped — feeds the same phoneme tracker as pronunciation practice.
+      const analysis = analyzePronunciation(spokenText, expectedText)
+      progress.phonemeStats = recordPhonemeChars(progress.phonemeStats, analysis.chars)
+
+      // Words the learner dropped or garbled go back into SRS as "again", not just a red X.
+      const missedWords = findMissedVocabWords(expectedText, spokenText)
+      for (const word of missedWords.slice(0, 5)) {
+        const existing = progress.srsCards[word.id] ?? createNewStoredCard(word.id)
+        progress.srsCards[word.id] = gradeStoredCard(existing, 1)
+      }
+    }
+
+    progress.estimatedLevel = estimateLevel(progress)
     persistProgress(progress)
     set({ progress })
     get().checkAchievements()

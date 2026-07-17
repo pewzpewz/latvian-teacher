@@ -20,6 +20,7 @@ import { useStore } from '../store/useStore'
 import { checkTtsHealth } from '../lib/tts'
 import { useTranslation } from '../hooks/useTranslation'
 import { dayCountLabel } from '../i18n/plural'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 type NavItem = { to: string; icon: typeof Home; labelKey: string }
 type NavGroup = { labelKey?: string; items: NavItem[] }
@@ -88,14 +89,17 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
       } md:translate-x-0`}
     >
       <div className="border-b border-border px-6 py-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/20 text-xl font-serif text-accent">
-            Ā
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/20 text-xl font-serif text-accent">
+              Ā
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-sm font-semibold leading-tight">{t('app.title')}</h1>
+              <p className="text-xs text-muted">{t('app.subtitle')}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-semibold leading-tight">{t('app.title')}</h1>
-            <p className="text-xs text-muted">{t('app.subtitle')}</p>
-          </div>
+          <LanguageSwitcher className="shrink-0" size="sm" />
         </div>
       </div>
 

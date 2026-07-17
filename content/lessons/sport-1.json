@@ -1,32 +1,64 @@
 {
-  "id": "sport-1",
-  "title": "Спорт и активный отдых",
-  "subtitle": "Тренировки, здоровый образ жизни",
-  "level": "A1",
-  "category": "phrases",
-  "lvaTheme": "leisure",
-  "duration": 16,
-  "sections": [
-    {
-      "title": "Спорт",
-      "content": "Latvieši mīl hokeju! Arī populāri: basketbols, vieglatlētika, peldēšana.",
-      "examples": [
-        { "lv": "Es nodarbojos ar sportu.", "ru": "Я занимаюсь спортом." },
-        { "lv": "Vai tu skrien?", "ru": "Ты бегаешь?" },
-        { "lv": "Mēs spēlējam futbolu.", "ru": "Мы играем в футбол." }
-      ]
-    },
-    {
-      "title": "Здоровый образ жизни",
-      "content": "Фразы о самочувствии и активности.",
-      "examples": [
-        { "lv": "Es gribu būt veselīgs.", "ru": "Я хочу быть здоровым." },
-        { "lv": "Pastaiga mežā ir relaksējoša.", "ru": "Прогулка в лесу расслабляет." }
-      ]
-    }
-  ],
-  "exercises": [
-    { "id": "sp1", "type": "translate", "question": "Переведите: футбол", "answer": "futbols" },
-    { "id": "sp2", "type": "fill", "question": "Es ___ ar sportu. (занимаюсь)", "answer": "nodarbojos" }
-  ]
+    "id": "sport-1",
+    "title": "Спорт и активный отдых",
+    "subtitle": "Тренировки, здоровый образ жизни",
+    "level": "A1",
+    "category": "phrases",
+    "lvaTheme": "leisure",
+    "duration": 16,
+    "sections": [
+        {
+            "title": "Спорт",
+            "content": "Latvieši mīl hokeju! Arī populāri: basketbols, vieglatlētika, peldēšana.",
+            "examples": [
+                {
+                    "lv": "Es nodarbojos ar sportu.",
+                    "ru": "Я занимаюсь спортом."
+                },
+                {
+                    "lv": "Vai tu skrien?",
+                    "ru": "Ты бегаешь?"
+                },
+                {
+                    "lv": "Mēs spēlējam futbolu.",
+                    "ru": "Мы играем в футбол."
+                }
+            ]
+        },
+        {
+            "title": "Здоровый образ жизни",
+            "content": "Фразы о самочувствии и активности.",
+            "examples": [
+                {
+                    "lv": "Es gribu būt veselīgs.",
+                    "ru": "Я хочу быть здоровым."
+                },
+                {
+                    "lv": "Pastaiga mežā ir relaksējoša.",
+                    "ru": "Прогулка в лесу расслабляет."
+                }
+            ]
+        }
+    ],
+    "exercises": [
+        {
+            "id": "sp1",
+            "type": "translate",
+            "question": "Переведите: футбол",
+            "answer": "futbols"
+        },
+        {
+            "id": "sp2",
+            "type": "fill",
+            "question": "Es ___ ar sportu. (занимаюсь)",
+            "answer": "nodarbojos"
+        },
+        {
+            "id": "sport-1-listen1",
+            "type": "listen",
+            "question": "Прослушайте фразу и напишите её на латышском",
+            "answer": "Es nodarbojos ar sportu.",
+            "hint": "Я занимаюсь спортом."
+        }
+    ]
 }

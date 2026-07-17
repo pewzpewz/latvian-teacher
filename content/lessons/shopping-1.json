@@ -1,32 +1,64 @@
 {
-  "id": "shopping-1",
-  "title": "Покупки и цены",
-  "subtitle": "Магазин, рынок, торг",
-  "level": "A1",
-  "category": "phrases",
-  "lvaTheme": "daily",
-  "duration": 15,
-  "sections": [
-    {
-      "title": "В магазине",
-      "content": "Полезные фразы для покупок в Rimi, Maxima или на tirgus.",
-      "examples": [
-        { "lv": "Cik tas maksā?", "ru": "Сколько это стоит?" },
-        { "lv": "Es gribētu nopirkt...", "ru": "Я хотел бы купить..." },
-        { "lv": "Vai ir atlaide?", "ru": "Есть скидка?" }
-      ]
-    },
-    {
-      "title": "Числа и деньги",
-      "content": "Latvijā maksā ar eiro. Centi — centi.",
-      "examples": [
-        { "lv": "trīs eiro piecdesmit centi", "ru": "3 евро 50 центов" },
-        { "lv": "lēts / dārgs", "ru": "дешёвый / дорогой" }
-      ]
-    }
-  ],
-  "exercises": [
-    { "id": "sh1", "type": "translate", "question": "Переведите: цена", "answer": "cena" },
-    { "id": "sh2", "type": "fill", "question": "Cik tas ___? (стоит)", "answer": "maksā" }
-  ]
+    "id": "shopping-1",
+    "title": "Покупки и цены",
+    "subtitle": "Магазин, рынок, торг",
+    "level": "A1",
+    "category": "phrases",
+    "lvaTheme": "daily",
+    "duration": 15,
+    "sections": [
+        {
+            "title": "В магазине",
+            "content": "Полезные фразы для покупок в Rimi, Maxima или на tirgus.",
+            "examples": [
+                {
+                    "lv": "Cik tas maksā?",
+                    "ru": "Сколько это стоит?"
+                },
+                {
+                    "lv": "Es gribētu nopirkt...",
+                    "ru": "Я хотел бы купить..."
+                },
+                {
+                    "lv": "Vai ir atlaide?",
+                    "ru": "Есть скидка?"
+                }
+            ]
+        },
+        {
+            "title": "Числа и деньги",
+            "content": "Latvijā maksā ar eiro. Centi — centi.",
+            "examples": [
+                {
+                    "lv": "trīs eiro piecdesmit centi",
+                    "ru": "3 евро 50 центов"
+                },
+                {
+                    "lv": "lēts / dārgs",
+                    "ru": "дешёвый / дорогой"
+                }
+            ]
+        }
+    ],
+    "exercises": [
+        {
+            "id": "sh1",
+            "type": "translate",
+            "question": "Переведите: цена",
+            "answer": "cena"
+        },
+        {
+            "id": "sh2",
+            "type": "fill",
+            "question": "Cik tas ___? (стоит)",
+            "answer": "maksā"
+        },
+        {
+            "id": "shopping-1-listen1",
+            "type": "listen",
+            "question": "Прослушайте фразу и напишите её на латышском",
+            "answer": "Cik tas maksā?",
+            "hint": "Сколько это стоит?"
+        }
+    ]
 }

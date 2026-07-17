@@ -22,7 +22,7 @@ export type Lesson = {
 
 export type Exercise = {
   id: string
-  type: 'translate' | 'fill' | 'choose' | 'match'
+  type: 'translate' | 'fill' | 'choose' | 'match' | 'listen'
   question: string
   answer: string
   options?: string[]

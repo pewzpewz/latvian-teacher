@@ -1,43 +1,68 @@
 {
-  "id": "home-1",
-  "title": "Дом и жильё",
-  "subtitle": "Комнаты, мебель, бытовые дела",
-  "level": "A1",
-  "category": "phrases",
-  "lvaTheme": "environment",
-  "duration": 15,
-  "sections": [
-    {
-      "title": "Жильё",
-      "content": "Слова для описания дома и квартиры — важны при аренде и регистрации.",
-      "examples": [
-        { "lv": "Es dzīvoju dzīvoklī.", "ru": "Я живу в квартире." },
-        { "lv": "Virtuve ir maza, bet ērta.", "ru": "Кухня маленькая, но удобная." },
-        { "lv": "Vannas istaba ir otrā stāvā.", "ru": "Ванная на втором этаже." }
-      ]
-    },
-    {
-      "title": "Мебель",
-      "content": "Базовые предметы интерьера.",
-      "examples": [
-        { "lv": "gulta", "ru": "кровать" },
-        { "lv": "galds un krēsls", "ru": "стол и стул" },
-        { "lv": "skapis", "ru": "шкаф" }
-      ]
-    }
-  ],
-  "exercises": [
-    {
-      "id": "hm1",
-      "type": "translate",
-      "question": "Переведите: квартира",
-      "answer": "dzīvoklis"
-    },
-    {
-      "id": "hm2",
-      "type": "translate",
-      "question": "Переведите: кухня",
-      "answer": "virtuve"
-    }
-  ]
+    "id": "home-1",
+    "title": "Дом и жильё",
+    "subtitle": "Комнаты, мебель, бытовые дела",
+    "level": "A1",
+    "category": "phrases",
+    "lvaTheme": "environment",
+    "duration": 15,
+    "sections": [
+        {
+            "title": "Жильё",
+            "content": "Слова для описания дома и квартиры — важны при аренде и регистрации.",
+            "examples": [
+                {
+                    "lv": "Es dzīvoju dzīvoklī.",
+                    "ru": "Я живу в квартире."
+                },
+                {
+                    "lv": "Virtuve ir maza, bet ērta.",
+                    "ru": "Кухня маленькая, но удобная."
+                },
+                {
+                    "lv": "Vannas istaba ir otrā stāvā.",
+                    "ru": "Ванная на втором этаже."
+                }
+            ]
+        },
+        {
+            "title": "Мебель",
+            "content": "Базовые предметы интерьера.",
+            "examples": [
+                {
+                    "lv": "gulta",
+                    "ru": "кровать"
+                },
+                {
+                    "lv": "galds un krēsls",
+                    "ru": "стол и стул"
+                },
+                {
+                    "lv": "skapis",
+                    "ru": "шкаф"
+                }
+            ]
+        }
+    ],
+    "exercises": [
+        {
+            "id": "hm1",
+            "type": "translate",
+            "question": "Переведите: квартира",
+            "answer": "dzīvoklis"
+        },
+        {
+            "id": "hm2",
+            "type": "translate",
+            "question": "Переведите: кухня",
+            "answer": "virtuve"
+        },
+        {
+            "id": "home-1-listen1",
+            "type": "listen",
+            "question": "Прослушайте фразу и напишите её на латышском",
+            "answer": "Es dzīvoju dzīvoklī.",
+            "hint": "Я живу в квартире."
+        }
+    ]
 }

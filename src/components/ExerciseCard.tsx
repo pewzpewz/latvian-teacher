@@ -1,8 +1,10 @@
 import type { Exercise } from '../data/lessons'
 import { useState } from 'react'
-import { Check, X, HelpCircle } from 'lucide-react'
+import { Check, X, HelpCircle, Headphones } from 'lucide-react'
 import { compareLatvian } from '../hooks/useSpeech'
 import { useTranslation } from '../hooks/useTranslation'
+import { useStore } from '../store/useStore'
+import { fetchSpeech, playAudioUrl } from '../lib/tts'
 
 type Props = {
   exercise: Exercise
@@ -12,10 +14,12 @@ type Props = {
 
 export function ExerciseCard({ exercise, onComplete, onChecked }: Props) {
   const { t } = useTranslation()
+  const settings = useStore((s) => s.settings)
   const [answer, setAnswer] = useState('')
   const [selected, setSelected] = useState('')
   const [result, setResult] = useState<'correct' | 'wrong' | null>(null)
   const [showHint, setShowHint] = useState(false)
+  const [playing, setPlaying] = useState(false)
 
   const check = () => {
     const userAnswer = exercise.type === 'choose' ? selected : answer
@@ -25,9 +29,34 @@ export function ExerciseCard({ exercise, onComplete, onChecked }: Props) {
     onChecked?.()
   }
 
+  const playAudio = async () => {
+    if (playing) return
+    setPlaying(true)
+    try {
+      const url = await fetchSpeech(exercise.answer, settings.ttsVoice, settings.speechRate)
+      await playAudioUrl(url)
+    } catch {
+      /* TTS offline */
+    } finally {
+      setPlaying(false)
+    }
+  }
+
   return (
     <div className="rounded-2xl border border-border bg-surface-2 p-6">
       <p className="mb-4 text-lg">{exercise.question}</p>
+
+      {exercise.type === 'listen' && (
+        <button
+          type="button"
+          disabled={playing}
+          onClick={playAudio}
+          className="mb-4 flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+        >
+          <Headphones size={16} />
+          {playing ? t('common.playing') : t('common.listen')}
+        </button>
+      )}
 
       {exercise.type === 'choose' && exercise.options && (
         <div className="mb-4 grid grid-cols-2 gap-2">
@@ -48,7 +77,7 @@ export function ExerciseCard({ exercise, onComplete, onChecked }: Props) {
         </div>
       )}
 
-      {(exercise.type === 'translate' || exercise.type === 'fill') && (
+      {(exercise.type === 'translate' || exercise.type === 'fill' || exercise.type === 'listen') && (
         <input
           type="text"
           value={answer}

@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { useEffect } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Sidebar } from './Sidebar'
+import { LanguageSwitcher } from './LanguageSwitcher'
 import { AchievementProvider } from './AchievementUnlockModal'
 import { OfflineIndicator } from './OfflineIndicator'
 import { OnboardingModal } from './OnboardingModal'
@@ -53,19 +54,26 @@ export function Layout() {
       )}
 
       <div className="flex min-h-full flex-1 flex-col md:ml-64">
-        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-surface/95 px-4 py-3 backdrop-blur md:hidden">
-          <button
-            type="button"
-            aria-label={t('layout.openMenu')}
-            onClick={() => setMobileNavOpen(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-border"
-          >
-            {mobileNavOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-          <div>
-            <p className="text-sm font-semibold">{t('app.title')}</p>
-            <p className="text-xs text-muted">{t('app.subtitle')}</p>
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-surface/95 px-4 py-3 backdrop-blur md:hidden">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              aria-label={t('layout.openMenu')}
+              onClick={() => setMobileNavOpen(true)}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border"
+            >
+              {mobileNavOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{t('app.title')}</p>
+              <p className="truncate text-xs text-muted">{t('app.subtitle')}</p>
+            </div>
           </div>
+          <LanguageSwitcher />
+        </header>
+
+        <header className="sticky top-0 z-20 hidden items-center justify-end border-b border-border/70 bg-surface/85 px-6 py-2 backdrop-blur md:flex">
+          <LanguageSwitcher size="md" />
         </header>
 
         <main className="flex-1">
